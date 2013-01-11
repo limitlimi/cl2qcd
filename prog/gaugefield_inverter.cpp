@@ -117,7 +117,7 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 
 	  if(get_parameters().get_fermact() == meta::Inputparameters::wilson) {
 	    //in this case, the diagonal matrix is just 1 and falls away.
-	    solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, ODD/*EVEN*/);
+	    solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, EVEN);
 	    //solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, ODD);
 	    spinor_code->saxpy_eoprec_device(&clmem_source_even, &clmem_tmp_eo_1, &clmem_one, &clmem_source_even);
 	  } else if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass) {
@@ -154,7 +154,7 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	   */
 	  if(get_parameters().get_fermact() == meta::Inputparameters::wilson) {
 	    //in this case, the diagonal matrix is just 1 and falls away.
-	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, /*ODD*/EVEN);
+	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, ODD);
 	    //solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, EVEN);
 	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_source_odd, &clmem_mone, &clmem_tmp_eo_1);
 	    
@@ -168,6 +168,7 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  }
 	  //CP: missing minus?
 	  spinor_code->sax_eoprec_device(&clmem_tmp_eo_1, &clmem_mone, &clmem_tmp_eo_1);
+
 	  //CP: whole solution
 	  /** 
 	   * This currently is a workaround connceted to issue #387
