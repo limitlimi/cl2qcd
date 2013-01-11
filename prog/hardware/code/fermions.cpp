@@ -638,8 +638,6 @@ void hardware::code::Fermions::Aee(const hardware::buffers::Spinor * in, const h
 {
   int even = EVEN;
   int odd = ODD;
-  //int even = ODD;
-  //int odd = EVEN;
 
 	auto spinor_code = get_device()->get_spinor_code();
 
