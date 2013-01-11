@@ -102,10 +102,6 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  //spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, source);
 	  spinor_code->convert_to_eoprec_device(&clmem_source_odd, &clmem_source_even, source);
 
-	  //spinor_code->set_zero_spinorfield_eoprec_device(&clmem_source_odd);
-	  solver->print_info_inv_field(&clmem_source_even, true, "\t\t\teo source before inversion ");
-	  solver->print_info_inv_field(&clmem_source_odd, true, "\t\t\teo source before inversion ");
-
 	  //prepare sources
 	  /**
 	   * This changes the even source according to (with A = M + D):
@@ -123,12 +119,7 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	    //solver->dslash_eo_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, gf, ODD);
 	    spinor_code->saxpy_eoprec_device(&clmem_source_even, &clmem_tmp_eo_2, &clmem_one, &clmem_source_even);
 	  }
-	  //CP: missing minus?
-	  //spinor_code->sax_eoprec_device(&clmem_source_even, &clmem_mone, &clmem_source_even);	  
-
-	  solver->print_info_inv_field(&clmem_source_even, true, "\t\t\teo source before inversion ");
-	  solver->print_info_inv_field(&clmem_source_odd, true, "\t\t\teo source before inversion ");
-	  
+  
 	  //Trial solution
 	  ///@todo this should go into a more general function
 	  spinor_code->set_eoprec_spinorfield_cold_device(solver->get_inout_eo());
@@ -175,25 +166,12 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  //spinor_code->convert_from_eoprec_device(solver->get_inout_eo(), &clmem_tmp_eo_1, inout);
 	  //CP: suppose the odd sol is saved in inout_eoprec, the even one in clmem_tmp_eo_1
 	  spinor_code->convert_from_eoprec_device( &clmem_tmp_eo_1, solver->get_inout_eo(),inout);
-
-	  solver->print_info_inv_field( solver->get_inout_eo(), true, "\t\t\teo inout after inversion ");
-	  solver->print_info_inv_field(&clmem_tmp_eo_1, true, "\t\t\teo inout after inversion ");
-	  
-
-
-
 	}
 
 	if(get_parameters().get_profile_solver() ) {
 		solver->get_device()->synchronize();
 		(*solvertimer).add();
 	}
-
-	//spinor_code->set_spinorfield_cold_device(inout);
-	//auto prng = &get_device_for_task(task_correlator)->get_prng_code()->get_prng_buffer();
-	//  spinor_code->generate_gaussian_spinorfield_device(inout, prng);
-
-	  solver->print_info_inv_field(inout, false, "\t\t\tinv. field after inversion ");
 
 	if (converged < 0) {
 		if(converged == -1) logger.fatal() << "\t\t\tsolver did not solve!!";
