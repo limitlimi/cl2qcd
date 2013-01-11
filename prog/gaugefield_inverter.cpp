@@ -57,28 +57,9 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	hardware::code::Fermions * solver = get_task_solver();
 	auto spinor_code = solver->get_device()->get_spinor_code();
 
-	  solver->print_info_inv_field(inout, false, "\t\t\tinv. field before inversion ");
-	  solver->print_info_inv_field(source, false, "\t\t\tinv. source before inversion ");
-
-
 	if(get_parameters().get_profile_solver() ) (*solvertimer).reset();
 
 	if( !get_parameters().get_use_eo() ){
-
-
-
-
-
-
-	  const hardware::buffers::Spinor clmem_tmp_eo_1  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
-	  const hardware::buffers::Spinor clmem_tmp_eo_2  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
-	  spinor_code->convert_to_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, source);
-	  //spinor_code->set_zero_spinorfield_eoprec_device(&clmem_tmp_eo_2);
-	  solver->print_info_inv_field(&clmem_tmp_eo_1, true, "\t\t\teo source before inversion ");
-	  solver->print_info_inv_field(&clmem_tmp_eo_2, true, "\t\t\teo source before inversion ");
-	  spinor_code->convert_from_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, source);
-
-	  solver->print_info_inv_field(source, false, "\t\t\tinv. source before inversion ");
 	  //noneo case
 	  //Trial solution
 	  ///@todo this should go into a more general function
@@ -98,25 +79,6 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	    hardware::code::M f_neo(solver);
 	    converged = solver->bicgstab(f_neo, inout, source, gf, get_parameters().get_solver_prec());
 	  }
-
-	  const hardware::buffers::Spinor clmem_source_even  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
-	  const hardware::buffers::Spinor clmem_source_odd  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
-	  const hardware::buffers::Plain<hmc_complex> clmem_one (1, solver->get_device());
-	  const hardware::buffers::Plain<hmc_complex> clmem_mone (1, solver->get_device());
-	  hmc_complex one = hmc_complex_one;
-	  hmc_complex mone = {-1.,0.};
-	  clmem_one.load(&one);
-	  clmem_mone.load(&mone);
-	  
-	  //convert source and input-vector to eoprec-format
-	  spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, inout);
-
-
-	  solver->print_info_inv_field(&clmem_source_even, true, "\t\t\teo inout after inversion ");
-	  solver->print_info_inv_field(&clmem_source_odd, true, "\t\t\teo inout after inversion ");
-
-
-
 	}
 	else{
 	  /**
