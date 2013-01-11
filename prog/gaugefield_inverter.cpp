@@ -99,7 +99,14 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  clmem_mone.load(&mone);
 	  
 	  //convert source and input-vector to eoprec-format
-	  //spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, source);
+	  /** 
+	   * This currently is a workaround connceted to issue #387
+	   * the roles of even/odd vectors are interchanged!
+	   * @todo: fix
+	   * original code:
+	   * spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, source); 
+	   * workaround:
+	   */
 	  spinor_code->convert_to_eoprec_device(&clmem_source_odd, &clmem_source_even, source);
 
 	  //prepare sources
@@ -162,8 +169,15 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  //CP: missing minus?
 	  spinor_code->sax_eoprec_device(&clmem_tmp_eo_1, &clmem_mone, &clmem_tmp_eo_1);
 	  //CP: whole solution
-	  //CP: suppose the even sol is saved in inout_eoprec, the odd one in clmem_tmp_eo_1
-	  //spinor_code->convert_from_eoprec_device(solver->get_inout_eo(), &clmem_tmp_eo_1, inout);
+	  /** 
+	   * This currently is a workaround connceted to issue #387
+	   * the roles of even/odd vectors are interchanged!
+	   * @todo: fix
+	   * original code:
+	   * //CP: suppose the even sol is saved in inout_eoprec, the odd one in clmem_tmp_eo_1
+	   * //spinor_code->convert_from_eoprec_device(solver->get_inout_eo(), &clmem_tmp_eo_1, inout);
+	   * workaround:
+	   */
 	  //CP: suppose the odd sol is saved in inout_eoprec, the even one in clmem_tmp_eo_1
 	  spinor_code->convert_from_eoprec_device( &clmem_tmp_eo_1, solver->get_inout_eo(),inout);
 	}
