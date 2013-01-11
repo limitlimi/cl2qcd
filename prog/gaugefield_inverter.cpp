@@ -118,12 +118,10 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  if(get_parameters().get_fermact() == meta::Inputparameters::wilson) {
 	    //in this case, the diagonal matrix is just 1 and falls away.
 	    solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, EVEN);
-	    //solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, ODD);
 	    spinor_code->saxpy_eoprec_device(&clmem_source_even, &clmem_tmp_eo_1, &clmem_one, &clmem_source_even);
 	  } else if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass) {
 	    solver->M_tm_inverse_sitediagonal_device(&clmem_source_odd, &clmem_tmp_eo_1);
 	    solver->dslash_eo_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, gf, EVEN);
-	    //solver->dslash_eo_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, gf, ODD);
 	    spinor_code->saxpy_eoprec_device(&clmem_source_even, &clmem_tmp_eo_2, &clmem_one, &clmem_source_even);
 	  }
   
@@ -151,23 +149,21 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  //odd solution
 	  /** The odd solution is obtained from the even one according to:
 	   *  x_o = M_inv D x_e - M_inv b_o
+	   * @todo: find out why it must be 
+	   * x_o = -(M_inv D x_e + M_inv b_o)
 	   */
 	  if(get_parameters().get_fermact() == meta::Inputparameters::wilson) {
 	    //in this case, the diagonal matrix is just 1 and falls away.
 	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, ODD);
-	    //solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, EVEN);
 	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_source_odd, &clmem_mone, &clmem_tmp_eo_1);
-	    
+	    spinor_code->sax_eoprec_device(&clmem_tmp_eo_1, &clmem_mone, &clmem_tmp_eo_1);	    
 	  } else if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass) {
 	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_2, gf, ODD);
-	    //solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_2, gf, EVEN);
 	    solver->M_tm_inverse_sitediagonal_device(&clmem_tmp_eo_2, &clmem_tmp_eo_1);
 	    solver->M_tm_inverse_sitediagonal_device(&clmem_source_odd, &clmem_tmp_eo_2);
-	    //spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, &clmem_one, &clmem_tmp_eo_1);
 	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, &clmem_mone, &clmem_tmp_eo_1);
+	    spinor_code->sax_eoprec_device(&clmem_tmp_eo_1, &clmem_mone, &clmem_tmp_eo_1);
 	  }
-	  //CP: missing minus?
-	  spinor_code->sax_eoprec_device(&clmem_tmp_eo_1, &clmem_mone, &clmem_tmp_eo_1);
 
 	  //CP: whole solution
 	  /** 
