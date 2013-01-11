@@ -210,11 +210,6 @@ void Gaugefield_inverter::perform_inversion(usetimer* solver_timer)
 		clmem_source.load(&source_buffer[k * meta::get_vol4d(get_parameters())]);
 		logger.debug() << "calling solver..";
 		invert_M_nf2_upperflavour( &clmem_res, &clmem_source, gf_code->get_gaugefield(), solver_timer);
-
-		int ktmp = (k+1)%num_sources;
-		//clmem_res.load(&source_buffer[ktmp * meta::get_vol4d(get_parameters())]);
-
-
 		//add solution to solution-buffer
 		//NOTE: this is a blocking call!
 		logger.debug() << "add solution...";
