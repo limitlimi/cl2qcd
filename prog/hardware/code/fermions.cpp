@@ -636,8 +636,10 @@ void hardware::code::Fermions::gamma5_device(const hardware::buffers::Plain<spin
 //compound fermionmatrix-functions with eoprec
 void hardware::code::Fermions::Aee(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, hmc_float kappa , hmc_float mubar )
 {
-	int even = EVEN;
-	int odd = ODD;
+  int even = EVEN;
+  int odd = ODD;
+  //int even = ODD;
+  //int odd = EVEN;
 
 	auto spinor_code = get_device()->get_spinor_code();
 

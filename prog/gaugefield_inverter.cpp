@@ -57,9 +57,28 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	hardware::code::Fermions * solver = get_task_solver();
 	auto spinor_code = solver->get_device()->get_spinor_code();
 
+	  solver->print_info_inv_field(inout, false, "\t\t\tinv. field before inversion ");
+	  solver->print_info_inv_field(source, false, "\t\t\tinv. source before inversion ");
+
+
 	if(get_parameters().get_profile_solver() ) (*solvertimer).reset();
 
 	if( !get_parameters().get_use_eo() ){
+
+
+
+
+
+
+	  const hardware::buffers::Spinor clmem_tmp_eo_1  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
+	  const hardware::buffers::Spinor clmem_tmp_eo_2  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
+	  spinor_code->convert_to_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, source);
+	  //spinor_code->set_zero_spinorfield_eoprec_device(&clmem_tmp_eo_2);
+	  solver->print_info_inv_field(&clmem_tmp_eo_1, true, "\t\t\teo source before inversion ");
+	  solver->print_info_inv_field(&clmem_tmp_eo_2, true, "\t\t\teo source before inversion ");
+	  spinor_code->convert_from_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, source);
+
+	  solver->print_info_inv_field(source, false, "\t\t\tinv. source before inversion ");
 	  //noneo case
 	  //Trial solution
 	  ///@todo this should go into a more general function
@@ -79,6 +98,25 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	    hardware::code::M f_neo(solver);
 	    converged = solver->bicgstab(f_neo, inout, source, gf, get_parameters().get_solver_prec());
 	  }
+
+	  const hardware::buffers::Spinor clmem_source_even  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
+	  const hardware::buffers::Spinor clmem_source_odd  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
+	  const hardware::buffers::Plain<hmc_complex> clmem_one (1, solver->get_device());
+	  const hardware::buffers::Plain<hmc_complex> clmem_mone (1, solver->get_device());
+	  hmc_complex one = hmc_complex_one;
+	  hmc_complex mone = {-1.,0.};
+	  clmem_one.load(&one);
+	  clmem_mone.load(&mone);
+	  
+	  //convert source and input-vector to eoprec-format
+	  spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, inout);
+
+
+	  solver->print_info_inv_field(&clmem_source_even, true, "\t\t\teo inout after inversion ");
+	  solver->print_info_inv_field(&clmem_source_odd, true, "\t\t\teo inout after inversion ");
+
+
+
 	}
 	else{
 	  /**
@@ -92,26 +130,42 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	  const hardware::buffers::Spinor clmem_tmp_eo_1  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
 	  const hardware::buffers::Spinor clmem_tmp_eo_2  (meta::get_eoprec_spinorfieldsize(get_parameters()), solver->get_device());
 	  const hardware::buffers::Plain<hmc_complex> clmem_one (1, solver->get_device());
+	  const hardware::buffers::Plain<hmc_complex> clmem_mone (1, solver->get_device());
 	  hmc_complex one = hmc_complex_one;
+	  hmc_complex mone = {-1.,0.};
 	  clmem_one.load(&one);
+	  clmem_mone.load(&mone);
 	  
 	  //convert source and input-vector to eoprec-format
-	  spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, source);
+	  //spinor_code->convert_to_eoprec_device(&clmem_source_even, &clmem_source_odd, source);
+	  spinor_code->convert_to_eoprec_device(&clmem_source_odd, &clmem_source_even, source);
+
+	  //spinor_code->set_zero_spinorfield_eoprec_device(&clmem_source_odd);
+	  solver->print_info_inv_field(&clmem_source_even, true, "\t\t\teo source before inversion ");
+	  solver->print_info_inv_field(&clmem_source_odd, true, "\t\t\teo source before inversion ");
+
 	  //prepare sources
 	  /**
 	   * This changes the even source according to (with A = M + D):
 	   *  b_e = b_e - D_eo M_inv b_o
 	   */
-	  
+
 	  if(get_parameters().get_fermact() == meta::Inputparameters::wilson) {
 	    //in this case, the diagonal matrix is just 1 and falls away.
-	    solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, EVEN);
+	    solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, ODD/*EVEN*/);
+	    //solver->dslash_eo_device(&clmem_source_odd, &clmem_tmp_eo_1, gf, ODD);
 	    spinor_code->saxpy_eoprec_device(&clmem_source_even, &clmem_tmp_eo_1, &clmem_one, &clmem_source_even);
 	  } else if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass) {
 	    solver->M_tm_inverse_sitediagonal_device(&clmem_source_odd, &clmem_tmp_eo_1);
 	    solver->dslash_eo_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, gf, EVEN);
+	    //solver->dslash_eo_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, gf, ODD);
 	    spinor_code->saxpy_eoprec_device(&clmem_source_even, &clmem_tmp_eo_2, &clmem_one, &clmem_source_even);
 	  }
+	  //CP: missing minus?
+	  //spinor_code->sax_eoprec_device(&clmem_source_even, &clmem_mone, &clmem_source_even);	  
+
+	  solver->print_info_inv_field(&clmem_source_even, true, "\t\t\teo source before inversion ");
+	  solver->print_info_inv_field(&clmem_source_odd, true, "\t\t\teo source before inversion ");
 	  
 	  //Trial solution
 	  ///@todo this should go into a more general function
@@ -133,30 +187,51 @@ void Gaugefield_inverter::invert_M_nf2_upperflavour(const hardware::buffers::Pla
 	    hardware::code::Aee f_eo(solver);
 	    converged = solver->bicgstab_eo(f_eo, solver->get_inout_eo(), &clmem_source_even, gf, get_parameters().get_solver_prec());
 	  }
-	  
+
 	  //odd solution
 	  /** The odd solution is obtained from the even one according to:
 	   *  x_o = M_inv D x_e - M_inv b_o
 	   */
 	  if(get_parameters().get_fermact() == meta::Inputparameters::wilson) {
 	    //in this case, the diagonal matrix is just 1 and falls away.
-	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, ODD);
-	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_source_odd, &clmem_one, &clmem_tmp_eo_1);
+	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, /*ODD*/EVEN);
+	    //solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_1, gf, EVEN);
+	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_source_odd, &clmem_mone, &clmem_tmp_eo_1);
+	    
 	  } else if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass) {
 	    solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_2, gf, ODD);
+	    //solver->dslash_eo_device(solver->get_inout_eo(), &clmem_tmp_eo_2, gf, EVEN);
 	    solver->M_tm_inverse_sitediagonal_device(&clmem_tmp_eo_2, &clmem_tmp_eo_1);
 	    solver->M_tm_inverse_sitediagonal_device(&clmem_source_odd, &clmem_tmp_eo_2);
-	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, &clmem_one, &clmem_tmp_eo_1);
+	    //spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, &clmem_one, &clmem_tmp_eo_1);
+	    spinor_code->saxpy_eoprec_device(&clmem_tmp_eo_1, &clmem_tmp_eo_2, &clmem_mone, &clmem_tmp_eo_1);
 	  }
+	  //CP: missing minus?
+	  spinor_code->sax_eoprec_device(&clmem_tmp_eo_1, &clmem_mone, &clmem_tmp_eo_1);
 	  //CP: whole solution
 	  //CP: suppose the even sol is saved in inout_eoprec, the odd one in clmem_tmp_eo_1
-	  spinor_code->convert_from_eoprec_device(solver->get_inout_eo(), &clmem_tmp_eo_1, inout);
+	  //spinor_code->convert_from_eoprec_device(solver->get_inout_eo(), &clmem_tmp_eo_1, inout);
+	  //CP: suppose the odd sol is saved in inout_eoprec, the even one in clmem_tmp_eo_1
+	  spinor_code->convert_from_eoprec_device( &clmem_tmp_eo_1, solver->get_inout_eo(),inout);
+
+	  solver->print_info_inv_field( solver->get_inout_eo(), true, "\t\t\teo inout after inversion ");
+	  solver->print_info_inv_field(&clmem_tmp_eo_1, true, "\t\t\teo inout after inversion ");
+	  
+
+
+
 	}
 
 	if(get_parameters().get_profile_solver() ) {
 		solver->get_device()->synchronize();
 		(*solvertimer).add();
 	}
+
+	//spinor_code->set_spinorfield_cold_device(inout);
+	//auto prng = &get_device_for_task(task_correlator)->get_prng_code()->get_prng_buffer();
+	//  spinor_code->generate_gaussian_spinorfield_device(inout, prng);
+
+	  solver->print_info_inv_field(inout, false, "\t\t\tinv. field after inversion ");
 
 	if (converged < 0) {
 		if(converged == -1) logger.fatal() << "\t\t\tsolver did not solve!!";
@@ -184,6 +259,11 @@ void Gaugefield_inverter::perform_inversion(usetimer* solver_timer)
 		clmem_source.load(&source_buffer[k * meta::get_vol4d(get_parameters())]);
 		logger.debug() << "calling solver..";
 		invert_M_nf2_upperflavour( &clmem_res, &clmem_source, gf_code->get_gaugefield(), solver_timer);
+
+		int ktmp = (k+1)%num_sources;
+		//clmem_res.load(&source_buffer[ktmp * meta::get_vol4d(get_parameters())]);
+
+
 		//add solution to solution-buffer
 		//NOTE: this is a blocking call!
 		logger.debug() << "add solution...";
@@ -349,8 +429,19 @@ void Gaugefield_inverter::flavour_doublet_chiral_condensate(std::string pbp_fn, 
 	using namespace std;
 	using namespace hardware::buffers;
 
+
+	hmc_float match_factor = 4. * get_parameters().get_kappa();
+
+	// Output
+	ofstream of;
+	of.open(pbp_fn.c_str(), ios_base::app);
+	if(!of.is_open()) {
+	  throw File_Exception(pbp_fn);
+	}
 	hmc_complex host_result = {0., 0.};
-	if(get_parameters().get_pbp_version() == meta::Inputparameters::std){
+	bool measure_std = true;
+	if(measure_std){
+	  //	if(get_parameters().get_pbp_version() == meta::Inputparameters::std){
 	  /**
 	   * In the pure Wilson case one can evaluate <pbp> with stochastic estimators according to:
 	   * <pbp> = <ubu + dbd> = 2<ubu> = 2 Tr_(space, colour, dirac) ( D^-1 )
@@ -371,6 +462,7 @@ void Gaugefield_inverter::flavour_doublet_chiral_condensate(std::string pbp_fn, 
 	   *       = lim_r->inf 2/r  (gamma_5 Xi_r, Phi_r)
 	   * NOTE: The basic difference compared to the pure Wilson case is only the gamma_5 and that one takes the imaginary part!
 	   */
+	  hmc_float norm = match_factor * 2. / meta::get_vol4d(get_parameters()) /get_parameters().get_num_sources();
 	  auto spinor_code = get_task_correlator()->get_device()->get_spinor_code();
 	  auto fermion_code = get_task_correlator()->get_device()->get_fermion_code();
 	  // Need 2 spinors at once..
@@ -389,6 +481,8 @@ void Gaugefield_inverter::flavour_doublet_chiral_condensate(std::string pbp_fn, 
 	    spinor_code->set_complex_to_scalar_product_device(&clmem_xi, &clmem_phi, &result_pbp2);
 	    hmc_complex host_tmp;
 	    result_pbp2.dump(&host_tmp);
+	    host_tmp.re*=norm;
+	    host_tmp.im*=norm;
 	    if(get_parameters().get_fermact() == meta::Inputparameters::wilson){
 	      host_result.re += host_tmp.re;
               host_result.im += host_tmp.im;
@@ -398,49 +492,68 @@ void Gaugefield_inverter::flavour_doublet_chiral_condensate(std::string pbp_fn, 
 	      host_result.re += host_tmp.im;
 	      host_result.im += host_tmp.re;
 	    }
+	    logger.info() << "pbp:\t" << number << "\t" << scientific << setprecision(14) << host_tmp.re << "\t" << host_tmp.im;
+	    //note: this is bad, for pure wilson it must be host_tmp.re!!!
+	    of << number << "\t" << scientific << setprecision(14) << host_tmp.im << endl;
 	  }
 	  //Normalization: The 2/r from above plus 1/VOL4D
-	  hmc_float norm = 2./get_parameters().get_num_sources() / meta::get_vol4d(get_parameters());
-	  host_result.re *= norm;
-	  host_result.im *= norm;
+	  
+	  //hmc_float norm2 = 1./get_parameters().get_num_sources();// / meta::get_vol4d(get_parameters());// * 2.;
+	  //host_result.re *= norm2;
+	  //host_result.im *= norm2;
+	  
 	}
-	if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass && get_parameters().get_pbp_version() == meta::Inputparameters::tm_one_end_trick ){
+
+	logger.info() << "chiral condensate (mean):" ;
+	logger.info() << number << "\t" << scientific << setprecision(14) << host_result.re/ get_parameters().get_num_sources()  << "\t" << host_result.im/ get_parameters().get_num_sources();
+	host_result = {0., 0.};
+
+	bool measure_one=true;
+	if(measure_one){
+	  //if(get_parameters().get_fermact() == meta::Inputparameters::twistedmass && get_parameters().get_pbp_version() == meta::Inputparameters::tm_one_end_trick ){
 	  /**
-	   * For twisted-mass fermions one can also employ the one-end trick, which origins from
+	   4* For twisted-mass fermions one can also employ the one-end trick, which origins from
 	   * D_d - D_u = - 4 i kappa amu gamma_5 <-> D^-1_u - D^-1_d = - 4 i kappa amu gamma_5 (D^-1_u)^dagger D^-1_u
 	   * With this, the chiral condensate is:
 	   * <pbp> = ... = Tr( i gamma_5 (D^-1_u - D^-1_d ) )
 	   *       = - 4 kappa amu lim_r->inf 1/R (Phi_r, Phi_r)
 	   * NOTE: Here one only needs Phi...
 	   */
+
+	  hmc_float norm =  match_factor * 1./ meta::get_vol4d(get_parameters())  * meta::get_mubar(get_parameters() ) * (-2.) /get_parameters().get_num_sources();
+	  /*
+	    if(get_parameters().get_sourcetype() != meta::Inputparameters::point){
+	    norm *=  get_parameters().get_kappa() * get_parameters().get_kappa() * 16;
+	  }
+	  */
 	  auto spinor_code = get_task_correlator()->get_device()->get_spinor_code();
 	  logger.debug() << "init buffers for chiral condensate calculation...";
 	  const hardware::buffers::Plain<spinor> clmem_phi(meta::get_spinorfieldsize(get_parameters()), get_task_correlator()->get_device());
-	  const Plain<hmc_float> result_pbp2(1, get_task_correlator()->get_device());
+	  const Plain<hmc_float> result_pbp_one(1, get_task_correlator()->get_device());
+	  result_pbp_one.load(&host_result.re);
 	  for(int i = 0; i < get_parameters().get_num_sources(); i++){
 	    clmem_phi.load(&solution_buffer[i* meta::get_spinorfieldsize(get_parameters())]);
-	    spinor_code->set_float_to_global_squarenorm_device(&clmem_phi, &result_pbp2);
+	    spinor_code->set_float_to_global_squarenorm_device(&clmem_phi, &result_pbp_one);
 	    hmc_float host_tmp;
-	    result_pbp2.dump(&host_tmp);
+	    result_pbp_one.dump(&host_tmp);
+	    host_tmp *= norm;
 	    host_result.re += host_tmp;
 	    host_result.im += 0;
+	    logger.info() << "pbp:\t" << number << "\t" << scientific << setprecision(14) << host_tmp;
+	    of << number << "\t" << scientific << setprecision(14) << host_tmp << endl;
 	  }
+	  
 	  //Normalization: The 1/r from above plus 1/VOL4D and the additional factor - 4 kappa amu ( = 2 mubar )
-	  hmc_float norm = 1./get_parameters().get_num_sources() / meta::get_vol4d(get_parameters()) * (-2.) * meta::get_mubar(get_parameters() );
-	  host_result.re *= norm;
-	  host_result.im *= norm;
-
+	  //hmc_float norm2 = 1./get_parameters().get_num_sources();// / meta::get_vol4d(get_parameters()) ;//* (-2.) * meta::get_mubar(get_parameters() );
+	  //host_result.re *= norm2;
+	  //host_result.im *= norm2;
+	  
 	}
+	of.close();
 
-	// Output
-	ofstream of;
-	of.open(pbp_fn.c_str(), ios_base::app);
-	if(!of.is_open()) {
-	  throw File_Exception(pbp_fn);
-	}
-	logger.info() << "chiral condensate:" ;
-	logger.info() << number << "\t" << scientific << setprecision(14) << host_result.re << "\t" << host_result.im;
-	of << number << "\t" << scientific << setprecision(14) << host_result.re << "\t" << host_result.im << endl;
+	logger.info() << "chiral condensate (mean):" ;
+	logger.info() << number << "\t" << scientific << setprecision(14) << host_result.re/ get_parameters().get_num_sources() << "\t" << host_result.im/ get_parameters().get_num_sources();
+
 
 
 }
