@@ -27,6 +27,9 @@
 #define BOOST_TEST_MODULE physics::lattice::Rooted_Staggeredfield_eo
 #include <boost/test/unit_test.hpp>
 
+#include "../../interfaceImplementations/interfacesHandler.hpp"
+#include "../../interfaceImplementations/hardwareParameters.hpp"
+#include "../../interfaceImplementations/openClKernelParameters.hpp"
 #include "../../host_functionality/logger.hpp"
 #include "../../meta/type_ops.hpp"
 #include <cmath>
@@ -38,12 +41,15 @@ BOOST_AUTO_TEST_CASE(initialization)
 
 	const char * _params[] = {"foo"};
 	meta::Inputparameters params(1, _params);
-	hardware::System system(params);
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
 	logger.debug() << "Devices: " << system.get_devices().size();
 
-	Rooted_Staggeredfield_eo sf(system);
+	Rooted_Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>());
 	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
-	Rooted_Staggeredfield_eo sf2(approx, system);
+	Rooted_Staggeredfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>(), approx);
 	
 }
 
@@ -52,20 +58,17 @@ BOOST_AUTO_TEST_CASE(rescale)
 {
 	using namespace physics::algorithms;
 	using namespace physics::lattices;
-	
+
 	Rational_Approximation approx(15,1,4,1e-5,1,false);
-	
-	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg"};
-	meta::Inputparameters params(3, _params);
-	hardware::System system(params);
-	physics::PRNG prng(system);
-	
-	//Operator for the test
-	physics::fermionmatrix::MdagM_eo matrix(system, 0.567);
-	//This configuration for the Ref.Code is the same as for example dks_input_5
-	Gaugefield gf(system, prng, std::string(SOURCEDIR) + "/hardware/code/conf.00200");
-	Rooted_Staggeredfield_eo sf(system);
-	
+
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--num_dev=1"};
+	meta::Inputparameters params(4, _params);
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+    physics::InterfacesHandlerImplementation interfacesHandler{params};
+    Rooted_Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>());
+
 	//Min and max eigenvalues for conservative and not conservative case
 	hmc_float minEigenvalue = 0.3485318319429664;
 	hmc_float maxEigenvalue = 5.2827906935473500;
@@ -108,19 +111,19 @@ BOOST_AUTO_TEST_CASE(rescale)
 				    0.32091499816392937694, 0.84199021010590602287,
 				    2.3690543226274733968, 8.1633847494467222106,
 				    62.215004455600926292};
-	
+
 	int ord = sf.Get_order();
 
 	sf.Rescale_Coefficients(approx, minEigenvalue, maxEigenvalue);
 	BOOST_CHECK_CLOSE(sf.Get_a0(), a0_ref, 5.e-5);
 	std::vector<hmc_float> a = sf.Get_a();
 	std::vector<hmc_float> b = sf.Get_b();
-	
+
 	sf.Rescale_Coefficients(approx, minEigenvalueCons, maxEigenvalueCons);
 	BOOST_CHECK_CLOSE(sf.Get_a0(), a0_ref_cons, 5.e-5);
 	std::vector<hmc_float> a_cons = sf.Get_a();
 	std::vector<hmc_float> b_cons = sf.Get_b();
-	
+
 	//Test result: note that the precision is not so high since
 	//the reference code uses a slightly different method to calculate
 	//maximum and minimum eigenvalues (I tuned a bit the ref.code adapting the number
@@ -131,6 +134,6 @@ BOOST_AUTO_TEST_CASE(rescale)
 		BOOST_CHECK_CLOSE(a_cons[i], a_ref_cons[i], 2.e-4);
 		BOOST_CHECK_CLOSE(b_cons[i], b_ref_cons[i], 2.e-4);
 	}
-	
+
 	logger.info() << "Test done!";
 }
