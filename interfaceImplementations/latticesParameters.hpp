@@ -162,6 +162,14 @@ namespace physics {
         		~RootedSpinorfieldParametersImplementation()
         		{
         		}
+        	    unsigned getNt() const override
+        	    {
+        	    	return SpinorfieldParametersImplementation::getNt();
+        		}
+        	    unsigned getNs() const override
+        	    {
+        	    	return SpinorfieldParametersImplementation::getNs();
+        	    }
         		unsigned getNumberOfElements() const override
         		{
         			return SpinorfieldParametersImplementation::getNumberOfElements();

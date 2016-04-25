@@ -71,6 +71,16 @@ BOOST_AUTO_TEST_CASE(testSpinorfieldParameters)
     BOOST_CHECK_EQUAL(test.getNumberOfElements(), std::pow(params->get_nspace(), 3.)*params->get_ntime());
 }
 
+BOOST_AUTO_TEST_CASE(testRootedSpinorfieldParameters)
+{
+    auto params = createDefaultMetaInputparameters();
+    physics::lattices::RootedSpinorfieldParametersImplementation test(*params);
+
+    BOOST_CHECK_EQUAL(test.getNumberOfElements(), std::pow(params->get_nspace(), 3.)*params->get_ntime());
+    BOOST_CHECK_EQUAL(test.getMetropolisRationalApproximationOrder(), params->get_metro_approx_ord());
+    BOOST_CHECK_EQUAL(test.getMolecularDynamicsRationalApproximationOrder(), params->get_md_approx_ord());
+}
+
 BOOST_AUTO_TEST_CASE(testStaggeredfieldEoParameters)
 {
     auto params = createDefaultMetaInputparameters();
