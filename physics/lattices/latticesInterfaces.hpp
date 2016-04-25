@@ -62,6 +62,13 @@ namespace physics {
                 virtual unsigned getNumberOfElements() const = 0;
         };
 
+        class RootedSpinorfieldParametersInterface: public SpinorfieldParametersInterface {
+        	public:
+        		virtual ~RootedSpinorfieldParametersInterface(){}
+        		virtual unsigned getMetropolisRationalApproximationOrder() const = 0;
+        		virtual unsigned getMolecularDynamicsRationalApproximationOrder() const = 0;
+        };
+
         class SpinorfieldEoParametersInterface {
             public:
                 virtual ~SpinorfieldEoParametersInterface() = 0;
