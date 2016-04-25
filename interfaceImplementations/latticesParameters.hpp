@@ -151,6 +151,34 @@ namespace physics {
                 const meta::Inputparameters& parameters;
         };
 
+        class RootedSpinorfieldParametersImplementation: public RootedSpinorfieldParametersInterface, private SpinorfieldParametersImplementation{
+
+        	public:
+        		RootedSpinorfieldParametersImplementation() = delete;
+        		RootedSpinorfieldParametersImplementation(const meta::Inputparameters& paramsIn)
+        				: SpinorfieldParametersImplementation(paramsIn), parameters(paramsIn)
+        		{
+        		}
+        		~RootedSpinorfieldParametersImplementation()
+        		{
+        		}
+        		unsigned getNumberOfElements() const override
+        		{
+        			return SpinorfieldParametersImplementation::getNumberOfElements();
+        		}
+        		unsigned getMetropolisRationalApproximationOrder() const override
+   				{
+        			return parameters.get_metro_approx_ord();
+   				}
+        		unsigned getMolecularDynamicsRationalApproximationOrder() const override
+        		{
+        			return parameters.get_md_approx_ord();
+        		}
+        	private:
+        		const meta::Inputparameters& parameters;
+
+        };
+
         class SpinorfieldEoParametersImplementation : public SpinorfieldEoParametersInterface {
             public:
                 SpinorfieldEoParametersImplementation() = delete;
