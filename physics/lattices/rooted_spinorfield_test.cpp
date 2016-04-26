@@ -47,8 +47,7 @@ BOOST_AUTO_TEST_CASE(initialization)
 	physics::InterfacesHandlerImplementation interfacesHandler{params};
 	logger.debug() << "Devices: " << system.get_devices().size();
 
-	//Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
-	wilson::Rooted_Spinorfield sf(system);
+	wilson::Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
 	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
-	//Rooted_Spinorfield sf2(system, intercesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
+	wilson::Rooted_Spinorfield sf2(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
 }

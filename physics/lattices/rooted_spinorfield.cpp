@@ -21,7 +21,19 @@
 
 #include "rooted_spinorfield.hpp"
 
-physics::lattices::wilson::Rooted_Spinorfield::Rooted_Spinorfield(const hardware::System& system){
-
-
+physics::lattices::wilson::Rooted_Spinorfield::Rooted_Spinorfield(const hardware::System& system
+																	, const RootedSpinorfieldParametersInterface& rootedSpinorfieldParametersInterface)
+	: Spinorfield(system, rootedSpinorfieldParametersInterface)
+		, rationalCoefficients(std::max(rootedSpinorfieldParametersInterface.getMetropolisRationalApproximationOrder()
+		, rootedSpinorfieldParametersInterface.getMolecularDynamicsRationalApproximationOrder()))
+{
 }
+
+physics::lattices::wilson::Rooted_Spinorfield::Rooted_Spinorfield(const hardware::System& system
+																	, const RootedSpinorfieldParametersInterface& rootedSpinorfieldParametersInterface
+																	, const physics::algorithms::Rational_Approximation& approx)
+	: Spinorfield(system, rootedSpinorfieldParametersInterface)
+		, rationalCoefficients(approx.Get_order(), approx.Get_a0(), approx.Get_a(), approx.Get_b())
+{
+}
+

@@ -32,17 +32,20 @@ namespace physics {
 		namespace wilson {
 
 			//Representation of a rooted spinorfield without eo preconditioning
-			class Rooted_Spinorfield/*: public physics::lattices::Spinorfield*/ {
+			class Rooted_Spinorfield: public physics::lattices::Spinorfield {
 
 				public:
-				Rooted_Spinorfield(const hardware::System&);
+				Rooted_Spinorfield(const hardware::System&, const RootedSpinorfieldParametersInterface&);
+				Rooted_Spinorfield(const hardware::System&, const RootedSpinorfieldParametersInterface&, const physics::algorithms::Rational_Approximation& approx);
 
 				~Rooted_Spinorfield(){};
 
 				Rooted_Spinorfield& operator=(const Rooted_Spinorfield&) = delete;
 				Rooted_Spinorfield(const Rooted_Spinorfield&) = delete;
-				//Rooted_Spinorfield() = delete;
+				Rooted_Spinorfield() = delete;
 
+				private:
+				const physics::algorithms::Rational_Coefficients rationalCoefficients;
 
 			};
 		}
