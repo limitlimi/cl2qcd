@@ -26,6 +26,7 @@
 #include "../lattices/scalar_complex.hpp"
 #include "../lattices/algebra_real.hpp"
 #include "../lattices/staggeredfield_eo.hpp"
+#include "../lattices/spinorfield.hpp"
 #include <sstream>
 #include <vector>
 #include <numeric>
@@ -42,6 +43,17 @@ int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::latt
     return solverShifted.getNumberOfIterationsDone();
 }
 
+//int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::lattices::Spinorfield> > x,
+//                                       const physics::fermionmatrix::Fermionmatrix& A,
+//                                       const physics::lattices::Gaugefield& gf, const std::vector<hmc_float> sigma,
+//                                       const physics::lattices::Spinorfield& b, const hardware::System& system,
+//                                       physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+//{
+//    physics::algorithms::solvers::SolverShifted<physics::lattices::Spinorfield, physics::fermionmatrix::Fermionmatrix>
+//    solverShifted(x, A, gf, sigma, b, system, interfacesHandler, prec, additionalParameters);
+//    x = solverShifted.solve();
+//    return solverShifted.getNumberOfIterationsDone();
+//}
 
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::SolverShifted(const std::vector<std::shared_ptr<FERMIONFIELD> > xIn, const FERMIONMATRIX& AIn,
@@ -102,7 +114,7 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::s
     alpha_vec.store(std::vector<hmc_float>(numberOfEquations, 0.));   // alpha[i] = 0
     shift.store(sigma);
     for (int i = 0; i < numberOfEquations; i++) {
-        x[i]->set_zero();    // x[i] = 0
+        x[i]->setZero();    // x[i] = 0
         copyData(ps[i].get(), b);   // ps[i] = b
     }
     copyData(&r, b);                        // r = b
@@ -382,7 +394,7 @@ const std::vector<std::shared_ptr<FERMIONFIELD> > physics::algorithms::solvers::
 {
     if(hasSystemBeSolved) return x;
     if(squarenorm(b) == 0) {
-        for (uint i = 0; i < sigma.size(); i++) x[i]->set_zero();
+        for (uint i = 0; i < sigma.size(); i++) x[i]->setZero();
         hasSystemBeSolved = true;
         return x;
     }

@@ -142,7 +142,7 @@ template<class FERMIONMATRIX, class FERMIONMATRIX_CONJ, class FERMIONMATRIX_HERM
          * @todo at the moment, we can only put in a cold spinorfield
          * or a point-source spinorfield as trial-solution
          */
-        out->zero();
+        out->setZero();
         out->gamma5();
 
         FERMIONMATRIX qplusMp(system, interfacesHandler.getInterface<FERMIONMATRIX>());
@@ -156,7 +156,7 @@ template<class FERMIONMATRIX, class FERMIONMATRIX_CONJ, class FERMIONMATRIX_HERM
          * @todo at the moment, we can only put in a cold spinorfield
          * or a point-source spinorfield as trial-solution
          */
-        tmp2.zero();
+        tmp2.setZero();
         tmp2.gamma5();
 
         FERMIONMATRIX_HERM fm_herm(system, interfacesHandler.getInterface<FERMIONMATRIX_HERM>());

@@ -72,7 +72,7 @@ public:
 	/**
 	 * Set Staggeredfield to zero
 	 */
-	void set_zero() const;
+	void setZero() const;
 
 	/**
 	 * Set Staggeredfield to cold

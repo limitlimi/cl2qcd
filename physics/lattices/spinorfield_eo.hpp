@@ -77,7 +77,7 @@ public:
 	/**
 	 * Set Spinorfield to zero
 	 */
-	void zero() const;
+	void setZero() const;
 
 	/**
 	 * Set Spinorfield to cold

@@ -63,6 +63,7 @@ class Spinorfield {
         Spinorfield& operator=(const Spinorfield&) = delete;
         Spinorfield(const Spinorfield&) = delete;
         Spinorfield() = delete;
+        Spinorfield(Spinorfield&&) = default;
 
         /**
          * Get the buffers containing the gaugefield state on the devices.
@@ -77,7 +78,7 @@ class Spinorfield {
         /**
          * Set Spinorfield to zero
          */
-        void zero() const;
+        void setZero() const;
 
         /**
          * Set Spinorfield to zero

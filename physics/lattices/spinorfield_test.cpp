@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(gamma5)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	sf.zero();
+	sf.setZero();
 	sf.gamma5();
 	BOOST_CHECK_CLOSE(squarenorm(sf), 0., .1);
 	sf.cold();
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(zero)
 
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	sf.gaussian(prng);
-	sf.zero();
+	sf.setZero();
 	BOOST_CHECK_CLOSE(squarenorm(sf), 0., .1);
 }
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(gaussian)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	sf.zero();
+	sf.setZero();
 	sf.gamma5();
 	hmc_float const gamma5 = squarenorm(sf);
 	sf.gaussian(prng);
@@ -165,13 +165,13 @@ BOOST_AUTO_TEST_CASE(squarenorm)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	sf.zero();
+	sf.setZero();
 	sf.gamma5();
 	hmc_float const gamma5 = physics::lattices::squarenorm(sf);
 	BOOST_REQUIRE_CLOSE(gamma5, 0., .1);
 	sf.gaussian(prng);
 	BOOST_CHECK_NE(physics::lattices::squarenorm(sf), gamma5);
-	sf.zero();
+	sf.setZero();
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0., .1);
 }
 
@@ -192,13 +192,13 @@ BOOST_AUTO_TEST_CASE(scalar_product)
 	gaussian.gaussian(prng);
 
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	zero.zero();
+	zero.setZero();
 
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 
 	Spinorfield gamma(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gamma.zero();
+	gamma.setZero();
 	gamma.gamma5();
 	gamma.gamma5();
 
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(saxpy)
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	zero.zero();
+	zero.setZero();
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
 	physics::lattices::saxpy(&sf, {1., 0.}, gaussian, zero);
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(saxsbypz)
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	zero.zero();
+	zero.setZero();
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
 	physics::lattices::saxsbypz(&sf, {1., 0.}, gaussian, {0., 0.}, cold, zero);

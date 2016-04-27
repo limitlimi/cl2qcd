@@ -64,12 +64,12 @@ BOOST_AUTO_TEST_CASE(squarenorm)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	sf.set_zero();
+	sf.setZero();
 	hmc_float const sq = physics::lattices::squarenorm(sf);
 	BOOST_REQUIRE_EQUAL(sq, 0);
 	sf.set_gaussian(prng);
 	BOOST_CHECK_NE(physics::lattices::squarenorm(sf), sq);
-	sf.set_zero();
+	sf.setZero();
 	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
 }
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(zero)
 
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	sf.set_gaussian(prng);
-	sf.set_zero();
+	sf.setZero();
 	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
 }
 
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(scalar_product)
 	gaussian.set_gaussian(prng);
 
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	zero.set_zero();
+	zero.setZero();
 
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(saxpy)
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	zero.set_zero();
+	zero.setZero();
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	physics::lattices::Scalar<hmc_complex> cplx(system);
 	physics::lattices::Scalar<hmc_float> real(system);
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE(saxpby)
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	zero.set_zero();
+	zero.setZero();
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	physics::lattices::Scalar<hmc_complex> cplx(system);
 	physics::lattices::Scalar<hmc_float> real(system);
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(saxpbypz)
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	zero.set_zero();
+	zero.setZero();
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 
 	physics::lattices::saxpbypz(&sf, {1., 0.}, gaussian, {0., 0.}, cold, zero);
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE(pseudorandomize)
 	physics::PRNG prng(system, &prngParameters);
 	
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	sf.set_zero();
+	sf.setZero();
 	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
 	physics::lattices::pseudo_randomize<Staggeredfield_eo, su3vec>(&sf, 123);
 	logger.info() << "The squarenorm of the pseudorandomized field is " << physics::lattices::squarenorm(sf);

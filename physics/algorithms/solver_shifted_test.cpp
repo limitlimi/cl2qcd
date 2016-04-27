@@ -30,6 +30,9 @@
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
 
+#include "../lattices/spinorfield.hpp"
+#include "../fermionmatrix/fermionmatrix.hpp"
+
 // use the boost test framework
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE physics::algorithms::solvers::solver_shifted
@@ -273,5 +276,45 @@ BOOST_AUTO_TEST_CASE(cgm_4)
 	logger.info() << "sqnorm(out)=" << std::setprecision(16) << sqnorm_out;
 	BOOST_CHECK_CLOSE(sqnorms_ref, sqnorm_out, 1.e-8);
 	}
+}
+
+BOOST_AUTO_TEST_CASE(cgm_5)
+{
+	using namespace physics::lattices;
+	using namespace physics::lattices::wilson;
+	using namespace physics::algorithms::solvers;
+
+	meta::Inputparameters * params;
+
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=wilson", "--kappa=0.1250", "--num_dev=1"};
+
+	params = new meta::Inputparameters(5,_params);
+
+	 hardware::HardwareParametersImplementation hP(params);
+	 hardware::code::OpenClKernelParametersImplementation kP(*params);
+	 hardware::System system(hP, kP);
+	 physics::InterfacesHandlerImplementation interfacesHandler{*params};
+	 physics::PrngParametersImplementation prngParameters{*params};
+	 physics::PRNG prng{system, &prngParameters};
+
+	 //This are some possible values of sigma
+	 hmc_float pol[5] = {0.0002065381736724, 0.00302707751065980, 0.0200732678058145,
+			 0.12517586269872370, 1.0029328743375700};
+	 std::vector<hmc_float> sigma(pol, pol + sizeof(pol)/sizeof(hmc_float));
+
+	 const physics::fermionmatrix::QplusQminus QQ(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+
+	 //This configuration for the Ref.Code is the same as for example dks_input_5
+	 Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	 Spinorfield b(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+
+	 std::vector<std::shared_ptr<Spinorfield> > out;
+	 for(uint i=0; i<sigma.size(); i++)
+		 out.emplace_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+
+	 b.gaussian(prng);
+
+	 //int iter = cg_m(out, QQ, gf, sigma, b, system, interfacesHandler, 1.e-23, interfacesHandler.getAdditionalParameters<physics::lattices::Spinorfield>());
+	 //	    logger.info() << "CG-M algorithm converged in " << iter << " iterations.";
 }
 

@@ -140,7 +140,7 @@ void physics::lattices::squarenorm(const Scalar<hmc_float>* res, const Spinorfie
 	res->sum();
 }
 
-void physics::lattices::Spinorfield::zero() const
+void physics::lattices::Spinorfield::setZero() const
 {
 for(auto buffer: spinorfield.get_buffers()) {
 		auto spinor_code = buffer->get_device()->getSpinorCode();

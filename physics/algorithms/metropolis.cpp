@@ -97,7 +97,7 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
         const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
         qminus(&phi_inv, gf, solution, additionalParameters);
     } else {
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
         const Qplus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
         iterations = bicgstab(&solution, fm, gf, phi, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
@@ -187,7 +187,7 @@ hmc_float physics::algorithms::calc_s_fermion_mp(const physics::lattices::Gaugef
         const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
         qminus(&phi_inv, gf, solution, additionalParameters);
     } else {
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
 
         const Qplus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());

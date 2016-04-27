@@ -91,7 +91,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         /**
          * Trial solution for the spinorfield
          */
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
 
         const Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
@@ -476,7 +476,7 @@ void physics::algorithms::calc_fermion_force_detratio(const physics::lattices::G
         /**
          * Trial solution for the spinorfield
          */
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
 
         const Qplus_eo q_plus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
