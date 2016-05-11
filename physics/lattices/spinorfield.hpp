@@ -120,6 +120,7 @@ class Spinorfield {
         void import(const spinor * const host) const;
 
         friend hmc_complex scalar_product(const Spinorfield& left, const Spinorfield& right);
+        friend hmc_float scalar_product_real_part(const Spinorfield& left, const Spinorfield& right);
         friend hmc_float squarenorm(const Spinorfield& field);
         friend void saxpy(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const Spinorfield& y);
         friend void sax(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x);
@@ -144,6 +145,12 @@ void release_spinorfields(const std::vector<Spinorfield *> fields);
  */
 hmc_complex scalar_product(const Spinorfield& left, const Spinorfield& right);
 void scalar_product(const Scalar<hmc_complex>* res, const Spinorfield& left, const Spinorfield& right);
+
+/**
+ * Calculate the real part of the scalar product of two spinorfields.
+ */
+hmc_float scalar_product_real_part(const Spinorfield& left, const Spinorfield& right);
+void scalar_product_real_part(const Scalar<hmc_float>* res, const Spinorfield& left, const Spinorfield& right);
 
 /**
  * Calculate the squarenorm of the spinorfield

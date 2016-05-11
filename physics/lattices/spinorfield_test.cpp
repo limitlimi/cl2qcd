@@ -216,6 +216,45 @@ BOOST_AUTO_TEST_CASE(scalar_product)
 	BOOST_CHECK_EQUAL(physics::lattices::scalar_product(cold, gamma), hmc_complex_zero);
 }
 
+BOOST_AUTO_TEST_CASE(scalar_product_real_part)
+{
+	using physics::lattices::Spinorfield;
+
+		const char * _params[] = {"foo"};
+		meta::Inputparameters params(1, _params);
+		physics::InterfacesHandlerImplementation interfacesHandler{params};
+	    hardware::HardwareParametersImplementation hP(&params);
+	    hardware::code::OpenClKernelParametersImplementation kP(params);
+	    hardware::System system(hP, kP);
+		physics::PrngParametersImplementation prngParameters(params);
+		physics::PRNG prng(system, &prngParameters);
+
+		Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		gaussian.gaussian(prng);
+
+		Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		zero.setZero();
+
+		Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		cold.cold();
+
+		Spinorfield gamma(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		gamma.setZero();
+		gamma.gamma5();
+		gamma.gamma5();
+
+		const hmc_float gaussian_scalar_prod = physics::lattices::scalar_product_real_part(gaussian, gaussian);
+		const hmc_float gaussian_squarenorm = physics::lattices::squarenorm(gaussian);
+		BOOST_CHECK_CLOSE(gaussian_scalar_prod, gaussian_squarenorm, .1);
+		const hmc_float gaussian_scalar_cold = physics::lattices::scalar_product_real_part(gaussian, cold);
+		const hmc_float cold_scalar_gaussian = physics::lattices::scalar_product_real_part(cold, gaussian);
+		BOOST_CHECK_CLOSE(std::abs(gaussian_scalar_cold), std::abs(cold_scalar_gaussian), .1);
+		BOOST_CHECK_EQUAL(physics::lattices::scalar_product_real_part(gamma, zero), 0.);
+		BOOST_CHECK_EQUAL(physics::lattices::scalar_product_real_part(zero, gamma), 0.);
+		BOOST_CHECK_EQUAL(physics::lattices::scalar_product_real_part(gamma, cold), 0.);
+		BOOST_CHECK_EQUAL(physics::lattices::scalar_product_real_part(cold, gamma), 0.);
+}
+
 BOOST_AUTO_TEST_CASE(sax)
 {
 	using physics::lattices::Spinorfield;

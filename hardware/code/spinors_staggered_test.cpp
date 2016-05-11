@@ -445,8 +445,9 @@ struct ScalarProductEvenOddRealTester: public EvenOddLinearCombinationTester
 			code->set_float_to_scalar_product_real_part_eoprec_device(spinorfields.at(0), spinorfields.at(1), &sqnorm);
 			hmc_float resultTmp;
 			sqnorm.dump(&resultTmp);
-			kernelResult[0] = resultTmp;
-			kernelResult[1] = 0;
+			kernelResult.at(0) = resultTmp;
+			kernelResult.at(1) = 0;
+			referenceValues.at(1) = 0;
 		}
 };
 
@@ -1265,7 +1266,7 @@ BOOST_AUTO_TEST_SUITE(SCALAR_PRODUCT_EO)
 	
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_2 )
 	{
-		testEvenOddScalarProductReal  ( LatticeExtents{ns4,nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::ascendingComplex});
+		testEvenOddScalarProductReal  ( LatticeExtents{ns4,nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::ascendingComplex});
 	}
 	
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_REDUCTION_1 )
