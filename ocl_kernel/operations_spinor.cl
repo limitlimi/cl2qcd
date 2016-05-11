@@ -85,6 +85,16 @@ hmc_complex spinor_scalarproduct(spinor in1, spinor in2)
 	return res;
 }
 
+hmc_float spinor_scalarproduct_real_part(spinor in1, spinor in2)
+{
+	hmc_float res = 0;
+	res += su3vec_scalarproduct_real_part(in1.e0, in2.e0);
+	res += su3vec_scalarproduct_real_part(in1.e1, in2.e1);
+	res += su3vec_scalarproduct_real_part(in1.e2, in2.e2);
+	res += su3vec_scalarproduct_real_part(in1.e3, in2.e3);
+	return res;
+}
+
 spinor real_multiply_spinor(spinor in, hmc_float factor)
 {
 	spinor tmp;

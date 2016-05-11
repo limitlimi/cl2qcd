@@ -396,6 +396,22 @@ struct ScalarProductTester: public NonEvenOddLinearCombinationTester
 	}
 };
 
+struct ScalarProductRealTester: public NonEvenOddLinearCombinationTester
+{
+	ScalarProductRealTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+		NonEvenOddLinearCombinationTester("scalar_product_real_part", parameterCollection, testParameters, calculateReferenceValues_scalarProduct(calculateSpinorfieldSize(testParameters.latticeExtents), testParameters.fillTypes))
+	{
+		hardware::buffers::Plain<hmc_float> sqnorm(1, device);
+		code->set_float_to_scalar_product_real_device(spinorfields.at(0), spinorfields.at(1), &sqnorm);
+		hmc_float resultTmp;
+		sqnorm.dump(&resultTmp);
+
+		kernelResult.at(0) = resultTmp;
+		kernelResult.at(1) = 0;
+		referenceValues.at(1) = 0;
+	}
+};
+
 struct ScalarProductEvenOddTester: public EvenOddLinearCombinationTester
 {
 	ScalarProductEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
@@ -508,6 +524,11 @@ void testNonEvenOddSquarenorm( const LatticeExtents lE, const SpinorFillTypes sF
 void testNonEvenOddScalarProduct( const LatticeExtents lE, const SpinorFillTypes sF)
 {
 	performTest<ScalarProductTester> (lE, sF, ComplexNumbers{{1,0}}, 2, false);
+}
+
+void testNonEvenOddScalarProductReal( const LatticeExtents lE, const SpinorFillTypes sF )
+{
+	performTest<ScalarProductRealTester> ( lE, sF, ComplexNumbers{{1,0}}, 2, false );
 }
 
 void testEvenOddScalarProduct( const LatticeExtents lE, const SpinorFillTypes sF)
@@ -677,7 +698,7 @@ BOOST_AUTO_TEST_SUITE(SCALAR_PRODUCT)
 
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_4 )
 	{
-		testNonEvenOddScalarProduct( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::ascendingComplex});
+		testNonEvenOddScalarProduct( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::ascendingComplex});
 	}
 
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REDUCTION_1 )
@@ -693,6 +714,41 @@ BOOST_AUTO_TEST_SUITE(SCALAR_PRODUCT)
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REDUCTION_3 )
 	{
 		testNonEvenOddScalarProduct( LatticeExtents{ns8, nt16}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_1 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_2 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::ascendingComplex});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_3 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::one});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_4 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::ascendingComplex});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_REDUCTION_1 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns8, nt12}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_REDUCTION_2 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns8, nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
+	}
+
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_REDUCTION_3 )
+	{
+		testNonEvenOddScalarProductReal( LatticeExtents{ns8, nt16}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

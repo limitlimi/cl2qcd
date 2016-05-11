@@ -62,6 +62,7 @@ public:
 	void convert_to_eoprec_device(const hardware::buffers::Spinor * even, const hardware::buffers::Spinor * odd, const hardware::buffers::Plain<spinor> * in) const;
 
 	void set_complex_to_scalar_product_device(const hardware::buffers::Plain<spinor> * a, const hardware::buffers::Plain<spinor> * b, const hardware::buffers::Plain<hmc_complex> * out) const;
+	void set_float_to_scalar_product_real_device(const hardware::buffers::Plain<spinor> * a, const hardware::buffers::Plain<spinor> * b, const hardware::buffers::Plain<hmc_float> * out) const;
 	void set_complex_to_scalar_product_eoprec_device(const hardware::buffers::Spinor * a, const hardware::buffers::Spinor * b, const hardware::buffers::Plain<hmc_complex> * out) const;
 	void global_squarenorm_reduction(const hardware::buffers::Plain<hmc_float> * out, const hardware::buffers::Plain<hmc_float> * tmp_buf) const;
 	void set_float_to_global_squarenorm_device(const hardware::buffers::Plain<spinor> * a, const hardware::buffers::Plain<hmc_float> * out) const;
@@ -167,6 +168,8 @@ private:
 	//Scalar Product
 	cl_kernel scalar_product;
 	cl_kernel scalar_product_reduction;
+	cl_kernel scalar_product_real_part;
+	cl_kernel scalar_product_real_reduction;
 	cl_kernel global_squarenorm;
 	cl_kernel _global_squarenorm_reduction;
 	cl_kernel scalar_product_eoprec;
