@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(cgm_1)
 	    logger.info() << "                           sqnorm(b)=" << std::setprecision(16) << sqnorm_b;
 	    for(uint i=0; i<sigma.size(); i++){
 	        aux.push_back(std::make_shared<Staggeredfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>()));
-	        matrix(aux[i].get(), gf, *out[i], &(interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()));
+	        matrix(aux[i].get(), gf, *out[i], interfacesHandler.getAdditionalParameters<Staggeredfield_eo>());
 	        saxpy(aux[i].get(), {sigma[i],0.}, *out[i], *aux[i]);
 	        sqnorm_out.push_back(squarenorm(*aux[i]));
 	        logger.info() << "sqnorm((matrix + sigma[" << i << "]) * out[" << i << "])=" << std::setprecision(16) << sqnorm_out[i];
