@@ -66,7 +66,7 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 
     for (unsigned int i = 0; i < parametersInterface.getFindMinMaxMaxValue(); i++) {
         //Apply A onto v1
-        A(&v2, gf, v1, &additionalParameters);
+        A(&v2, gf, v1, additionalParameters);
         if(i % 100 == 0)
             log_squarenorm(create_log_prefix_find_max(i) + "v2: ", v2);
         //Normalize v2
@@ -83,7 +83,7 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
             logger.debug() << create_log_prefix_find_max(i) << "resid: " << std::setprecision(8) << resid;
 
             if(resid < prec) {
-                A(&v1, gf, v2, &additionalParameters);
+                A(&v1, gf, v2, additionalParameters);
                 scalar_product(&max, v2, v1);
                 hmc_complex result = max.get();
                 logger.debug() << "max.im = " << result.im;
@@ -174,7 +174,7 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
 
     for (unsigned int i = 0; i < parametersInterface.getFindMinMaxMaxValue(); i++) {
         //Apply (max-A) onto v1
-        A(&v2, gf, v1, &additionalParameters);
+        A(&v2, gf, v1, additionalParameters);
         saxpby(&v2, { max, 0. }, v1, { -1., 0. }, v2);   //Now in v2 there is (max-A)*v1
         if(i % 100 == 0)
             log_squarenorm(create_log_prefix_find_min(i) + "v2: ", v2);
@@ -193,7 +193,7 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
 
             if(resid < prec) {
                 //Apply (max-A) onto v2
-                A(&v1, gf, v2, &additionalParameters);
+                A(&v1, gf, v2, additionalParameters);
                 saxpby(&v1, { max, 0. }, v2, { -1., 0. }, v1);   //Now in v1 there is (max-A)*v2
                 scalar_product(&min, v2, v1);
                 hmc_complex result = min.get();

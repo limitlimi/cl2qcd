@@ -556,9 +556,16 @@ struct SaxpyEvenOddRealTester: public EvenOddLinearCombinationTesterWithSquareno
 	SaxpyEvenOddRealTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
 		EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_eo_real", parameterCollection, testParameters, calculateReferenceValues_saxpy)
 		{
-			hmc_complex complexNumbers;
-			complexNums.at(0)->dump(&complexNumbers);
-			code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), complexNumbers.re, getOutSpinor());
+//			hmc_complex complexNumbers;
+//			complexNums.at(0)->dump(&complexNumbers);
+//			code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), complexNumbers.re, getOutSpinor());
+
+		hardware::buffers::Plain<hmc_float> alpha_real_vec(1, device);
+		std::vector<hmc_float> alpha_host_real_vec(1, testParameters.coefficients.at(0).re);
+//		const int index_alpha = 3;
+		alpha_real_vec.load(&alpha_host_real_vec[0]);
+		code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), &alpha_real_vec, getOutSpinor());
+
 		}
 };
 

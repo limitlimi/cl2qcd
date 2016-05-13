@@ -91,10 +91,12 @@ typename boost::enable_if<boost::is_base_of<physics::fermionmatrix::Fermionmatri
 		pseudo_randomize<Staggeredfield_eo, su3vec>(&sf1, 13);
 		pseudo_randomize<Staggeredfield_eo, su3vec>(&sf2, 31);
 
-		matrix1(&out, gf, sf1, &(interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()));
+		matrix1(&out, gf, sf1, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[0], 1.e-8);
-		matrix2(&out, gf, sf2, &(interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()));
+		matrix2(&out, gf, sf2, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[1], 1.e-8);
+		BOOST_REQUIRE_THROW(matrix1(&out, gf, sf1), Print_Error_Message);
+		BOOST_REQUIRE_THROW(matrix2(&out, gf, sf2), Print_Error_Message);
 	}
 
 	{
@@ -126,10 +128,12 @@ typename boost::enable_if<boost::is_base_of<physics::fermionmatrix::Fermionmatri
 		pseudo_randomize<Staggeredfield_eo, su3vec>(&sf1, 123);
 		pseudo_randomize<Staggeredfield_eo, su3vec>(&sf2, 321);
 
-		matrix1(&out, gf, sf1, &(interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()));
+		matrix1(&out, gf, sf1, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[2], 1.e-8);
-		matrix2(&out, gf, sf2, &(interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()));
+		matrix2(&out, gf, sf2, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[3], 1.e-8);
+		BOOST_REQUIRE_THROW(matrix1(&out, gf, sf1), Print_Error_Message);
+		BOOST_REQUIRE_THROW(matrix2(&out, gf, sf2), Print_Error_Message);
 	}
 }
 
@@ -168,6 +172,8 @@ template<> typename boost::enable_if<boost::is_base_of<physics::fermionmatrix::F
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[0], 1.e-8);
 		matrix2(&out, gf, sf2);
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[1], 1.e-8);
+		BOOST_REQUIRE_THROW(matrix1(&out, gf, sf1, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()), Print_Error_Message);
+		BOOST_REQUIRE_THROW(matrix2(&out, gf, sf2, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()), Print_Error_Message);
 	}
 
 	{
@@ -203,6 +209,8 @@ template<> typename boost::enable_if<boost::is_base_of<physics::fermionmatrix::F
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[2], 1.e-8);
 		matrix2(&out, gf, sf2);
 		BOOST_CHECK_CLOSE(squarenorm(out), refs[3], 1.e-8);
+		BOOST_REQUIRE_THROW(matrix1(&out, gf, sf1, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()), Print_Error_Message);
+		BOOST_REQUIRE_THROW(matrix2(&out, gf, sf2, interfacesHandler.getAdditionalParameters<Staggeredfield_eo>()), Print_Error_Message);
 	}
 }
 

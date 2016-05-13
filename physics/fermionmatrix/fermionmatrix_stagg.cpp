@@ -21,6 +21,7 @@
 
 #include "fermionmatrix_stagg.hpp"
 #include "../../hardware/code/spinors_staggered.hpp"
+#include "../../interfaceImplementations/physicsParameters.hpp"
 
 //Generic basic class
 bool physics::fermionmatrix::Fermionmatrix_stagg_basic::isHermitian() const noexcept
@@ -45,9 +46,10 @@ hmc_float physics::fermionmatrix::Fermionmatrix_stagg_basic::getThresholdForMini
 
 //Class D_KS_eo
 void physics::fermionmatrix::D_KS_eo::operator()(const physics::lattices::Staggeredfield_eo * out, const physics::lattices::Gaugefield& gf,
-                                                 const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters* additionalParameters) const
+                                                 const physics::lattices::Staggeredfield_eo& in,
+												 const physics::AdditionalParameters& additionalParameters) const
 {
-    if(additionalParameters == NULL)
+    if(dynamic_cast<const physics::StaggeredAdditionalParameters*>(&additionalParameters) == NULL)
         DKS_eo(out, gf, in, evenodd);
     else
         throw Print_Error_Message("D_KS_eo operator applied passing to it some additional parameters! This should not happen!");
@@ -64,9 +66,10 @@ cl_ulong physics::fermionmatrix::D_KS_eo::get_flops() const
 
 //Class MdagM_eo
 void physics::fermionmatrix::MdagM_eo::operator()(const physics::lattices::Staggeredfield_eo * out, const physics::lattices::Gaugefield& gf,
-                                                  const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters* additionalParameters) const
+                                                  const physics::lattices::Staggeredfield_eo& in,
+												  const physics::AdditionalParameters& additionalParameters) const
 {
-    if(additionalParameters != NULL){
+    if(dynamic_cast<const physics::StaggeredAdditionalParameters*>(&additionalParameters) != NULL){
         if(upper_left==EVEN){
             //mass**2 - Deo*Doe
             DKS_eo(&tmp, gf, in, ODD);
@@ -76,7 +79,7 @@ void physics::fermionmatrix::MdagM_eo::operator()(const physics::lattices::Stagg
             DKS_eo(&tmp, gf, in, EVEN);
             DKS_eo(out, gf, tmp, ODD);
         }
-        hmc_float mass = additionalParameters->getMass();
+        hmc_float mass = additionalParameters.getMass();
         saxpby(out, {mass*mass, 0.}, in, {-1., 0.}, *out);
     } else
         throw Print_Error_Message("MdagM_eo operator applied without the MANDATORY additional parameters! Aborting...");
