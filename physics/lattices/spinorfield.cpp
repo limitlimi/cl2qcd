@@ -282,6 +282,11 @@ void physics::lattices::sax(const Spinorfield* out, const Scalar<hmc_complex>& a
 	}
 }
 
+void physics::lattices::sax(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x)
+{
+	throw Print_Error_Message("Function sax with a purely real parameter for Wilson spinorfields not yet implemented.");
+}
+
 void physics::lattices::saxsbypz(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const hmc_complex beta, const Spinorfield& y, const Spinorfield& z)
 {
 	const Scalar<hmc_complex> alpha_buf(out->system);
@@ -309,6 +314,11 @@ void physics::lattices::saxsbypz(const Spinorfield* out, const Scalar<hmc_comple
 		auto device = out_buf->get_device();
 		device->getSpinorCode()->saxsbypz_device(x_bufs[i], y_bufs[i], z_bufs[i], alpha_bufs[i], beta_bufs[i], out_buf);
 	}
+}
+
+void sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield& x)
+{
+	throw Print_Error_Message("Function sax_vec_and_squarenorm for Wilson spinorfields not yet implemented.");
 }
 
 void physics::lattices::log_squarenorm(const std::string& msg, const physics::lattices::Spinorfield& x)

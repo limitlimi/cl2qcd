@@ -28,6 +28,7 @@
 #include "../../hardware/buffers/plain.hpp"
 #include "../prng.hpp"
 #include "scalar.hpp"
+#include "vector.hpp"
 #include "../../common_header_files/types_fermions.h"
 #include "latticesInterfaces.hpp"
 #include "../interfacesHandler.hpp"
@@ -174,6 +175,7 @@ void saxpy(const Spinorfield* out, const Scalar<hmc_float>& alpha, const Spinorf
  */
 void sax(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x);
 void sax(const Spinorfield* out, const Scalar<hmc_complex>& alpha, const Spinorfield& x);
+void sax(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x);
 
 /**
  * Perform the BLAS operation saxsbypz.
@@ -182,6 +184,14 @@ void sax(const Spinorfield* out, const Scalar<hmc_complex>& alpha, const Spinorf
  */
 void saxsbypz(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const hmc_complex beta, const Spinorfield& y, const Spinorfield& z);
 void saxsbypz(const Spinorfield* out, const Scalar<hmc_complex>& alpha, const Spinorfield& x, const Scalar<hmc_complex>& beta, const Spinorfield& y, const Spinorfield& z);
+
+/**
+ * Perform the BLAS (Basic Linear Algebra Subroutine) operation sax + the squarenorm
+ * with a set of real values of alpha.
+ *
+ * ||out||^2 = ||alpha[i] * x||^2
+ */
+void sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield& x);
 
 void log_squarenorm(const std::string& msg, const physics::lattices::Spinorfield& x);
 
