@@ -308,12 +308,49 @@ BOOST_AUTO_TEST_CASE(saxpy)
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
 	physics::lattices::saxpy(&sf, {1., 0.}, gaussian, zero);
-	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), .1);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
 	physics::lattices::saxpy(&sf, {0., 0.}, gaussian, gaussian);
-	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), .1);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
 	physics::lattices::saxpy(&sf, {.3, .1}, cold, zero);
-	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .1, .1);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .1, 1e-8);
 }
+
+BOOST_AUTO_TEST_CASE(saxpy_real)
+{
+	using physics::lattices::Spinorfield;
+
+	const char * _params[] = {"foo"};
+	meta::Inputparameters params(1, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+	const physics::lattices::Scalar<hmc_float> scalar(system);
+	scalar.store(1.0);
+
+	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	gaussian.gaussian(prng);
+	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	cold.cold();
+	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	zero.setZero();
+	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+
+	physics::lattices::saxpy(&sf, scalar, gaussian, zero);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
+
+	scalar.store(0.0);
+	physics::lattices::saxpy(&sf, scalar, gaussian, gaussian);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
+
+	scalar.store(.3);
+	physics::lattices::saxpy(&sf, scalar, cold, zero);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
+}
+
 
 BOOST_AUTO_TEST_CASE(saxsbypz)
 {

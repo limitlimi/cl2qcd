@@ -240,6 +240,24 @@ void physics::lattices::saxpy(const Spinorfield* out, const Scalar<hmc_complex>&
 	}
 }
 
+void physics::lattices::saxpy(const Spinorfield* out, const Scalar<hmc_float>& alpha, const Spinorfield& x, const Spinorfield& y)
+{
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+	auto y_bufs = y.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != x_bufs.size() || out_bufs.size() != y_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->saxpy_device(x_bufs[i], y_bufs[i], alpha_bufs[i], out_buf);
+	}
+}
+
 void physics::lattices::sax(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x)
 {
 	const Scalar<hmc_complex> alpha_buf(out->system);
