@@ -131,7 +131,7 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::u
 {
     //v=A.p and tmp1=(r,r) and tmp3=(p,v) ---> beta_scalar=(-1)*tmp1/tmp3
     copyData(&beta_scalar_prev, beta_scalar);   //before updating beta_scalar its value is saved
-    A(&v, gf, p, &additionalParameters);
+    A(&v, gf, p, additionalParameters);
     log_squarenorm(createLogPrefix() + "v: ", v);
     scalar_product_real_part(&tmp3, p, v);
     divide(&beta_scalar, tmp1, tmp3);   //tmp1 is set from previous iteration
@@ -364,6 +364,20 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::d
         }
     }
 }
+
+template<typename FERMIONFIELD, typename FERMIONMATRIX>
+void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::debugLogSquarenormSetOfFields(const std::string& message,
+                                                 const std::vector<std::shared_ptr<physics::lattices::Spinorfield> > setOfFields, const int reportNumber)
+{
+    if(logger.beDebug()) {
+        for (int i = 0; i < reportNumber; i++) {
+            std::ostringstream messageComplete(message);
+            messageComplete <<  "[field_" << i << "]: ";
+            physics::lattices::log_squarenorm(messageComplete.str(), *setOfFields[i]);
+        }
+    }
+}
+
 
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::debugCompareSquarenormsOfResultFieldsBetweenBeginAndEndOfIteration()
