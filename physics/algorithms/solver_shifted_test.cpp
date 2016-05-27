@@ -318,3 +318,53 @@ BOOST_AUTO_TEST_CASE(cgm_5)
 	 //	    logger.info() << "CG-M algorithm converged in " << iter << " iterations.";
 }
 
+
+BOOST_AUTO_TEST_CASE(cgm_wilson)
+{
+	using namespace physics::lattices;
+		using namespace physics::algorithms::solvers;
+
+		meta::Inputparameters* params;
+		const char * _params[] = {"foo", "--ntime=4", "--fermact=wilson", "--mass=0.567", "--num_dev=1"};
+		params = new meta::Inputparameters(5, _params);
+
+		hardware::HardwareParametersImplementation hP(params);
+		hardware::code::OpenClKernelParametersImplementation kP(*params);
+		hardware::System system(hP, kP);
+		physics::InterfacesHandlerImplementation interfacesHandler{*params};
+		physics::PrngParametersImplementation prngParameters{*params};
+		physics::PRNG prng{system, &prngParameters};
+
+		//This are some possible values of sigma
+		hmc_float pol[5] = {0.0002065381736724, 0.00302707751065980, 0.0200732678058145,
+				0.12517586269872370, 1.0029328743375700};
+		std::vector<hmc_float> sigma(pol, pol + sizeof(pol)/sizeof(hmc_float));
+		physics::fermionmatrix::QplusQminus matrix(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+
+		Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+		Spinorfield b(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+
+		std::vector<std::shared_ptr<Spinorfield> > out;
+		for(uint i = 0; i < sigma.size(); i++)
+			out.emplace_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+
+		pseudo_randomize<Spinorfield, spinor>(&b, 13);
+
+		int iter = cg_m(out, matrix, gf, sigma, b, system, interfacesHandler, 1.e-23, interfacesHandler.getAdditionalParameters<Spinorfield>());
+		logger.info() << "CG-M algorithm converged in " << iter << " iterations.";
+
+		std::vector<std::shared_ptr<Spinorfield> > aux;
+		std::vector<hmc_float> sqnorm_out;
+		hmc_float sqnorm_b = squarenorm(b);
+		logger.info() << "                           sqnorm(b)=" << std::setprecision(16) << sqnorm_b;
+		for(uint i=0; i<sigma.size(); i++){
+			aux.push_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+			matrix(aux[i].get(), gf, *out[i], interfacesHandler.getAdditionalParameters<Spinorfield>());
+			saxpy(aux[i].get(), {sigma[i],0.}, *out[i], *aux[i]);
+			sqnorm_out.push_back(squarenorm(*aux[i]));
+			logger.info() << "sqnorm((matrix + sigma[" << i << "]) * out[" << i << "])=" << std::setprecision(16) << sqnorm_out[i];
+			BOOST_CHECK_CLOSE(sqnorm_b, sqnorm_out[i], 1.e-8);
+		}
+		delete params;
+}
+
