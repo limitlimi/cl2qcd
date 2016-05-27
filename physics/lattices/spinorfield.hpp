@@ -167,6 +167,14 @@ void squarenorm(const Scalar<hmc_float>* res, const Spinorfield& field);
 void saxpy(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const Spinorfield& y);
 void saxpy(const Spinorfield* out, const Scalar<hmc_complex>& alpha, const Spinorfield& x, const Spinorfield& y);
 void saxpy(const Spinorfield* out, const Scalar<hmc_float>& alpha, const Spinorfield& x, const Spinorfield& y);
+void saxpy(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Spinorfield& y);
+
+/**
+ * Perform the BLAS operation saxpby.
+ *
+ * out = alpha * x + b * y
+ */
+void saxpby(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Vector<hmc_float>& beta, const int index_beta, const Spinorfield& y);
 
 /**
  * Perform the BLAS operation sax.

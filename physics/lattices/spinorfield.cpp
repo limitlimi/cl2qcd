@@ -258,6 +258,16 @@ void physics::lattices::saxpy(const Spinorfield* out, const Scalar<hmc_float>& a
 	}
 }
 
+void physics::lattices::saxpy(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Spinorfield& y)
+{
+	throw Print_Error_Message("This saxpy version with a const Vector<hmc_float>& for Wilson spinorfields is not yet implemented.");
+}
+
+void physics::lattices::saxpby(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Vector<hmc_float>& beta, const int index_beta, const Spinorfield& y)
+{
+	throw Print_Error_Message("This saxbpy version for Wilson spinorfields is not yet implemented.");
+}
+
 void physics::lattices::sax(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x)
 {
 	const Scalar<hmc_complex> alpha_buf(out->system);
@@ -316,7 +326,7 @@ void physics::lattices::saxsbypz(const Spinorfield* out, const Scalar<hmc_comple
 	}
 }
 
-void sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield& x)
+void physics::lattices::sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield& x)
 {
 	throw Print_Error_Message("Function sax_vec_and_squarenorm for Wilson spinorfields not yet implemented.");
 }
