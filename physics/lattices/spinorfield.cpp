@@ -294,7 +294,19 @@ void physics::lattices::sax(const Spinorfield* out, const Scalar<hmc_complex>& a
 
 void physics::lattices::sax(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x)
 {
-	throw Print_Error_Message("Function sax with a purely real parameter for Wilson spinorfields not yet implemented.");
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != x_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->sax_device(x_bufs[i], alpha_bufs[i], index_alpha, out_buf);
+	}
 }
 
 void physics::lattices::saxsbypz(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const hmc_complex beta, const Spinorfield& y, const Spinorfield& z)

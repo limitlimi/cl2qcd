@@ -268,6 +268,8 @@ BOOST_AUTO_TEST_CASE(sax)
 	physics::PrngParametersImplementation prngParameters(params);
 	physics::PRNG prng(system, &prngParameters);
 
+	physics::lattices::Vector<hmc_float> real_vec(5, system);
+
 	Spinorfield orig_sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	orig_sf.gaussian(prng);
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
@@ -284,6 +286,13 @@ BOOST_AUTO_TEST_CASE(sax)
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 1.1299999999999968, .1);
 	physics::lattices::sax(&sf, {.65, .3}, orig_sf);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.51250000000000162, .1);
+
+
+	real_vec.store(std::vector<hmc_float>(5, 0.31415));
+	for(int i=0; i<5; i++){
+		physics::lattices::sax(&sf, real_vec, i, orig_sf);
+		BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.09869022250, 1.e-8);
+	}
 }
 
 BOOST_AUTO_TEST_CASE(saxpy)
