@@ -476,6 +476,19 @@ struct SaxTester: public NonEvenOddLinearCombinationTesterWithSquarenormAsKernel
 		}
 };
 
+struct SaxRealVecTester: public NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult
+{
+	SaxRealVecTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("sax_real_vec", parameterCollection, testParameters, calculateReferenceValues_sax)
+		{
+			hardware::buffers::Plain<hmc_float> alpha_real_vec(5, device);
+			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.coefficients.at(0).re);
+			const int index_alpha = 3;
+			alpha_real_vec.load(&alpha_host_real_vec[0]);
+			code->sax_device(spinorfields.at(0), &alpha_real_vec, index_alpha, getOutSpinor());
+		}
+};
+
 struct SaxEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
 {
 	SaxEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
@@ -556,6 +569,11 @@ void testEvenOddScalarProduct( const LatticeExtents lE, const SpinorFillTypes sF
 void testNonEvenOddSax(const LatticeExtents lE, const ComplexNumbers cN)
 {
 	performTest<SaxTester> (lE, cN, 2, false);
+}
+
+void testNonEvenOddSaxRealVec(const LatticeExtents lE, const ComplexNumbers cN)
+{
+	performTest<SaxRealVecTester> (lE, cN, 2, false);
 }
 
 void testEvenOddSax(const LatticeExtents lE, const ComplexNumbers cN)
@@ -870,6 +888,21 @@ BOOST_AUTO_TEST_SUITE(SAX)
 	BOOST_AUTO_TEST_CASE( SAX_4 )
 	{
 		testNonEvenOddSax(LatticeExtents{ns16, nt8}, ComplexNumbers {{1.,1.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAX_REAL_VEC_1 )
+	{
+		testNonEvenOddSaxRealVec(LatticeExtents{ns4, nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAX_REAL_VEC_2 )
+	{
+		testNonEvenOddSaxRealVec(LatticeExtents{ns8, nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAX_REAL_VEC_3 )
+	{
+		testNonEvenOddSaxRealVec(LatticeExtents{ns4, nt8}, ComplexNumbers {{-1.,0.}});
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

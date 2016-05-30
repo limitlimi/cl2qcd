@@ -89,6 +89,7 @@ void hardware::code::Spinors::fill_kernels()
 	saxpy_real = createKernel("saxpy_real") << basic_fermion_code << "spinorfield_saxpy.cl";
 	saxpy_arg = createKernel("saxpy_arg") << basic_fermion_code << "spinorfield_saxpy.cl";
 	sax = createKernel("sax") << basic_fermion_code << "spinorfield_sax.cl";
+	sax_real_vec = createKernel("sax_real_vec") << basic_fermion_code << "spinorfield_sax_real_vec.cl";
 	saxsbypz = createKernel("saxsbypz") << basic_fermion_code << "spinorfield_saxsbypz.cl";
 	scalar_product = createKernel("scalar_product") << basic_fermion_code << "spinorfield_scalar_product.cl";
 	scalar_product_real_part = createKernel("scalar_product_real_part") << basic_fermion_code << "spinorfield_scalar_product_real.cl";
@@ -142,6 +143,8 @@ void hardware::code::Spinors::clear_kernels()
 	clerr = clReleaseKernel(saxpy_arg);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	clerr = clReleaseKernel(sax);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+	clerr = clReleaseKernel(sax_real_vec);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	clerr = clReleaseKernel(saxsbypz);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
@@ -375,6 +378,28 @@ void hardware::code::Spinors::sax_device(const hardware::buffers::Plain<spinor> 
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
 	get_device()->enqueue_kernel(sax , gs2, ls2);
+}
+
+void hardware::code::Spinors::sax_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Plain<spinor> * out) const
+{
+	//query work-sizes for kernel
+		size_t ls2, gs2;
+		cl_uint num_groups;
+		this->get_work_sizes(sax_real_vec, &ls2, &gs2, &num_groups);
+		//set arguments
+		int clerr = clSetKernelArg(sax_real_vec, 0, sizeof(cl_mem), x->get_cl_buffer());
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(sax_real_vec, 1, sizeof(cl_mem), alpha->get_cl_buffer());
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(sax_real_vec, 2, sizeof(cl_int), &index_alpha);
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(sax_real_vec, 3, sizeof(cl_mem), out->get_cl_buffer());
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		get_device()->enqueue_kernel(sax_real_vec , gs2, ls2);
 }
 
 void hardware::code::Spinors::set_spinorfield_cold_device(const hardware::buffers::Plain<spinor> * inout) const
@@ -1059,6 +1084,7 @@ void hardware::code::Spinors::print_profiling(const std::string& filename, int n
 	Opencl_Module::print_profiling(filename, saxpy);
 	Opencl_Module::print_profiling(filename, saxpy_real);
 	Opencl_Module::print_profiling(filename, sax);
+	Opencl_Module::print_profiling(filename, sax_real_vec);
 	Opencl_Module::print_profiling(filename, saxsbypz);
 	Opencl_Module::print_profiling(filename, set_zero_spinorfield);
 	Opencl_Module::print_profiling(filename, saxpy_eoprec);
