@@ -871,11 +871,15 @@ size_t hardware::code::Spinors::get_read_write_size(const std::string& in) const
 	}
 	if (in == "saxpy_real") {
 			//this kernel reads 2 spinor, 1 real number and writes 1 spinor per site
-			return C * D * S * (12 * (2 + 1) + 1);
+			return D * S * (C * 12 * (2 + 1) + 1);
 		}
 	if (in == "sax") {
 		//this kernel reads 1 spinor, 1 complex number and writes 1 spinor per site
 		return C * D * S * (12 * (1 + 1) + 1);
+	}
+	if (in == "sax_real_vec") {
+		//this kernel reads 1 spinor, 1 complex number and writes 1 spinor per site
+		return D * S * (C * 12 * (1 + 1) + 1);
 	}
 	if (in == "saxsbypz") {
 		//this kernel reads 3 spinor, 2 complex number and writes 1 spinor per site
@@ -907,7 +911,7 @@ size_t hardware::code::Spinors::get_read_write_size(const std::string& in) const
 		return C * D * S * ( 2 * 12  + 1 );
 	}
 	if (in == "scalar_product_real_part") {
-			//this kernel reads 2 spinors and writes 1 complex number
+			//this kernel reads 2 spinors and writes 1 real number
 			/// @NOTE: here, the local reduction is not taken into account
 			return D * S * (C * 2 * 12  + 1 );
 		}
@@ -1009,6 +1013,10 @@ uint64_t hardware::code::Spinors::get_flop_size(const std::string& in) const
 	if (in == "sax") {
 		//this kernel performs on each site spinor_times_complex
 		return S * (NDIM * NC * ( getFlopComplexMult() ) );
+	}
+	if (in == "sax_real_vec") {
+		//this kernel performs on each site real_multiply_spinor
+		return S * (NDIM * NC);
 	}
 	if (in == "saxsbypz") {
 		//this kernel performs on each 2 * site spinor_times_complex and 2 * spinor_add
