@@ -71,7 +71,9 @@ public:
 	void set_zero_spinorfield_eoprec_device(const hardware::buffers::Spinor * x) const;
 	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Plain<spinor> * out) const;
 	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y,  const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Plain<spinor> * out) const;
 	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hmc_complex alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpby_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<hmc_float> * beta, const int index_alpha, const int index_beta, const hardware::buffers::Plain<spinor> * out) const;
 	void sax_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Plain<spinor> * out) const;
 	void sax_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Plain<spinor> * out) const;
 	void saxsbypz_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<spinor> * z, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Plain<hmc_complex> * beta, const hardware::buffers::Plain<spinor> * out) const;
@@ -154,7 +156,9 @@ private:
 	cl_kernel set_spinorfield_cold;
 	cl_kernel saxpy;
 	cl_kernel saxpy_real;
+	cl_kernel saxpy_real_vec;
 	cl_kernel saxpy_arg;
+	cl_kernel saxpby_real_vec;
 	cl_kernel sax;
 	cl_kernel sax_real_vec;
 	cl_kernel saxsbypz;

@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(sax)
 	physics::PrngParametersImplementation prngParameters(params);
 	physics::PRNG prng(system, &prngParameters);
 
-	physics::lattices::Vector<hmc_float> real_vec(5, system);
+
 
 	Spinorfield orig_sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	orig_sf.gaussian(prng);
@@ -287,6 +287,7 @@ BOOST_AUTO_TEST_CASE(sax)
 	physics::lattices::sax(&sf, {.65, .3}, orig_sf);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.51250000000000162, .1);
 
+	physics::lattices::Vector<hmc_float> real_vec(5, system);
 
 	real_vec.store(std::vector<hmc_float>(5, 0.31415));
 	for(int i=0; i<5; i++){
@@ -337,8 +338,6 @@ BOOST_AUTO_TEST_CASE(saxpy_real)
 	physics::PrngParametersImplementation prngParameters(params);
 	physics::PRNG prng(system, &prngParameters);
 
-	const physics::lattices::Scalar<hmc_float> scalar(system);
-	scalar.store(1.0);
 
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	gaussian.gaussian(prng);
@@ -348,6 +347,9 @@ BOOST_AUTO_TEST_CASE(saxpy_real)
 	zero.setZero();
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
+	const physics::lattices::Scalar<hmc_float> scalar(system);
+
+	scalar.store(1.0);
 	physics::lattices::saxpy(&sf, scalar, gaussian, zero);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
 
@@ -360,6 +362,86 @@ BOOST_AUTO_TEST_CASE(saxpy_real)
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
 }
 
+BOOST_AUTO_TEST_CASE(saxpy_real_vec)
+{
+	using physics::lattices::Spinorfield;
+
+	const char * _params[] = {"foo"};
+	meta::Inputparameters params(1, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+
+
+	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	gaussian.gaussian(prng);
+	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	cold.cold();
+	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	zero.setZero();
+	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+
+	physics::lattices::Vector<hmc_float> real_vec(5, system);
+
+	real_vec.store(std::vector<hmc_float>(5,1.0));
+	for(int i = 0; i < 5; i++)
+	{
+		physics::lattices::saxpy(&sf, real_vec, i, gaussian, zero);
+		BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
+	}
+
+	real_vec.store(std::vector<hmc_float>(5,0.0));
+	for(int i = 0; i < 5; i++)
+	{
+		physics::lattices::saxpy(&sf, real_vec, i, gaussian, gaussian);
+		BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
+	}
+
+	real_vec.store(std::vector<hmc_float>(5,0.3));
+	for(int i = 0; i < 5; i++)
+	{
+		physics::lattices::saxpy(&sf, real_vec, i, cold, zero);
+		BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
+	}
+}
+
+BOOST_AUTO_TEST_CASE(saxpby)
+{
+	using physics::lattices::Spinorfield;
+
+	const char * _params[] = {"foo"};
+	meta::Inputparameters params(1, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	cold.cold();
+	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	zero.setZero();
+	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+
+	physics::lattices::Vector<hmc_float> real_vec1(5, system);
+	physics::lattices::Vector<hmc_float> real_vec2(5, system);
+
+	real_vec1.store(std::vector<hmc_float>(5, 0.31415));
+	real_vec2.store(std::vector<hmc_float>(5, 0.51413));
+	for(int i=0; i<5; i++){
+		for(int j=0; j<5; j++){
+			physics::lattices::saxpby(&sf, real_vec1, i, cold, real_vec2, j, zero);
+			BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.09869022250, 1.e-8);
+			physics::lattices::saxpby(&sf, real_vec1, i, cold, real_vec2, j, cold);
+			BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.68604775840, 1.e-8);
+		}
+	}
+}
 
 BOOST_AUTO_TEST_CASE(saxsbypz)
 {

@@ -51,6 +51,19 @@ __kernel void saxpy_real(__global spinor* x, __global spinor* y, __global const 
 	}
 }
 
+__kernel void saxpy_real_vec(__global spinor* x, __global spinor* y, __global const hmc_float * alpha, const int index_alpha, __global spinor* out)
+{
+	int id = get_global_id(0);
+	int global_size = get_global_size(0);
+	
+	for(int id_mem = id; id_mem < SPINORFIELDSIZE_MEM; id_mem += global_size) {
+		const spinor x_tmp = x[id_mem];
+		const spinor y_tmp = y[id_mem];
+		const spinor tmp = real_multiply_spinor(x_tmp, alpha[index_alpha]);
+		out[id_mem] = spinor_acc(y_tmp, tmp);
+	}
+}
+
 // the arguments have been hacked to work on apple
 __kernel void saxpy_arg(__global spinor* x, __global spinor* y, const hmc_float alpha_re, const hmc_float alpha_im, __global spinor* out)
 {
