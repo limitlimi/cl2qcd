@@ -58,6 +58,8 @@ namespace physics {
 				Rooted_Staggeredfield_eo& operator=(const Rooted_Staggeredfield_eo&) = delete;
 				Rooted_Staggeredfield_eo(const Rooted_Staggeredfield_eo&) = delete;
 				Rooted_Staggeredfield_eo() = delete;
+
+				friend void pseudo_randomize<Rooted_Staggeredfield_eo, su3vec>(const Rooted_Staggeredfield_eo* to, int seed);
 		};
 
 	}
