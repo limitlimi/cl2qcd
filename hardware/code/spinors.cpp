@@ -1084,7 +1084,7 @@ uint64_t hardware::code::Spinors::get_flop_size(const std::string& in) const
 	}
 	if (in == "saxpby_real_vec"){
 		//this kernel performs on each site real_multiply_spinor and spinor_add
-		return S * (NDIM * NC * (4 + 2))
+		return S * (NDIM * NC * (4 + 2));
 	}
 	if (in == "saxsbypz") {
 		//this kernel performs on each 2 * site spinor_times_complex and 2 * spinor_add

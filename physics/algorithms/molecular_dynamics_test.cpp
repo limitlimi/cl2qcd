@@ -33,6 +33,8 @@
 #include "../../interfaceImplementations/interfacesHandler.hpp"
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
+#include "../lattices/staggeredfield_eo.hpp"
+
 
 BOOST_AUTO_TEST_CASE(md_update_gaugefield)
 {
@@ -216,6 +218,30 @@ BOOST_AUTO_TEST_CASE(md_update_spinorfield_eo)
 		physics::algorithms::md_update_spinorfield(&sf2, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(sf2), 1114.3019247079062, 0.01);
 	}
+}
+
+BOOST_AUTO_TEST_CASE(md_update_staggered_spinorfield_eo)
+{
+	using namespace physics::lattices;
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--num_dev=1"};
+	meta::Inputparameters params(4, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+
+	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
+	Rooted_Staggeredfield_eo in(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>());
+	Rooted_Staggeredfield_eo out(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>(), approx);
+
+	pseudo_randomize<Rooted_Staggeredfield_eo, su3vec>(&in, 13);
+	physics::algorithms::md_update_spinorfield(&out, gf, in, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Rooted_Staggeredfield_eo>());
+
+	BOOST_CHECK_CLOSE(squarenorm(out), 282.18588219590134, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(md_update_spinorfield_mp)
