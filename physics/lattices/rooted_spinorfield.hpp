@@ -44,9 +44,15 @@ namespace physics {
 				Rooted_Spinorfield(const Rooted_Spinorfield&) = delete;
 				Rooted_Spinorfield() = delete;
 
+				int Get_order() const;
+				hmc_float Get_a0() const;
+				std::vector<hmc_float> Get_a() const;
+				std::vector<hmc_float> Get_b() const;
+
 				private:
 				const physics::algorithms::Rational_Coefficients rationalCoefficients;
 
+				friend void pseudo_randomize<Rooted_Spinorfield, spinor>(const Rooted_Spinorfield* to, int seed);
 			};
 		}
 	}

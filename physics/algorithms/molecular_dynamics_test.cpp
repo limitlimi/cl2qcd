@@ -34,7 +34,7 @@
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
 #include "../lattices/staggeredfield_eo.hpp"
-
+#include "../lattices/rooted_spinorfield.hpp"
 
 BOOST_AUTO_TEST_CASE(md_update_gaugefield)
 {
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(md_update_spinorfield_eo)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(md_update_staggered_spinorfield_eo)
+BOOST_AUTO_TEST_CASE(md_update_staggered_rooted_spinorfield_eo)
 {
 	using namespace physics::lattices;
 	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--num_dev=1"};
@@ -242,6 +242,30 @@ BOOST_AUTO_TEST_CASE(md_update_staggered_spinorfield_eo)
 	physics::algorithms::md_update_spinorfield(&out, gf, in, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Rooted_Staggeredfield_eo>());
 
 	BOOST_CHECK_CLOSE(squarenorm(out), 282.18588219590134, 1e-8);
+}
+
+BOOST_AUTO_TEST_CASE(md_update_rooted_spinorfield)
+{
+	using namespace physics::lattices;
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=wilson", "--num_dev=1"};
+	meta::Inputparameters params(4, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+
+	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
+	wilson::Rooted_Spinorfield in(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield>());
+	wilson::Rooted_Spinorfield out(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield>(), approx);
+
+	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&in, 13);
+	physics::algorithms::md_update_spinorfield(&out, gf, in, system, interfacesHandler, interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield>());
+
+	BOOST_CHECK_CLOSE(squarenorm(out), 882.81881164591357, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(md_update_spinorfield_mp)

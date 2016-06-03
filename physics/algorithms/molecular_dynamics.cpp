@@ -32,6 +32,8 @@
 #include "forces.hpp"
 #include "../../hardware/code/molecular_dynamics.hpp"
 #include "../lattices/util.hpp"
+#include "../lattices/rooted_spinorfield.hpp"
+
 
 void physics::algorithms::md_update_gaugefield(const physics::lattices::Gaugefield * const gf, const physics::lattices::Gaugemomenta& gm, const hmc_float eps)
 {
@@ -108,6 +110,30 @@ void physics::algorithms::md_update_spinorfield(const physics::lattices::Rooted_
         physics::lattices::saxpy(out, { (out->Get_a())[i], 0. }, *X[i], *out);
 
     log_squarenorm("Staggeredfield_eo after update", *out);
+}
+
+void physics::algorithms::md_update_spinorfield(const physics::lattices::wilson::Rooted_Spinorfield * out, const physics::lattices::Gaugefield& gf,
+                                                const physics::lattices::wilson::Rooted_Spinorfield& orig, const hardware::System& system,
+                                                physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+    logger.debug() << "\tRHMC [UP]:\tupdate SF";
+    const physics::algorithms::MolecularDynamicsInterface & parametersInterface = interfacesHandler.getMolecularDynamicsInterface();
+    const physics::fermionmatrix::QplusQminus fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+
+    //Temporary fields for shifted inverter
+    logger.trace() << "\t\tstart solver...";
+    std::vector<std::shared_ptr<physics::lattices::Spinorfield> > X;
+    for (int i = 0; i < out->Get_order(); i++)
+        X.emplace_back(std::make_shared<physics::lattices::Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+    //Here the inversion must be performed with high precision, because it'll be used for Metropolis test
+    const int iterations = physics::algorithms::solvers::cg_m(X, fm, gf, out->Get_b(), orig, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
+    logger.trace() << "\t\t...end solver in " << iterations << " iterations";
+
+    physics::lattices::sax(out, { out->Get_a0(), 0. }, orig);
+    for (int i = 0; i < out->Get_order(); i++)
+        physics::lattices::saxpy(out, { (out->Get_a())[i], 0. }, *X[i], *out);
+
+    log_squarenorm("Spinorfield after update", *out);
 }
 
 /**

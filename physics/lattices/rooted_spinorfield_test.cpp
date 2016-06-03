@@ -50,4 +50,12 @@ BOOST_AUTO_TEST_CASE(initialization)
 	wilson::Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
 	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
 	wilson::Rooted_Spinorfield sf2(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
+
+	hmc_float rc = sf2.Get_order();
+
+	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&sf, 13;
+
+	log_squarenorm("sq. Rooted_Spinorfield: ",sf);
+
+	logger.debug() << "Rational coefficients order: " << rc;
 }

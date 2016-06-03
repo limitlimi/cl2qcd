@@ -271,6 +271,11 @@ namespace physics {
     {
         return getStaggeredAdditionalParameters();
     }
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>(bool withMassPreconditioning)
+    {
+    	return getWilsonAdditionalParameters(withMassPreconditioning);
+    }
+
 
 }
 

@@ -37,3 +37,22 @@ physics::lattices::wilson::Rooted_Spinorfield::Rooted_Spinorfield(const hardware
 {
 }
 
+int physics::lattices::wilson::Rooted_Spinorfield::Get_order() const
+{
+	return rationalCoefficients.Get_order();
+}
+
+hmc_float physics::lattices::wilson::Rooted_Spinorfield::Get_a0() const
+{
+	return rationalCoefficients.Get_a0();
+}
+
+std::vector<hmc_float> physics::lattices::wilson::Rooted_Spinorfield::Get_a() const
+{
+	return rationalCoefficients.Get_a();
+}
+
+std::vector<hmc_float> physics::lattices::wilson::Rooted_Spinorfield::Get_b() const
+{
+	return rationalCoefficients.Get_b();
+}

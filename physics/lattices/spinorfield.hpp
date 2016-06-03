@@ -112,13 +112,15 @@ class Spinorfield {
          */
         void clear_buffers();
 
+        void import(const spinor * const host) const;
+
     private:
         hardware::System const& system;
         //TODO: turn the following pointer in a reference
         const SpinorfieldParametersInterface& spinorfieldParametersInterface;
 	hardware::lattices::Spinorfield spinorfield;
         const bool place_on_host;
-        void import(const spinor * const host) const;
+
 
         friend hmc_complex scalar_product(const Spinorfield& left, const Spinorfield& right);
         friend hmc_float scalar_product_real_part(const Spinorfield& left, const Spinorfield& right);
