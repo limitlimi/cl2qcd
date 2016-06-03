@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(initialization)
 
 	hmc_float rc = sf2.Get_order();
 
-	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&sf, 13;
+	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&sf, 13);
 
 	log_squarenorm("sq. Rooted_Spinorfield: ",sf);
 
