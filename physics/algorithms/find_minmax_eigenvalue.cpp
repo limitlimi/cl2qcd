@@ -34,7 +34,7 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
                                       const hardware::System& system,  physics::InterfacesHandler& interfacesHandler,
                                       hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 
-hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
+template<class FERMIONMATRIX, class SPINORFIELD, class BASETYPE> hmc_float find_max_eigenvalue(const FERMIONMATRIX& A, const physics::lattices::Gaugefield& gf,
                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                                    const physics::AdditionalParameters& additionalParameters)
 {
@@ -52,17 +52,20 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 
     //This field is the starting point and it must be random (we have to be sure
     //to have a non zero component along the eigenvectors referring to the biggest eigenvalue)
-    Staggeredfield_eo v1(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-    pseudo_randomize<Staggeredfield_eo, su3vec>(&v1, 123);
+    SPINORFIELD v1(system, interfacesHandler.getInterface<SPINORFIELD>());
+    pseudo_randomize<SPINORFIELD, BASETYPE>(&v1, 123);
     sax(&v1, { 1. / sqrt(squarenorm(v1)), 0. }, v1);   //v1 is now normalized
     //Auxiliary field
-    Staggeredfield_eo v2(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
+    SPINORFIELD v2(system, interfacesHandler.getInterface<SPINORFIELD>());
     //How often to check resid
     const physics::algorithms::MinMaxEigenvalueParametersInterface & parametersInterface = interfacesHandler.getMinMaxEigenvalueParametersInterface();
     const int RESID_CHECK_FREQUENCY = parametersInterface.getFindMinMaxIterationBlockSize();
 
     log_squarenorm(create_log_prefix_find_max(0) + "v1 (initial): ", v1);
     log_squarenorm(create_log_prefix_find_max(0) + "v2 (initial) [not-initialized]: ", v2);
+
+    physics::lattices::Scalar<hmc_float> factor(system);
+    factor.store(-1.0);
 
     for (unsigned int i = 0; i < parametersInterface.getFindMinMaxMaxValue(); i++) {
         //Apply A onto v1
@@ -75,7 +78,8 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
             log_squarenorm(create_log_prefix_find_max(i) + "v2: ", v2);
         //Check whether the algorithm converged
         if(i % RESID_CHECK_FREQUENCY == 0) {
-            saxpy(&v1, { -1., 0. }, v1, v2);   //Here I can use v1 as container, the important is not
+            saxpy(&v1, factor, v1, v2);   //Here I can use v1 as container, the important is not
+//            saxpy(&v1, { -1., 0. }, v1, v2);   //Here I can use v1 as container, the important is not
                                                //to modify v2 that will be copied in v1
             log_squarenorm(create_log_prefix_find_max(i) + "v1: ", v1);
             resid = sqrt(squarenorm(v1));
@@ -104,6 +108,27 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
     throw solvers::SolverDidNotSolve(parametersInterface.getFindMinMaxMaxValue(), __FILE__, __LINE__);
 
 }
+
+hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
+                                                   const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                   const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix_stagg_eo;
+	using physics::lattices::Staggeredfield_eo;
+
+	return ::find_max_eigenvalue<Fermionmatrix_stagg_eo, Staggeredfield_eo, su3vec>(A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
+hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+        											const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+													const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix;
+	using physics::lattices::Spinorfield;
+
+	return ::find_max_eigenvalue<Fermionmatrix, Spinorfield, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
 
 hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
@@ -185,6 +210,81 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
         //Check whether the algorithm converged
         if(i % RESID_CHECK_FREQUENCY == 0) {
             saxpy(&v1, { -1., 0. }, v1, v2);   //Here I can use v1 as container, the important is not
+                                               //to modify v2 that will be copied in v1
+            log_squarenorm(create_log_prefix_find_min(i) + "v1: ", v1);
+            resid = sqrt(squarenorm(v1));
+
+            logger.debug() << create_log_prefix_find_min(i) << "resid: " << std::setprecision(8) << resid;
+
+            if(resid < prec) {
+                //Apply (max-A) onto v2
+                A(&v1, gf, v2, additionalParameters);
+                saxpby(&v1, { max, 0. }, v2, { -1., 0. }, v1);   //Now in v1 there is (max-A)*v2
+                scalar_product(&min, v2, v1);
+                hmc_complex result = min.get();
+                logger.debug() << "min.im = " << result.im;
+                if(abs(result.im) > 1.e-12) {
+                    logger.fatal() << "Power Method found complex eigenvalue!";
+                    throw solvers::SolverStuck(i, __FILE__, __LINE__);
+                }
+                //Here we are sure the eigenvalue is correctly found, then we get the duration
+                const uint64_t duration = timer.getTime();
+                logger.debug() << "Find_min_eig completed in " << duration / 1000.f << " ms. Performed " << i << " iterations (resid = " << resid << ").";
+                return max - result.re;
+            }
+        }
+        copyData(&v1, v2);
+    }
+
+    logger.fatal() << "Power Method failed in finding min_eig in " << parametersInterface.getFindMinMaxMaxValue() << " iterations. Last resid: " << resid;
+    throw solvers::SolverDidNotSolve(parametersInterface.getFindMinMaxMaxValue(), __FILE__, __LINE__);
+
+}
+
+static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+{
+    using namespace physics::lattices;
+    using namespace physics::algorithms;
+
+    Scalar<hmc_complex> min(system);
+    hmc_float resid;
+
+    //This timer is to know how long this function takes
+    klepsydra::Monotonic timer;
+
+    //This field is the starting point and it must be random (we have to be sure
+    //to have a non zero component along the eigenvectors referring to the smallest eigenvalue)
+    Spinorfield v1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+    pseudo_randomize<Spinorfield, spinor>(&v1, 321);
+    log_squarenorm(create_log_prefix_find_min(0) + "v1 (initial): ", v1);
+    sax(&v1, { 1. / sqrt(squarenorm(v1)), 0. }, v1);   //v1 is now normalized
+    //Auxiliary field
+    Spinorfield v2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+    //How often to check resid
+    const physics::algorithms::MinMaxEigenvalueParametersInterface & parametersInterface = interfacesHandler.getMinMaxEigenvalueParametersInterface();
+    const int RESID_CHECK_FREQUENCY = parametersInterface.getFindMinMaxIterationBlockSize();
+
+    log_squarenorm(create_log_prefix_find_min(0) + "v1 (initial): ", v1);
+    log_squarenorm(create_log_prefix_find_min(0) + "v2 (initial) [not-initialized]: ", v2);
+
+    physics::lattices::Scalar<hmc_float> factor(system);
+    factor.store(-1.0);
+
+    for (unsigned int i = 0; i < parametersInterface.getFindMinMaxMaxValue(); i++) {
+        //Apply (max-A) onto v1
+        A(&v2, gf, v1, additionalParameters);
+        saxpby(&v2, { max, 0. }, v1, { -1., 0. }, v2);   //Now in v2 there is (max-A)*v1
+        if(i % 100 == 0)
+            log_squarenorm(create_log_prefix_find_min(i) + "v2: ", v2);
+        //Normalize v2
+        sax(&v2, { 1. / sqrt(squarenorm(v2)), 0. }, v2);
+        if(i % 100 == 0)
+            log_squarenorm(create_log_prefix_find_min(i) + "v2: ", v2);
+        //Check whether the algorithm converged
+        if(i % RESID_CHECK_FREQUENCY == 0) {
+            saxpy(&v1, factor, v1, v2);   //Here I can use v1 as container, the important is not
                                                //to modify v2 that will be copied in v1
             log_squarenorm(create_log_prefix_find_min(i) + "v1: ", v1);
             resid = sqrt(squarenorm(v1));

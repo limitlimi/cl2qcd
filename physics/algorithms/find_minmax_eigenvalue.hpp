@@ -25,6 +25,8 @@
 #include "../lattices/gaugefield.hpp"
 #include "../fermionmatrix/fermionmatrix_stagg.hpp"
 #include "../interfacesHandler.hpp"
+#include "../lattices/spinorfield.hpp"
+#include "../fermionmatrix/fermionmatrix.hpp"
 
 namespace physics {
 
@@ -51,6 +53,10 @@ namespace physics {
         hmc_float find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
                                       const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                       const physics::AdditionalParameters& additionalParameters);
+
+        hmc_float find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                const physics::AdditionalParameters& additionalParameters);
 
         /**
          * This function returns the minimum eigenvalue of the operator A up to some specified precision.
