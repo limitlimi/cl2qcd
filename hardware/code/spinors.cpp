@@ -90,6 +90,7 @@ void hardware::code::Spinors::fill_kernels()
 	saxpy_real_vec = createKernel("saxpy_real_vec") << basic_fermion_code << "spinorfield_saxpy.cl";
 	saxpy_arg = createKernel("saxpy_arg") << basic_fermion_code << "spinorfield_saxpy.cl";
 	saxpby_real_vec = createKernel("saxpby_real_vec") << basic_fermion_code << "spinorfield_saxpby_real_vec.cl";
+	saxpby_cplx_arg = createKernel("saxpby_cplx_arg") << basic_fermion_code << "spinorfield_saxpby_cplx_arg.cl";
 	sax = createKernel("sax") << basic_fermion_code << "spinorfield_sax.cl";
 	sax_real_vec = createKernel("sax_real_vec") << basic_fermion_code << "spinorfield_sax_real_vec.cl";
 	saxsbypz = createKernel("saxsbypz") << basic_fermion_code << "spinorfield_saxsbypz.cl";
@@ -145,6 +146,10 @@ void hardware::code::Spinors::clear_kernels()
 		clerr = clReleaseKernel(saxpy_real_vec);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	clerr = clReleaseKernel(saxpy_arg);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+	clerr = clReleaseKernel(saxpby_real_vec);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+	clerr = clReleaseKernel(saxpby_cplx_arg);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	clerr = clReleaseKernel(sax);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
@@ -389,6 +394,38 @@ void hardware::code::Spinors::saxpy_device(const hardware::buffers::Plain<spinor
 
 	get_device()->enqueue_kernel(saxpy_arg , gs2, ls2);
 }
+
+void hardware::code::Spinors::saxpby_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hmc_complex alpha, const hmc_complex beta, const hardware::buffers::Plain<spinor> * out) const
+{
+	//query work-sizes for kernel
+	size_t ls2, gs2;
+	cl_uint num_groups;
+	this->get_work_sizes(saxpby_cplx_arg, &ls2, &gs2, &num_groups);
+	//set arguments
+	int clerr = clSetKernelArg(saxpby_cplx_arg, 0, sizeof(cl_mem), x->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_cplx_arg, 1, sizeof(cl_mem), y->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_cplx_arg, 2, sizeof(hmc_float), &alpha.re);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_cplx_arg, 3, sizeof(hmc_float), &alpha.im);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_cplx_arg, 4, sizeof(hmc_float), &beta.re);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_cplx_arg, 5, sizeof(hmc_float), &beta.im);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_cplx_arg, 6, sizeof(cl_mem), out->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	get_device()->enqueue_kernel(saxpby_cplx_arg, gs2, ls2);
+}
+
 
 void hardware::code::Spinors::saxpby_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<hmc_float> * beta, const int index_alpha, const int index_beta, const hardware::buffers::Plain<spinor> * out) const
 {

@@ -40,7 +40,7 @@ __kernel void saxpy_real_staggered_eoprec(__global const staggeredStorageType * 
 	}
 }
 
-__kernel void saxpy_real_arg_staggered_eoprec(__global const spinorStorageType * const x, __global const spinorStorageType * const y, const hmc_float alpha, __global spinorStorageType * const out)
+__kernel void saxpy_real_arg_staggered_eoprec(__global const staggeredStorageType * const x, __global const staggeredStorageType * const y, const hmc_float alpha, __global staggeredStorageType * const out)
 {
 	const int id = get_global_id(0);
 	const int global_size = get_global_size(0);
