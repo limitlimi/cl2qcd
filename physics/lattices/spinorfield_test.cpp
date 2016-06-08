@@ -426,11 +426,20 @@ BOOST_AUTO_TEST_CASE(saxpby)
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	zero.setZero();
+	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	gaussian.gaussian(prng);
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
 	physics::lattices::Vector<hmc_float> real_vec1(5, system);
 	physics::lattices::Vector<hmc_float> real_vec2(5, system);
-
+	//Complex
+	physics::lattices::saxpby(&sf, {1., 0.}, gaussian, {0., 0.}, cold);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1.e-8);
+	physics::lattices::saxpby(&sf, {0., 0.}, cold, {1., 0.}, gaussian);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1.e-8);
+	physics::lattices::saxpby(&sf, {0., 0.}, gaussian, {0., 0.}, gaussian);
+	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
+	//Vector
 	real_vec1.store(std::vector<hmc_float>(5, 0.31415));
 	real_vec2.store(std::vector<hmc_float>(5, 0.51413));
 	for(int i=0; i<5; i++){

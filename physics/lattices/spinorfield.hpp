@@ -173,9 +173,11 @@ void saxpy(const Spinorfield* out, const Vector<hmc_float>& alpha, const int ind
 
 /**
  * Perform the BLAS operation saxpby.
+
  *
  * out = alpha * x + b * y
  */
+void saxpby(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const hmc_complex beta, const Spinorfield& y);
 void saxpby(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Vector<hmc_float>& beta, const int index_beta, const Spinorfield& y);
 
 /**
