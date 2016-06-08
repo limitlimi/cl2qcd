@@ -26,6 +26,11 @@
 * Implementations of fermion matrices
 */
 
+hmc_float physics::fermionmatrix::Fermionmatrix_basic::getThresholdForMinimumEigenvalue(hmc_float) const
+{
+    throw Print_Error_Message("Threshold for minimum eigenvalue not existing or not implemented!");
+}
+
 bool physics::fermionmatrix::Fermionmatrix_basic::isHermitian() const noexcept
 {
 	return _is_hermitian;

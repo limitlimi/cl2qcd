@@ -64,6 +64,7 @@ public:
 	 */
 	virtual cl_ulong get_read_write_size() const = 0;
 	virtual ~Fermionmatrix_basic() {};
+	virtual hmc_float getThresholdForMinimumEigenvalue(hmc_float kappa) const;
 
 protected:
 	Fermionmatrix_basic(const hardware::System& system, const FermionmatrixParametersInterface& fermionmatrixParametersInterface,

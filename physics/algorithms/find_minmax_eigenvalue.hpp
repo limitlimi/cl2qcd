@@ -76,9 +76,14 @@ namespace physics {
          *        has all eigenvalues bigger than or equal to the mass squared of the quarks. This means
          *        that one could be conservative and return the mass^2 as minimum eigenvalue.
          */
+        hmc_float find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                                                           const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                           const physics::AdditionalParameters& additionalParameters);
+
         hmc_float find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
                                       const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                       const physics::AdditionalParameters& additionalParameters);
+
 
         /**
          * This function finds both the minimum and the maximum eigenvalue of the operator A
@@ -91,7 +96,7 @@ namespace physics {
          *  @param prec The precision up to which the minimum eigenvalue is found
          *  @param conservative If true, the method sets the return value of the method getThresholdForMinimumEigenvalue
          *                      of the operator A as minimum eigenvalue. If false, then the minimum eigenvalue is calculated.
-         *                      The maximum eigenvalue is calculated and then increased vy 5%.
+         *                      The maximum eigenvalue is calculated and then increased by 5%.
          *
          *  @note The note of the functions find_max_eigenvalue and find_min_eigenvalue are
          *        still valid for this function.

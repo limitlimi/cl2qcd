@@ -88,6 +88,7 @@ void physics::algorithms::md_update_spinorfield(const physics::lattices::Spinorf
  * @note The coefficients of the approximation are stored in out, since this is the field that
  *       appears in the perform_RHMC_step function.
  */
+//TODO: To be defined static?
 template<class FERMIONMATRIX, class ROOTED_SPINORFIELD, class SPINORFIELD> void md_update_spinorfield(const ROOTED_SPINORFIELD * out, const physics::lattices::Gaugefield& gf,
                                                 const ROOTED_SPINORFIELD& orig, const hardware::System& system,
                                                 physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters)
