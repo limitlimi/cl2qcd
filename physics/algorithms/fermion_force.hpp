@@ -25,8 +25,10 @@
 #include "../lattices/gaugemomenta.hpp"
 #include "../lattices/gaugefield.hpp"
 #include "../lattices/spinorfield.hpp"
+#include "../lattices/rooted_spinorfield.hpp"
 #include "../lattices/spinorfield_eo.hpp"
 #include "../interfacesHandler.hpp"
+#include "solver_shifted.hpp"
 
 namespace physics {
     namespace algorithms {
@@ -34,6 +36,9 @@ namespace physics {
         //These methods really calculate the total fermion force and they add it to the Gaugemomenta field
         void calc_fermion_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                  const physics::lattices::Spinorfield& phi, const hardware::System& system,
+                                 physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
+        void calc_fermion_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
+                                 const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
                                  physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         void calc_fermion_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                  const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
@@ -49,6 +54,9 @@ namespace physics {
         void calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                 const physics::lattices::Spinorfield& phi, const hardware::System& system,
                                 physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
+        void calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
+        						const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+								physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         void calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                 const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                 physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);

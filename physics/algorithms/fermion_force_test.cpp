@@ -82,6 +82,41 @@ BOOST_AUTO_TEST_CASE(fermion_force)
 	}
 }
 
+BOOST_AUTO_TEST_CASE(fermion_force_shifted)
+{
+	using namespace physics::lattices;
+		using namespace physics::algorithms;
+
+		Rational_Approximation approx(8, 1,2, 1.e-5,1);
+
+		{
+			const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+			meta::Inputparameters params(3, _params);
+			physics::InterfacesHandlerImplementation interfacesHandler{params};
+		    hardware::HardwareParametersImplementation hP(&params);
+		    hardware::code::OpenClKernelParametersImplementation kP(params);
+		    hardware::System system(hP, kP);
+			physics::PrngParametersImplementation prngParameters{params};
+			physics::PRNG prng{system, &prngParameters};
+
+			Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+			Gaugemomenta gm(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
+			wilson::Rooted_Spinorfield sf1(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
+			wilson::Rooted_Spinorfield sf2(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
+
+			pseudo_randomize<Spinorfield, spinor>(&sf1, 123); //it will be A
+			pseudo_randomize<Spinorfield, spinor>(&sf2, 321); //it will be B
+
+			gm.zero();
+			physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>());
+			BOOST_CHECK_CLOSE(squarenorm(gm), 3826.164819375289, 1.e-6);
+
+			gm.zero();
+			physics::algorithms::calc_fermion_forces(&gm, gf, sf2, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>());
+			BOOST_CHECK_CLOSE(squarenorm(gm), 3852.394510891299, 1.e-6);
+		}
+}
+
 BOOST_AUTO_TEST_CASE(fermion_force_eo)
 {
 	{
