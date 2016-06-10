@@ -109,10 +109,12 @@ BOOST_AUTO_TEST_CASE(fermion_force_shifted)
 
 			gm.zero();
 			physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>());
+			//TODO: Result still has to be checked by true analytic test
 			BOOST_CHECK_CLOSE(squarenorm(gm), 3826.164819375289, 1.e-6);
 
 			gm.zero();
 			physics::algorithms::calc_fermion_forces(&gm, gf, sf2, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>());
+			//TODO: Result still has to be checked by true analytic test
 			BOOST_CHECK_CLOSE(squarenorm(gm), 3852.394510891299, 1.e-6);
 		}
 }
