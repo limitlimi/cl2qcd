@@ -244,6 +244,13 @@ void physics::algorithms::md_update_gaugemomentum(const physics::lattices::Gauge
 }
 
 void physics::algorithms::md_update_gaugemomentum(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
+                                                  const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+                                                  physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters)
+{
+    ::md_update_gaugemomentum(inout, eps, gf, phi, system, interfaceHandler, additionalParameters);
+}
+
+void physics::algorithms::md_update_gaugemomentum(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
                                                   const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,
                                                   physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters)
 {
@@ -301,6 +308,14 @@ void physics::algorithms::md_update_gaugemomentum_fermion(const physics::lattice
 }
 void physics::algorithms::md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps,
                                                           const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi,
+                                                          const hardware::System& system, physics::InterfacesHandler& interfaceHandler,
+                                                          const physics::AdditionalParameters& additionalParameters)
+{
+    ::md_update_gaugemomentum_fermion(inout, eps, gf, phi, system, interfaceHandler, additionalParameters);
+}
+
+void physics::algorithms::md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps,
+                                                          const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi,
                                                           const hardware::System& system, physics::InterfacesHandler& interfaceHandler,
                                                           const physics::AdditionalParameters& additionalParameters)
 {

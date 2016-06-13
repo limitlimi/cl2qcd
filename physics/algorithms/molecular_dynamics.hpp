@@ -61,6 +61,9 @@ namespace physics {
                                      const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                      physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
         void md_update_gaugemomentum(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
+        							 const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+									 physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
+        void md_update_gaugemomentum(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
                                      const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,
                                      physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
 
@@ -72,6 +75,10 @@ namespace physics {
         void md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
                                              const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                              physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
+        void md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps,
+        									 const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi,
+											 const hardware::System& system, physics::InterfacesHandler& interfaceHandler,
+											 const physics::AdditionalParameters& additionalParameters);
         void md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
                                              const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,
                                              physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
