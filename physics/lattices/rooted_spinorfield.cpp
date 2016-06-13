@@ -37,6 +37,13 @@ physics::lattices::wilson::Rooted_Spinorfield::Rooted_Spinorfield(const hardware
 {
 }
 
+void physics::lattices::wilson::Rooted_Spinorfield::Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue)
+{
+//	physics::algorithms::Rational_Coefficients aux = ;
+//	rationalCoefficients.Set_coeff(aux.Get_a0(), aux.Get_a(), aux.Get_b());
+	rationalCoefficients = std::move(approx.Rescale_Coefficients(minEigenvalue, maxEigenvalue));
+}
+
 int physics::lattices::wilson::Rooted_Spinorfield::Get_order() const
 {
 	return rationalCoefficients.Get_order();

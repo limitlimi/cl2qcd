@@ -40,6 +40,9 @@ namespace physics {
 
 				~Rooted_Spinorfield(){};
 
+				//Rescale coefficients on the basis of a Rational_Approximation objects
+				void Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue);
+
 				Rooted_Spinorfield& operator=(const Rooted_Spinorfield&) = delete;
 				Rooted_Spinorfield(const Rooted_Spinorfield&) = delete;
 				Rooted_Spinorfield() = delete;
@@ -50,7 +53,7 @@ namespace physics {
 				std::vector<hmc_float> Get_b() const;
 
 				private:
-				const physics::algorithms::Rational_Coefficients rationalCoefficients;
+				physics::algorithms::Rational_Coefficients rationalCoefficients;
 
 				friend void pseudo_randomize<Rooted_Spinorfield, spinor>(const Rooted_Spinorfield* to, int seed);
 			};
