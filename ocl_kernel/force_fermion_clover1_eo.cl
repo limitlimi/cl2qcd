@@ -81,30 +81,7 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
     }
 }
 
-//calculates the Dirac-Trace of the matrix resulting from multiplying X*Y^dagger =  x1*y1^dagger + x2*y2^dagger + x3*y3^dagger + x4*y4^dagger , where x1,x2,x3,x4,y1,y2,y3,y4 are SU(3)-vectors. The result is a 3x3-matrix
-Matrix3x3 tr_dirac_x_times_y_dagger(su3vec x1, su3vec x2, su3vec x3, su3vec x4, su3vec y1, su3vec y2, su3vec y3, su3vec y4)
-{
-    Matrix3x3 tmp;
-    tmp.e00.re = (x1).e0.re * (y1).e0.re + (x1).e0.im * (y1).e0.im + (x2).e0.re * (y2).e0.re + (x2).e0.im * (y2).e0.im + (x3).e0.re * (y3).e0.re + (x3).e0.im * (y3).e0.im + (x4).e0.re * (y4).e0.re + (x4).e0.im * (y4).e0.im;
-    tmp.e00.im = (x1).e0.im * (y1).e0.re - (x1).e0.re * (y1).e0.im + (x2).e0.im * (y2).e0.re - (x2).e0.re * (y2).e0.im + (x3).e0.im * (y3).e0.re - (x3).e0.re * (y3).e0.im + (x4).e0.im * (y4).e0.re - (x4).e0.re * (y4).e0.im;
-    tmp.e01.re = (x1).e0.re * (y1).e1.re + (x1).e0.im * (y1).e1.im + (x2).e0.re * (y2).e1.re + (x2).e0.im * (y2).e1.im + (x3).e0.re * (y3).e1.re + (x3).e0.im * (y3).e1.im + (x4).e0.re * (y4).e1.re + (x4).e0.im * (y4).e1.im;
-    tmp.e01.im = (x1).e0.im * (y1).e1.re - (x1).e0.re * (y1).e1.im + (x2).e0.im * (y2).e1.re - (x2).e0.re * (y2).e1.im + (x3).e0.im * (y3).e1.re - (x3).e0.re * (y3).e1.im + (x4).e0.im * (y4).e1.re - (x4).e0.re * (y4).e1.im;
-    tmp.e02.re = (x1).e0.re * (y1).e2.re + (x1).e0.im * (y1).e2.im + (x2).e0.re * (y2).e2.re + (x2).e0.im * (y2).e2.im + (x3).e0.re * (y3).e2.re + (x3).e0.im * (y3).e2.im + (x4).e0.re * (y4).e2.re + (x4).e0.im * (y4).e2.im;
-    tmp.e02.im = (x1).e0.im * (y1).e2.re - (x1).e0.re * (y1).e2.im + (x2).e0.im * (y2).e2.re - (x2).e0.re * (y2).e2.im + (x3).e0.im * (y3).e2.re - (x3).e0.re * (y3).e2.im + (x4).e0.im * (y4).e2.re - (x4).e0.re * (y4).e2.im;
-    tmp.e10.re = (x1).e1.re * (y1).e0.re + (x1).e1.im * (y1).e0.im + (x2).e1.re * (y2).e0.re + (x2).e1.im * (y2).e0.im + (x3).e1.re * (y3).e0.re + (x3).e1.im * (y3).e0.im + (x4).e1.re * (y4).e0.re + (x4).e1.im * (y4).e0.im;
-    tmp.e10.im = (x1).e1.im * (y1).e0.re - (x1).e1.re * (y1).e0.im + (x2).e1.im * (y2).e0.re - (x2).e1.re * (y2).e0.im + (x3).e1.im * (y3).e0.re - (x3).e1.re * (y3).e0.im + (x4).e1.im * (y4).e0.re - (x4).e1.re * (y4).e0.im;
-    tmp.e11.re = (x1).e1.re * (y1).e1.re + (x1).e1.im * (y1).e1.im + (x2).e1.re * (y2).e1.re + (x2).e1.im * (y2).e1.im + (x3).e1.re * (y3).e1.re + (x3).e1.im * (y3).e1.im + (x4).e1.re * (y4).e1.re + (x4).e1.im * (y4).e1.im;
-    tmp.e11.im = (x1).e1.im * (y1).e1.re - (x1).e1.re * (y1).e1.im + (x2).e1.im * (y2).e1.re - (x2).e1.re * (y2).e1.im + (x3).e1.im * (y3).e1.re - (x3).e1.re * (y3).e1.im + (x4).e1.im * (y4).e1.re - (x4).e1.re * (y4).e1.im;
-    tmp.e12.re = (x1).e1.re * (y1).e2.re + (x1).e1.im * (y1).e2.im + (x2).e1.re * (y2).e2.re + (x2).e1.im * (y2).e2.im + (x3).e1.re * (y3).e2.re + (x3).e1.im * (y3).e2.im + (x4).e1.re * (y4).e2.re + (x4).e1.im * (y4).e2.im;
-    tmp.e12.im = (x1).e1.im * (y1).e2.re - (x1).e1.re * (y1).e2.im + (x2).e1.im * (y2).e2.re - (x2).e1.re * (y2).e2.im + (x3).e1.im * (y3).e2.re - (x3).e1.re * (y3).e2.im + (x4).e1.im * (y4).e2.re - (x4).e1.re * (y4).e2.im;
-    tmp.e20.re = (x1).e2.re * (y1).e0.re + (x1).e2.im * (y1).e0.im + (x2).e2.re * (y2).e0.re + (x2).e2.im * (y2).e0.im + (x3).e2.re * (y3).e0.re + (x3).e2.im * (y3).e0.im + (x4).e2.re * (y4).e0.re + (x4).e2.im * (y4).e0.im;
-    tmp.e20.im = (x1).e2.im * (y1).e0.re - (x1).e2.re * (y1).e0.im + (x2).e2.im * (y2).e0.re - (x2).e2.re * (y2).e0.im + (x3).e2.im * (y3).e0.re - (x3).e2.re * (y3).e0.im + (x4).e2.im * (y4).e0.re - (x4).e2.re * (y4).e0.im;
-    tmp.e21.re = (x1).e2.re * (y1).e1.re + (x1).e2.im * (y1).e1.im + (x2).e2.re * (y2).e1.re + (x2).e2.im * (y2).e1.im + (x3).e2.re * (y3).e1.re + (x3).e2.im * (y3).e1.im + (x4).e2.re * (y4).e1.re + (x4).e2.im * (y4).e1.im;
-    tmp.e21.im = (x1).e2.im * (y1).e1.re - (x1).e2.re * (y1).e1.im + (x2).e2.im * (y2).e1.re - (x2).e2.re * (y2).e1.im + (x3).e2.im * (y3).e1.re - (x3).e2.re * (y3).e1.im + (x4).e2.im * (y4).e1.re - (x4).e2.re * (y4).e1.im;
-    tmp.e22.re = (x1).e2.re * (y1).e2.re + (x1).e2.im * (y1).e2.im + (x2).e2.re * (y2).e2.re + (x2).e2.im * (y2).e2.im + (x3).e2.re * (y3).e2.re + (x3).e2.im * (y3).e2.im + (x4).e2.re * (y4).e2.re + (x4).e2.im * (y4).e2.im;
-    tmp.e22.im = (x1).e2.im * (y1).e2.re - (x1).e2.re * (y1).e2.im + (x2).e2.im * (y2).e2.re - (x2).e2.re * (y2).e2.im + (x3).e2.im * (y3).e2.re - (x3).e2.re * (y3).e2.im + (x4).e2.im * (y4).e2.re - (x4).e2.re * (y4).e2.im;
-    return tmp;
-}
+
 
 //input eo spinor X and Y where one is multiplied by gamma_5*sigma_{dir1,dir2}, Faktor i??
 Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict Z, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict X , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
