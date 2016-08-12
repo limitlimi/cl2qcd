@@ -133,6 +133,45 @@ typedef struct {
 	hmc_complex e21;
 	hmc_complex e22;
 } Matrixsu3;
+//a generic 6x6 matrix
+typedef struct {
+    hmc_complex e00;
+    hmc_complex e01;
+    hmc_complex e02;
+    hmc_complex e03;
+    hmc_complex e04;
+    hmc_complex e05;
+    hmc_complex e10;
+    hmc_complex e11;
+    hmc_complex e12;
+    hmc_complex e13;
+    hmc_complex e14;
+    hmc_complex e15;
+    hmc_complex e20;
+    hmc_complex e21;
+    hmc_complex e22;
+    hmc_complex e23;
+    hmc_complex e24;
+    hmc_complex e25;
+    hmc_complex e30;
+    hmc_complex e31;
+    hmc_complex e32;
+    hmc_complex e33;
+    hmc_complex e34;
+    hmc_complex e35;
+    hmc_complex e40;
+    hmc_complex e41;
+    hmc_complex e42;
+    hmc_complex e43;
+    hmc_complex e44;
+    hmc_complex e45;
+    hmc_complex e50;
+    hmc_complex e51;
+    hmc_complex e52;
+    hmc_complex e53;
+    hmc_complex e54;
+    hmc_complex e55;
+} Matrix6x6;
 #else
 //an su3 matrix_
 struct Matrixsu3 {
@@ -157,8 +196,52 @@ struct Matrix3x3 {
 	hmc_complex e21;
 	hmc_complex e22;
 };
+//a generic 6x6 matrix
+struct Matrix6x6 {
+    hmc_complex e00;
+    hmc_complex e01;
+    hmc_complex e02;
+    hmc_complex e03;
+    hmc_complex e04;
+    hmc_complex e05;
+    hmc_complex e10;
+    hmc_complex e11;
+    hmc_complex e12;
+    hmc_complex e13;
+    hmc_complex e14;
+    hmc_complex e15;
+    hmc_complex e20;
+    hmc_complex e21;
+    hmc_complex e22;
+    hmc_complex e23;
+    hmc_complex e24;
+    hmc_complex e25;
+    hmc_complex e30;
+    hmc_complex e31;
+    hmc_complex e32;
+    hmc_complex e33;
+    hmc_complex e34;
+    hmc_complex e35;
+    hmc_complex e40;
+    hmc_complex e41;
+    hmc_complex e42;
+    hmc_complex e43;
+    hmc_complex e44;
+    hmc_complex e45;
+    hmc_complex e50;
+    hmc_complex e51;
+    hmc_complex e52;
+    hmc_complex e53;
+    hmc_complex e54;
+    hmc_complex e55;
+};
 #endif // ifdef _INKERNEL_
 
+#ifdef _USE_SOA_
+typedef hmc_complex Matrix6x6StorageType;
+#else
+typedef Matrix3x3 Matrix6x6StorageType;
+#endif
 
 #ifdef _USE_SOA_
 typedef hmc_complex Matrix3x3StorageType;

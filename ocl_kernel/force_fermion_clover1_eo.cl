@@ -556,7 +556,8 @@ Matrixsu3 square(__global const spinorStorageType * const restrict Z, __global c
 {
     Matrixsu3 out;
     //if statement for X_even, Y_even
-    //sigma_mu,nu*gamma_5*X
+    //i*sigma_mu,nu*gamma_5*X
+    //Matrix3x3 tr_dirac_x_times_y_dagger(su3vec x1, su3vec x2, su3vec x3, su3vec x4, su3vec y1, su3vec y2, su3vec y3, su3vec y4)
     return out;
 }
                       
