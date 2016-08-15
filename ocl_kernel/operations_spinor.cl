@@ -36,6 +36,108 @@ void print_spinor(spinor in)
 }
 #endif
 
+spinor sigma_mu_nu_times_spinor(spinor in, uint mu, uint nu)
+{
+    spinor out = set_spinor_zero();
+    if(mu==0)
+    {
+        if(nu==1)
+        {
+            out.e0 = in.e1;
+            out.e1 = in.e0;
+            out.e2 = su3vec_times_real(in.e3, -1.);
+            out.e3 = su3vec_times_real(in.e2, -1.);
+        }
+        else if(nu==2)
+        {
+            out.e0 = su3vec_times_complex(in.e1, {0., -1.});
+            out.e1 = su3vec_times_complex(in.e0, {0., 1.});
+            out.e2 = su3vec_times_complex(in.e3, {0., 1.});
+            out.e3 = su3vec_times_complex(in.e2, {0., -1.});
+        }
+        else if(nu==3)
+        {
+            out.e0 = in.e0;
+            out.e1 = su3vec_times_real(in.e1, -1.);
+            out.e2 = su3vec_times_real(in.e2, -1.);
+            out.e3 = in.e3;
+        }
+    }
+    else if(mu==1)
+    {
+        if(nu==0)
+        {
+            out.e0 = su3vec_times_real(in.e1, -1.);
+            out.e1 = su3vec_times_real(in.e0, -1.);
+            out.e2 = in.e3;
+            out.e3 = in.e2;
+        }
+        else if(nu==2)
+        {
+            out.e0 = su3vec_times_real(in.e0, -1.);
+            out.e1 = in.e1;
+            out.e2 = su3vec_times_real(in.e2, -1.);
+            out.e3 = in.e3;0
+        }
+        else if(nu==3)
+        {
+            out.e0 = su3vec_times_complex(in.e1, {0., -1.});
+            out.e1 = su3vec_times_complex(in.e0, {0., 1.});
+            out.e2 = su3vec_times_complex(in.e3, {0., -1.});
+            out.e3 = su3vec_times_complex(in.e2, {0., 1.});
+        }
+    }
+    else if(mu==2)
+    {
+        if(nu==0)
+        {
+            out.e0 = su3vec_times_complex(in.e1, {0., 1.});
+            out.e1 = su3vec_times_complex(in.e0, {0., -1.});
+            out.e2 = su3vec_times_complex(in.e3, {0., -1.});
+            out.e3 = su3vec_times_complex(in.e2, {0., 1.});
+        }
+        else if(nu==1)
+        {
+            out.e0 = in.e0;
+            out.e1 = su3vec_times_real(in.e1, -1.);
+            out.e2 = in.e2;
+            out.e3 = su3vec_times_real(in.e3, -1.);
+        }
+        else if(nu==3)
+        {
+            out.e0 = su3vec_times_real(in.e1, -1.);
+            out.e1 = su3vec_times_real(in.e0, -1.);
+            out.e2 = su3vec_times_real(in.e3, -1.);
+            out.e3 = su3vec_times_real(in.e2, -1.);
+        }
+    }
+    else if(mu==3)
+    {
+        if(nu==0)
+        {
+            out.e0 = su3vec_times_real(in.e0, -1.);
+            out.e1 = in.e1;
+            out.e2 = in.e2;
+            out.e3 = su3vec_times_real(in.e3, -1.);
+        }
+        else if(nu==1)
+        {
+            out.e0 = su3vec_times_complex(in.e1, {0., 1.});
+            out.e1 = su3vec_times_complex(in.e0, {0., -1.});
+            out.e2 = su3vec_times_complex(in.e3, {0., 1.});
+            out.e3 = su3vec_times_complex(in.e2, {0., -1.});
+        }
+        else if(nu==2)
+        {
+            out.e0 = in.e1;
+            out.e1 = in.e0;
+            out.e2 = in.e3;
+            out.e3 = in.e2;
+        }
+    }
+    return out;
+}
+
 spinor set_spinor_zero()
 {
 	spinor tmp;
