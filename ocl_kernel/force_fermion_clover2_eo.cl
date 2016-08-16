@@ -2,8 +2,8 @@
 //calculate the even-odd-preconditioned force of the clover term
 //
 
-
-__kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict X, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+//input C/D = upperright/lowerleft-block of (1+T)^(-1)
+__kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
@@ -11,31 +11,94 @@ __kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * c
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
-        Matrixsu3 U;
-        Matrix3x3 v1, v2, tmp;
-        su3vec psia, psib, phia, phib;
-        spinor y, x, tmp;
+        
+        Matrix3x3 v1, v2;
         ae out_tmp;
         //this is used to save the BC-conditions...
         hmc_complex bc_tmp;
-        int dir;
+        int dir1, dir2;
         int global_link_pos;
         int n = pos.space;
         int t = pos.time;
-        int nn_eo;
-        global_link_pos = get_link_pos(dir, n, t);
-
+        
         //go through the different directions
         ///////////////////////////////////
         // mu = 0
         ///////////////////////////////////
         dir1 = 0;
+        global_link_pos = get_link_pos(dir1, n, t);
+
+        
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         //add factor c_sw*kappa/4
         bc_tmp.re = 2./4. * kappa_in * csw * TEMPORAL_RE;
         bc_tmp.im = 2./4. * kappa_in * csw * TEMPORAL_IM;
         
-        //if chemical potential is activated, U has to be multiplied by appropiate factor
+        v1 = zero_matrix3x3();
+        //add up diagrams for all nu unequal mu
+        /////////////////////////////////
+        // nu = 1
+        dir2 = 1;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 2
+        dir2 = 2;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 3
+        dir2 = 3;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        out_tmp = tr_lambda_u(v1);
+        update_gaugemomentum(out_tmp, 1., global_link_pos, out);
+    }
+}
+
+Matrix3x3 add_up_diagrams2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+{
+    Matrix3x3 out, tmp;
+    out = zero_matrix3x3();
+    
+    if(evenodd == ODD){ //add up only diagrams (a) and (c)
+        tmp = diagram2a_up(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+        tmp = diagram2a_down(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+        tmp = diagram2c_up(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+        tmp = diagram2c_down(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+    }
+    else if(evenodd == EVEN){ //add up only diagrams (b) and (d)
+        tmp = diagram2b_up(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+        tmp = diagram2b_down(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+        tmp = diagram2d_up(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+        tmp = diagram2d_down(field, C, D, idx_arg, dir1, dir2);
+        out = add_matrix3x3(matrix_su3to3x3(v2), v1);
+    }
+    
+    return out;
+}
+
+Matrixsu3 diagram2a_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+    
+    // U_nu(x+mu)
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
 #ifdef _CP_REAL_
         U = multiply_matrixsu3_by_real (U, EXPCPR);
 #endif
@@ -43,47 +106,537 @@ __kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * c
         hmc_complex cpi_tmp = {COSCPI, SINCPI};
         U = multiply_matrixsu3_by_complex (U, cpi_tmp );
 #endif
-        
-        /////////////////////////////////
-        // nu = 1
-        dir2 = 1;
-        //diagram1a_up
-        v1 = multiply_matrix3x3_by_complex(v2, bc_tmp);
-        out_tmp = tr_lambda_u(v1);
-        update_gaugemomentum(out_tmp, 1., global_link_pos, out);
-        
-        /////////////////////////////////
-        // nu = 2
-        dir2 = 2;
-        
-        
-        /////////////////////////////////
-        // nu = 3
-        dir2 = 3;
-        
-        
     }
-}
+    out = multiply_matrixsu3(out, U);
+    
+    // U_mu(x+nu)^dagger
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
 
-Matrixsu3 diagram2a_up(__global const Matrixsu3StorageType * const restrict field, const st_index pos, const dir_idx dir1, const dir_idx dir2)
-{
-    Matrixsu3 out;
-    int n = pos.space;
-    int t = pos.time;
-    U = get_matrixsu3(field, n, t, dir);
-    return out;
-}
-
-
-//matrixsu3 which is given by Dirac-Trace(i*sigma_{mu,nu}*(1+T_ee)^{-1})
-//cf. equation (22) in Jansen Liu Paper
-Matrixsu3 triangle(__global const Matrixsu3StorageType * const restrict one_plus_T_ee_inverse)
-{
-    Matrixsu3 out;
+    // triangle(x+nu)
+    idx_neigh = get_neighbor_from_st_idx(pos, dir2);
+    out = multiply_matrixsu3(out, triangle(C, D, idx_neigh, dir1, dir2));
+    
+    // U_nu(x)^dagger
+    U = getSU3(field, get_link_idx(dir2, idx_arg));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
     
     return out;
 }
 
+Matrixsu3 diagram2a_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+    
+    // U_nu(x-nu+mu)^dagger
+    idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
+    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_mu(x-nu)^dagger
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // triangle(x-nu)
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    out = multiply_matrixsu3(out, triangle(C, D, idx_neigh, dir1, dir2));
+    
+    // U_nu(x-nu)
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    out = multiply_matrixsu3_by_real (out, -1.)
+    return out;
+}
+
+
+Matrixsu3 diagram2b_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+
+    // U_nu(x+mu)
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    // U_mu(x+nu)^dagger
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_nu(x)^dagger
+    U = getSU3(field, get_link_idx(dir2, idx_arg));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // triangle(x)
+    out = multiply_matrixsu3(out, triangle(C, D, idx_arg, dir1, dir2));
+    
+    return out;
+}
+
+Matrixsu3 diagram2b_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+
+    // U_nu(x-nu+mu)^dagger
+    idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
+    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_mu(x-nu)^dagger
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_nu(x-nu)
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    // triangle(x)
+    out = multiply_matrixsu3(out, triangle(C, D, idx_arg, dir1, dir2));
+    
+    out = multiply_matrixsu3_by_real (out, -1.)
+    return out;
+}
+
+
+Matrixsu3 diagram2c_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+    
+    // triangle(x+mu)
+    idx_neigh = get_neighbor_from_st_idx(pos, dir1);
+    out = multiply_matrixsu3(out, triangle(C, D, idx_neigh, dir1, dir2));
+    
+    // U_nu(x+mu)
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    // U_mu(x+nu)^dagger
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_nu(x)^dagger
+    U = getSU3(field, get_link_idx(dir2, idx_arg));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    return out;
+}
+
+Matrixsu3 diagram2c_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+    site_idx idx_neigh_eo;
+    
+    // triangle(x+mu)
+    idx_neigh = get_neighbor_from_st_idx(pos, dir1);
+    out = multiply_matrixsu3(out, triangle(C, D, idx_neigh, dir1, dir2));
+    
+    // U_nu(x-nu+mu)^dagger
+    idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
+    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_mu(x-nu)^dagger
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_nu(x-nu)
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    out = multiply_matrixsu3_by_real (out, -1.)
+    return out;
+}
+
+
+Matrixsu3 diagram2d_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+    
+    // U_nu(x+mu)
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    // triangle(x+mu+nu)
+    idx_neigh1 = get_neighbor_from_st_idx(idx_arg, dir2); // x+nu
+    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x+nu)+mu
+    out = multiply_matrixsu3(out, triangle(C, D, idx_neigh, dir1, dir2));
+    
+    // U_mu(x+nu)^dagger
+    idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_nu(x)^dagger
+    U = getSU3(field, get_link_idx(dir2, idx_arg));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    return out;
+}
+
+Matrixsu3 diagram2d_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 U, out;
+    out = unit_matrixsu3();
+    st_idx idx_neigh, idx_neigh1;
+    
+    // U_nu(x-nu+mu)^dagger
+    idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
+    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // triangle(x-nu+mu)
+    idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
+    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
+    out = multiply_matrixsu3(out, triangle(C, D, idx_neigh, dir1, dir2));
+    
+    // U_mu(x-nu)^dagger
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir1, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3_dagger(out, U);
+    
+    // U_nu(x-nu)
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    U = getSU3(field, get_link_idx(dir2, idx_neigh));
+    if(dir1 == 0){
+#ifdef _CP_REAL_
+        U = multiply_matrixsu3_by_real (U, EXPCPR);
+#endif
+#ifdef _CP_IMAG_
+        hmc_complex cpi_tmp = {COSCPI, SINCPI};
+        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
+#endif
+    }
+    out = multiply_matrixsu3(out, U);
+    
+    out = multiply_matrixsu3_by_real (out, -1.)
+    return out;
+}
+
+
+
+//matrixsu3 which is given by Dirac-Trace(i*sigma_{mu,nu}*(1+T_ee)^{-1})
+//cf. equation (22) in Jansen Liu Paper
+Matrixsu3 triangle(__global const Matrix6x6StorageType * const restrict __global C, __global const Matrixsu3StorageType * const restrict D, st_index pos_triangle const dir_idx dir1, const dir_idx dir2)
+{
+    Matrixsu3 out;
+    Matrix3x3 tmp1;
+    B_plus = get_matrix6x6(C, pos_triangle); //upper left block of (1+T_ee)^(-1) = {{B_11, B_12},{B_21, B_22}}
+    B_minus = get_matrix6x6(D, pos_triangle); //lower right block of (1+T_ee)^(-1) = {{B_33, B_34},{B_43, B_44}}
+    if(dir1 ==0){
+        if(dir2 == 1){ //B_12 + B_21 - B_34 - B_43
+            tmp1 = get_3x3_block_upperright(B_plus)
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+        }
+        else if(dir2 == 2){ //i * ( B_12 - B_21 - B_34 + B_43 )
+            tmp1 = get_3x3_block_upperright(B_plus);
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+            tmp1 = multiply_matrix3x3_by_complex(tmp1, {0., 1.});
+        }
+        else if(dir3 == 3){//B_11 - B_22 - B_33 + B_44
+            tmp1 = get_3x3_block_upperleft(B_plus);
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerright(B_plus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_upperleft(B_minus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerright(B_minus));
+        }
+    }
+    else if(dir1 == 1){
+        if(dir2 == 0){ //-B_12 - B_21 + B_34 + B_43 = (-1) * (dir1=0,dir2=1)
+            tmp1 = get_3x3_block_upperright(B_plus)
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+            tmp1 = multiply_matrix3x3_by_real(tmp1 , -1.);
+        }
+        else if(dir2 == 2){ //-B_11 + B_22 - B_33 + B_44
+            tmp1 = multiply_matrix3x3_by_real(get_3x3_block_upperleft(B_plus), -1.);
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerright(B_plus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_upperleft(B_minus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerright(B_minus));
+        }
+        else if(dir2 == 3){ //i * ( B_12 - B_21 + B_34 - B_43)
+            tmp1 = get_3x3_block_upperright(B_plus);
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+            tmp1 = multiply_matrix3x3_by_complex(tmp1, {0., 1.});
+        }
+    }
+    else if(dir1 == 2){
+        if(dir2 == 0){ //-i * ( B_12 - B_21 - B_34 + B_43 ) = (-1) * (dir1=0,dir2=2)
+            tmp1 = get_3x3_block_upperright(B_plus);
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+            tmp1 = multiply_matrix3x3_by_complex(tmp1, {0., -1.});
+        }
+        else if(dir2 == 1){ //B_11 - B_22 + B_33 - B_44
+            tmp1 = get_3x3_block_upperleft(B_plus);
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerright(B_plus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_upperleft(B_minus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerright(B_minus));
+        }
+        else if(dir2 == 3){ //(-1) * (B_12 + B_21 + B_34 + B_43)
+            tmp1 = get_3x3_block_upperright(B_plus);
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+            tmp1 = multiply_matrix3x3_by_real(tmp1, -1.);
+        }
+    }
+    else if(dir1 == 3){
+        if(dir2 == 0){//-B_11 + B_22 + B_33 - B_44
+            tmp1 = multiply_matrix3x3_by_real(get_3x3_block_upperleft(B_plus), -1.);
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerright(B_plus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_upperleft(B_minus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerright(B_minus));
+        }
+        else if(dir2 == 1){//-i * ( B_12 - B_21 + B_34 - B_43) = (-1) * (dir1=1,dir2=3)
+            tmp1 = get_3x3_block_upperright(B_plus);
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = subtract_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+            tmp1 = multiply_matrix3x3_by_complex(tmp1, {0., -1.});
+        }
+        else if(dir2 == 2){//B_12 + B_21 + B_34 + B_43
+            tmp1 = get_3x3_block_upperright(B_plus);
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_plus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_upperright(B_minus));
+            tmp1 = add_matrix3x3(tmp1, get_3x3_block_lowerleft(B_minus));
+        }
+    }
+    
+    out = matrix_3x3tosu3(tmp1);
+    out = multiply_matrixsu3_by_complex(out, {0., 1.});
+    return out;
+}
 
 
 __kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict X, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
@@ -95,6 +648,51 @@ __kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
         
+        Matrix3x3 v1, v2;
+        ae out_tmp;
+        //this is used to save the BC-conditions...
+        hmc_complex bc_tmp;
+        int dir1, dir2;
+        int global_link_pos;
+        int n = pos.space;
+        int t = pos.time;
+        
+        //go through the different directions
+        ///////////////////////////////////
+        // mu = 1
+        ///////////////////////////////////
+        dir1 = 1;
+        global_link_pos = get_link_pos(dir1, n, t);
+        
+        
+        //the 2 here comes from Tr(lambda_ij) = 2delta_ij
+        //add factor c_sw*kappa/4
+        bc_tmp.re = 2./4. * kappa_in * csw * TEMPORAL_RE;
+        bc_tmp.im = 2./4. * kappa_in * csw * TEMPORAL_IM;
+        
+        v1 = zero_matrix3x3();
+        //add up diagrams for all nu unequal mu
+        /////////////////////////////////
+        // nu = 0
+        dir2 = 0;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 2
+        dir2 = 2;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 3
+        dir2 = 3;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        out_tmp = tr_lambda_u(v1);
+        update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
 }
 
@@ -107,6 +705,51 @@ __kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
         
+        Matrix3x3 v1, v2;
+        ae out_tmp;
+        //this is used to save the BC-conditions...
+        hmc_complex bc_tmp;
+        int dir1, dir2;
+        int global_link_pos;
+        int n = pos.space;
+        int t = pos.time;
+        
+        //go through the different directions
+        ///////////////////////////////////
+        // mu = 2
+        ///////////////////////////////////
+        dir1 = 2;
+        global_link_pos = get_link_pos(dir1, n, t);
+        
+        
+        //the 2 here comes from Tr(lambda_ij) = 2delta_ij
+        //add factor c_sw*kappa/4
+        bc_tmp.re = 2./4. * kappa_in * csw * TEMPORAL_RE;
+        bc_tmp.im = 2./4. * kappa_in * csw * TEMPORAL_IM;
+        
+        v1 = zero_matrix3x3();
+        //add up diagrams for all nu unequal mu
+        /////////////////////////////////
+        // nu = 0
+        dir2 = 0;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 1
+        dir2 = 1;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 3
+        dir2 = 3;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        out_tmp = tr_lambda_u(v1);
+        update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
 }
 
@@ -119,5 +762,50 @@ __kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
         
+        Matrix3x3 v1, v2;
+        ae out_tmp;
+        //this is used to save the BC-conditions...
+        hmc_complex bc_tmp;
+        int dir1, dir2;
+        int global_link_pos;
+        int n = pos.space;
+        int t = pos.time;
+        
+        //go through the different directions
+        ///////////////////////////////////
+        // mu = 3
+        ///////////////////////////////////
+        dir1 = 3;
+        global_link_pos = get_link_pos(dir1, n, t);
+        
+        
+        //the 2 here comes from Tr(lambda_ij) = 2delta_ij
+        //add factor c_sw*kappa/4
+        bc_tmp.re = 2./4. * kappa_in * csw * TEMPORAL_RE;
+        bc_tmp.im = 2./4. * kappa_in * csw * TEMPORAL_IM;
+        
+        v1 = zero_matrix3x3();
+        //add up diagrams for all nu unequal mu
+        /////////////////////////////////
+        // nu = 0
+        dir2 = 0;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 1
+        dir2 = 1;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        /////////////////////////////////
+        // nu = 2
+        dir2 = 2;
+        v2 = add_up_diagrams2(field, C, D, pos, dir1, dir2, evenodd);
+        v1 = add_matrix3x3(v1, v2);
+        
+        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        out_tmp = tr_lambda_u(v1);
+        update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
 }

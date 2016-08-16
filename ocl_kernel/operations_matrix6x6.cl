@@ -1,9 +1,123 @@
 
+Matrix3x3 get_3x3_block_upperleft(Matrix6x6 in)
+{
+    Matrix3x3 out;
+    
+    out.e00.re = in.e00.re;
+    out.e00.im = in.e00.im;
+    out.e01.re = in.e01.re;
+    out.e01.im = in.e01.im;
+    out.e02.re = in.e02.re;
+    out.e02.im = in.e02.im;
+    
+    out.e10.re = in.e10.re;
+    out.e10.im = in.e10.im;
+    out.e11.re = in.e11.re;
+    out.e11.im = in.e11.im;
+    out.e12.re = in.e12.re;
+    out.e12.im = in.e12.im;
+    
+    out.e20.re = in.e20.re;
+    out.e20.im = in.e20.im;
+    out.e21.re = in.e21.re;
+    out.e21.im = in.e21.im;
+    out.e22.re = in.e22.re;
+    out.e22.im = in.e22.im;
+    
+    return out;
+}
+
+
+Matrix3x3 get_3x3_block_upperright(Matrix6x6 in)
+{
+    Matrix3x3 out;
+    
+    out.e00.re = in.e03.re;
+    out.e00.im = in.e03.im;
+    out.e01.re = in.e04.re;
+    out.e01.im = in.e04.im;
+    out.e02.re = in.e05.re;
+    out.e02.im = in.e05.im;
+    
+    out.e10.re = in.e13.re;
+    out.e10.im = in.e13.im;
+    out.e11.re = in.e14.re;
+    out.e11.im = in.e14.im;
+    out.e12.re = in.e15.re;
+    out.e12.im = in.e15.im;
+    
+    out.e20.re = in.e23.re;
+    out.e20.im = in.e23.im;
+    out.e21.re = in.e24.re;
+    out.e21.im = in.e24.im;
+    out.e22.re = in.e25.re;
+    out.e22.im = in.e25.im;
+    
+    return out;
+}
+
+Matrix3x3 get_3x3_block_lowerleft(Matrix6x6 in)
+{
+    Matrix3x3 out;
+    
+    out.e00.re = in.e30.re;
+    out.e00.im = in.e30.im;
+    out.e01.re = in.e31.re;
+    out.e01.im = in.e31.im;
+    out.e02.re = in.e32.re;
+    out.e02.im = in.e32.im;
+    
+    out.e10.re = in.e40.re;
+    out.e10.im = in.e40.im;
+    out.e11.re = in.e41.re;
+    out.e11.im = in.e41.im;
+    out.e12.re = in.e42.re;
+    out.e12.im = in.e42.im;
+    
+    out.e20.re = in.e50.re;
+    out.e20.im = in.e50.im;
+    out.e21.re = in.e51.re;
+    out.e21.im = in.e51.im;
+    out.e22.re = in.e52.re;
+    out.e22.im = in.e52.im;
+    
+    return out;
+}
+
+Matrix3x3 get_3x3_block_lowerright(Matrix6x6 in)
+{
+    Matrix3x3 out;
+    
+    out.e00.re = in.e33.re;
+    out.e00.im = in.e33.im;
+    out.e01.re = in.e34.re;
+    out.e01.im = in.e34.im;
+    out.e02.re = in.e35.re;
+    out.e02.im = in.e35.im;
+    
+    out.e10.re = in.e43.re;
+    out.e10.im = in.e43.im;
+    out.e11.re = in.e44.re;
+    out.e11.im = in.e44.im;
+    out.e12.re = in.e45.re;
+    out.e12.im = in.e45.im;
+    
+    out.e20.re = in.e53.re;
+    out.e20.im = in.e53.im;
+    out.e21.re = in.e54.re;
+    out.e21.im = in.e54.im;
+    out.e22.re = in.e55.re;
+    out.e22.im = in.e55.im;
+    
+    return out;
+}
+
+
 void put_3x3block_matrix6x6_upperleft(Matrix6x6 inout, Matrix3x3 p)
 {
     inout.e00.re = p.e00.re;
     inout.e00.im = p.e00.im;
-    inout.e01.re = p.e01.re ;
+    inout.e01.re = p.e01.re;
     inout.e01.im = p.e01.im;
     inout.e02.re = p.e02.re;
     inout.e02.im = p.e02.im;
@@ -27,7 +141,7 @@ void put_3x3block_matrix6x6_upperright(Matrix6x6 inout, Matrix3x3 p)
 {
     inout.e03.re = p.e00.re;
     inout.e03.im = p.e00.im;
-    inout.e04.re = p.e01.re ;
+    inout.e04.re = p.e01.re;
     inout.e04.im = p.e01.im;
     inout.e05.re = p.e02.re;
     inout.e05.im = p.e02.im;
@@ -51,7 +165,7 @@ void put_3x3block_matrix6x6_lowerleft(Matrix6x6 inout, Matrix3x3 p)
 {
     inout.e30.re = p.e00.re;
     inout.e30.im = p.e00.im;
-    inout.e31.re = p.e01.re ;
+    inout.e31.re = p.e01.re;
     inout.e31.im = p.e01.im;
     inout.e32.re = p.e02.re;
     inout.e32.im = p.e02.im;
@@ -75,7 +189,7 @@ void put_3x3block_matrix6x6_lowerright(Matrix6x6 inout, Matrix3x3 p)
 {
     inout.e33.re = p.e00.re;
     inout.e33.im = p.e00.im;
-    inout.e34.re = p.e01.re ;
+    inout.e34.re = p.e01.re;
     inout.e34.im = p.e01.im;
     inout.e35.re = p.e02.re;
     inout.e35.im = p.e02.im;
