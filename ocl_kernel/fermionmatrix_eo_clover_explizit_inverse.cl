@@ -1,11 +1,41 @@
 /* This function performs locally the inversion a complex 6x6 matrix
-   via Householder-Triangu 
+   via Householder-Triangularization
  */
+void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    halfspinor tmp1, tmp2;
+    tmp1.e1 = in.e1;
+    tmp1.e2 = in.e2;
+    tmp2.e1 = in.e3;
+    tmp2.e2 = in.e4;
+    spinor out_tmp;
+    
+    Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
+    Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus, pos);
+    Matrix6x6 A_minus = inverse_6x6_via_Householder_triangularization(B_minus, pos);
+    tmp1 = matrix6x6_times_halfspinor(A_plus, tmp1);
+    tmp2 = matrix6x6_times_halfspinor(A_minus, tmp1);
+    
+    out_tmp.e1 = tmp1.e1;
+    out_tmp.e2 = tmp1.e2;
+    out_tmp.e3 = tmp2.e1;
+    out_tmp.e4 = tmp2.e2;
+    
+    putSpinor_eo(out, get_eo_site_idx_from_st_idx(pos), out_tmp);
+}
 
-Matrix6x6 inverse_6x6_via_Householder_triangularization(__global Matrix6x6StorageType  const * const restrict field, const st_idx idx_arg)
+__kernel void clover_eo_inverse(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, const int evenodd, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
+        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
+        clover_eo_inverse_for_site(in, out, field, kappa_in, csw, pos);
+    }
+}
+
+Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a, const st_idx idx_arg)
 {
     Matrix6x6 out;
-    a = getMatrix6x6(field, idx_arg);
     //map Matrix6x6 struct to C array6x6
     const int rows = 6; const int cols = 6;
     double complex T[rows][cols];

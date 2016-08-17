@@ -228,6 +228,7 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 
 	hmc_float kappa = get_kappa();
 	hmc_float mubar = get_mubar();
+    hmc_float csw = get_mubar();
 
 	switch(system.get_inputparameters().get_fermact()) {
 		case meta::action::wilson:
@@ -243,6 +244,13 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 			M_tm_sitediagonal(&tmp, in, mubar);
 			saxpy(out, {1., 0.}, *out, tmp);
 			break;
+        case meta::action::clover:
+            dslash(&tmp, gf, in, ODD, kappa);
+            //(1+T_oo)^(-1) M_tm_inverse_sitediagonal(&tmp2, tmp, mubar);
+            dslash(out, gf, tmp2, EVEN, kappa);
+            //(1+T_ee) M_tm_sitediagonal(&tmp, in, mubar);
+            saxpy(out, {1., 0.}, *out, tmp);
+            break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", system.get_inputparameters().get_fermact());
 	}
@@ -266,6 +274,12 @@ cl_ulong physics::fermionmatrix::Aee::get_flops() const
 			res += fermion_code->get_flop_size("M_tm_sitediagonal");
 			res += spinor_code->get_flop_size("saxpy_eoprec");
 			break;
+        case meta::action::clover:
+            res = 2 * fermion_code->get_flop_size("dslash_eo");
+            //res += fermion_code->get_flop_size("clover_eo_inverse");
+            //res += fermion_code->get_flop_size("clover_eo");
+            res += spinor_code->get_flop_size("saxpy_eoprec");
+            break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", system.get_inputparameters().get_fermact());
 	}
@@ -286,11 +300,17 @@ cl_ulong physics::fermionmatrix::Aee::get_read_write_size() const
 			res += spinor_code->get_read_write_size("saxpy_eoprec");
 			break;
 		case meta::action::twistedmass:
-		        res = 2 * fermion_code->get_read_write_size("dslash_eo");
+            res = 2 * fermion_code->get_read_write_size("dslash_eo");
 			res += fermion_code->get_read_write_size("M_tm_inverse_sitediagonal");
 			res += fermion_code->get_read_write_size("M_tm_sitediagonal");
 			res += spinor_code->get_read_write_size("saxpy_eoprec");
 			break;
+        case meta::action::clover:
+            res = 2 * fermion_code->get_read_write_size("dslash_eo");
+            //res += fermion_code->get_read_write_size("clover_eo_inverse");
+            //res += fermion_code->get_read_write_size("clover_eo");
+            res += spinor_code->get_read_write_size("saxpy_eoprec");
+            break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", system.get_inputparameters().get_fermact());
 	}

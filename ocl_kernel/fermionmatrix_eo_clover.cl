@@ -23,6 +23,30 @@
  T=i/2*c_sw*kappa*sigma_{\mu \nu}*F_{\mu \nu}*delta_xy, with F=field strength tensor on the lattice
  sigma_{\mu \nu} = [gamma_\mu, gamma_\nu]
 */
+void clover_eo_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    spinor out_tmp = set_spinor_zero();
+    spinor out_tmp2;
+    
+    out_tmp2 = clover_eoprec_unified_local(in, field, pos, TDIR, kappa_in, csw);
+    out_tmp = spinor_acc(out_tmp, out_tmp2);
+    out_tmp2 = clover_eoprec_unified_local(in, field, pos, XDIR, kappa_in, csw);
+    out_tmp = spinor_acc(out_tmp, out_tmp2);
+    out_tmp2 = clover_eoprec_unified_local(in, field, pos, YDIR, kappa_in, csw);
+    out_tmp = spinor_acc(out_tmp, out_tmp2);
+    out_tmp2 = clover_eoprec_unified_local(in, field, pos, ZDIR, kappa_in, csw);
+    out_tmp = spinor_acc(out_tmp, out_tmp2);
+    
+    putSpinor_eo(out, get_eo_site_idx_from_st_idx(pos), out_tmp);
+}
+
+__kernel void clover_eo(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, const int evenodd, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
+        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
+        clover_eo_for_site(in, out, field, kappa_in, csw, pos);
+    }
+}
 
 spinor clover_eoprec_unified_local(__global const spinorStorageType * const restrict in, __global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, const dir_idx dir, hmc_float kappa_in, hmc_float csw)
 {
