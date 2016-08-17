@@ -28,7 +28,8 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(__global Matrix6x6Storag
             if(l<k){u[l] = 0.;}
             else if(l==k){double r = 0.0;
                 for(unsigned int j=k; j<rows; ++j){r = r + cabs(T[j][k]) * cabs(T[j][k]);}
-                u[l] = T[k][k] - T[k][k]/cabs(T[k][k])*sqrt(r);}
+                if(T[l][k] ==0){u[l] = - sqrt(r);} // 0/abs(0)!=1
+                else{u[l] = T[k][k] - T[k][k]/cabs(T[k][k])*sqrt(r);}}
             else{u[l] = T[l][k];}
             norm_u_squared = norm_u_squared + cabs(u[l])*cabs(u[l]);}
     // build up R_k by u_k und perform R_k * R_k-1*...*R_1*T

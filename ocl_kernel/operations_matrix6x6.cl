@@ -1,4 +1,23 @@
 
+//multiply matrix6x6 times halfspinor using 3x3 blocks and su3vecs, u={{u_11,u_12},{u_21,u_22}}, in={psi_1,psi_2}
+//u * in = {u_11 * psi_1 + u_12 * psi_2, u_21 * psi_1 + u_22 * psi_2}
+halfspinor matrix6x6_times_halfspinor(Matrix6x6 u, halfspinor in)
+{
+    halfspinor out;
+    su3vec tmp1, tmp2, tmp3, tmp4;
+    
+    tmp1 = matrix3x3_times_su3vec(get_3x3_block_upperleft(u), in.e1);
+    tmp2 = matrix3x3_times_su3vec(get_3x3_block_upperright(u), in.e2);
+    tmp3 = matrix3x3_times_su3vec(get_3x3_block_lowerleft(u), in.e1);
+    tmp4 = matrix3x3_times_su3vec(get_3x3_block_lowerright(u), in.e2);
+    
+    out.e1 = su3vec_acc(tmp1, tmp2);
+    out.e2 = su3vec_acc(tmp1, tmp2);
+    return out;
+}
+
+
+
 Matrix3x3 get_3x3_block_upperleft(Matrix6x6 in)
 {
     Matrix3x3 out;
