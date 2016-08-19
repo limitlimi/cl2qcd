@@ -41,6 +41,11 @@ hmc_float physics::fermionmatrix::Fermionmatrix_basic::get_mubar() const noexcep
 	return mubar;
 }
 
+/*hmc_float physics::fermionmatrix::Fermionmatrix_basic::get_csw() const noexcept
+{
+    return csw;
+}*/
+
 const hardware::System& physics::fermionmatrix::Fermionmatrix_basic::get_system() const noexcept
 {
 	return system;
@@ -252,7 +257,7 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
             saxpy(out, {1., 0.}, *out, tmp);
             break;
 		default:
-			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", system.get_inputparameters().get_fermact());
+			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass or clover", system.get_inputparameters().get_fermact());
 	}
 }
 cl_ulong physics::fermionmatrix::Aee::get_flops() const
@@ -281,7 +286,7 @@ cl_ulong physics::fermionmatrix::Aee::get_flops() const
             res += spinor_code->get_flop_size("saxpy_eoprec");
             break;
 		default:
-			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", system.get_inputparameters().get_fermact());
+			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass or clover", system.get_inputparameters().get_fermact());
 	}
 	logger.trace() << "Aee flops: " << res;
 	return res;
@@ -312,7 +317,7 @@ cl_ulong physics::fermionmatrix::Aee::get_read_write_size() const
             res += spinor_code->get_read_write_size("saxpy_eoprec");
             break;
 		default:
-			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", system.get_inputparameters().get_fermact());
+			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass or clover", system.get_inputparameters().get_fermact());
 	}
 	logger.trace() << "Aee read-write size: " << res;
 	return res;

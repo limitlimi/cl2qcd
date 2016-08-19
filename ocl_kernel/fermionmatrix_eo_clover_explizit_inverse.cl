@@ -1,6 +1,3 @@
-/* This function performs locally the inversion a complex 6x6 matrix
-   via Householder-Triangularization
- */
 void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
     halfspinor tmp1, tmp2;
@@ -12,8 +9,8 @@ void clover_eo_inverse_for_site(__global const spinorStorageType * const restric
     
     Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
     Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
-    Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus, pos);
-    Matrix6x6 A_minus = inverse_6x6_via_Householder_triangularization(B_minus, pos);
+    Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus);
+    Matrix6x6 A_minus = inverse_6x6_via_Householder_triangularization(B_minus);
     tmp1 = matrix6x6_times_halfspinor(A_plus, tmp1);
     tmp2 = matrix6x6_times_halfspinor(A_minus, tmp1);
     
@@ -33,7 +30,10 @@ __kernel void clover_eo_inverse(__global const spinorStorageType * const restric
     }
 }
 
-Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a, const st_idx idx_arg)
+/* This function performs the inversion a complex 6x6 matrix
+ via Householder-Triangularization(see OpenQCD documentation "Implementation of the Dirac Operator" section 5
+ */
+Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
 {
     Matrix6x6 out;
     //map Matrix6x6 struct to C array6x6
