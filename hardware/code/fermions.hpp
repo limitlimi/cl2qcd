@@ -63,6 +63,10 @@ public:
 	void M_tm_sitediagonal_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, hmc_float mubar = ARG_DEF) const;
 	void M_tm_inverse_sitediagonal_minus_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, hmc_float mubar = ARG_DEF) const;
 	void M_tm_sitediagonal_minus_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, hmc_float mubar = ARG_DEF) const;
+    //    clover_eo
+    //        explizit
+    void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, hmc_float kappa) const;
+    void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, hmc_float kappa) const;
 	/**
 	 * Perform dslash_eo on the whole buffer.
 	 */
@@ -158,6 +162,8 @@ private:
 	cl_kernel M_tm_sitediagonal_AND_gamma5_eo;
 	cl_kernel M_tm_sitediagonal_minus_AND_gamma5_eo;
 	cl_kernel saxpy_AND_gamma5_eo;
+    cl_kernel clover_eo;
+    cl_kernel clover_eo_inverse;
 
 	ClSourcePackage sources;
 };
