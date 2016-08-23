@@ -32,6 +32,16 @@
 
 //this function takes to args kappa and mubar because one has to use it with different masses when mass-prec is used and when not
 
+void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system, const hmc_float kappa, const hmc_float csw)
+{
+    //for clover-improved Wilson-fermions one has to
+    hmc_float c_0_hat = 1/(1 + 64 * kappa * kappa);
+    
+    // calculate X = Qhat^(-2)*phi, Y = Qhat^(-1)*phi
+    // as input for fermion force clover1/2
+    // calculate wilson force
+    // add Wilson and clover1 and clover2
+}
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system, const hmc_float kappa, const hmc_float mubar)
 {
 	using physics::lattices::Spinorfield_eo;

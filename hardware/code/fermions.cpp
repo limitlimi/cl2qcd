@@ -147,58 +147,78 @@ void hardware::code::Fermions::get_work_sizes(const cl_kernel kernel, size_t * l
 
 
 //explicit fermionmatrix-kernel calling functions
-void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, hmc_float kappa) const
+void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const
 {
     //get kappa
     hmc_float kappa_tmp;
     if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
     else kappa_tmp = kappa;
+    //get csw
+    hmc_float csw_tmp;
+    if(csw == ARG_DEF) csw_tmp = get_parameters().get_csw();
+    else csw_tmp = csw;
     
     //query work-sizes for kernel
     size_t ls2, gs2;
     cl_uint num_groups;
     this->get_work_sizes(M_wilson, &ls2, &gs2, &num_groups);
     //set arguments
-    int clerr = clSetKernelArg(M_wilson, 0, sizeof(cl_mem), in->get_cl_buffer());
+    int clerr = clSetKernelArg(clover_eo, 0, sizeof(cl_mem), in->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    clerr = clSetKernelArg(M_wilson, 1, sizeof(cl_mem), gf->get_cl_buffer());
+    clerr = clSetKernelArg(clover_eo, 1, sizeof(cl_mem), out->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    clerr = clSetKernelArg(M_wilson, 2, sizeof(cl_mem), out->get_cl_buffer());
+    clerr = clSetKernelArg(clover_eo, 2, sizeof(cl_mem), gf->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    clerr = clSetKernelArg(M_wilson, 3, sizeof(hmc_float), &kappa_tmp);
+    clerr = clSetKernelArg(clover_eo, 3, sizeof(cl_int), &eo);
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    get_device()->enqueue_kernel( M_wilson, gs2, ls2);
+    clerr = clSetKernelArg(clover_eo, 4, sizeof(hmc_float), &kappa_tmp);
+    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+    
+    clerr = clSetKernelArg(clover_eo, 5, sizeof(hmc_float), &csw_tmp);
+    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+    
+    get_device()->enqueue_kernel( clover_eo, gs2, ls2);
 }
 
-void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, hmc_float kappa) const
+void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const
 {
     //get kappa
     hmc_float kappa_tmp;
     if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
     else kappa_tmp = kappa;
+    //get csw
+    hmc_float csw_tmp;
+    if(csw == ARG_DEF) csw_tmp = get_parameters().get_csw();
+    else csw_tmp = csw;
     
     //query work-sizes for kernel
     size_t ls2, gs2;
     cl_uint num_groups;
     this->get_work_sizes(M_wilson, &ls2, &gs2, &num_groups);
     //set arguments
-    int clerr = clSetKernelArg(M_wilson, 0, sizeof(cl_mem), in->get_cl_buffer());
+    int clerr = clSetKernelArg(clover_eo_inverse, 0, sizeof(cl_mem), in->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    clerr = clSetKernelArg(M_wilson, 1, sizeof(cl_mem), gf->get_cl_buffer());
+    clerr = clSetKernelArg(clover_eo_inverse, 1, sizeof(cl_mem), out->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    clerr = clSetKernelArg(M_wilson, 2, sizeof(cl_mem), out->get_cl_buffer());
+    clerr = clSetKernelArg(clover_eo_inverse, 2, sizeof(cl_mem), gf->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    clerr = clSetKernelArg(M_wilson, 3, sizeof(hmc_float), &kappa_tmp);
+    clerr = clSetKernelArg(clover_eo_inverse, 3, sizeof(cl_int), &eo);
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
     
-    get_device()->enqueue_kernel( M_wilson, gs2, ls2);
+    clerr = clSetKernelArg(clover_eo_inverse, 4, sizeof(hmc_float), &kappa_tmp);
+    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+    
+    clerr = clSetKernelArg(clover_eo_inverse, 5, sizeof(hmc_float), &csw_tmp);
+    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+    
+    get_device()->enqueue_kernel( clover_eo_inverse, gs2, ls2);
 }
 
 void hardware::code::Fermions::M_wilson_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, hmc_float kappa) const

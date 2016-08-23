@@ -41,10 +41,10 @@ hmc_float physics::fermionmatrix::Fermionmatrix_basic::get_mubar() const noexcep
 	return mubar;
 }
 
-/*hmc_float physics::fermionmatrix::Fermionmatrix_basic::get_csw() const noexcept
+hmc_float physics::fermionmatrix::Fermionmatrix_basic::get_csw() const noexcept
 {
     return csw;
-}*/
+}
 
 const hardware::System& physics::fermionmatrix::Fermionmatrix_basic::get_system() const noexcept
 {
@@ -233,7 +233,7 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 
 	hmc_float kappa = get_kappa();
 	hmc_float mubar = get_mubar();
-    hmc_float csw = get_mubar();
+    hmc_float csw = get_csw();
 
 	switch(system.get_inputparameters().get_fermact()) {
 		case meta::action::wilson:
@@ -251,9 +251,9 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 			break;
         case meta::action::clover:
             dslash(&tmp, gf, in, ODD, kappa);
-            //(1+T_oo)^(-1) M_tm_inverse_sitediagonal(&tmp2, tmp, mubar);
+            clover_eo_inverse(&tmp2, tmp, gf, ODD, kappa, csw);
             dslash(out, gf, tmp2, EVEN, kappa);
-            //(1+T_ee) M_tm_sitediagonal(&tmp, in, mubar);
+            clover_eo(&tmp, in, gf, EVEN, kappa, csw);
             saxpy(out, {1., 0.}, *out, tmp);
             break;
 		default:
