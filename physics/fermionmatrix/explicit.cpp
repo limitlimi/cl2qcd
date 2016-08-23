@@ -206,3 +206,37 @@ void physics::fermionmatrix::dslash(const physics::lattices::Spinorfield_eo * ou
 
 	out->mark_halo_dirty();
 }
+
+void physics::fermionmatrix::clover_eo(const physics::lattices::Spinorfield_eo * out, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& in, int evenodd, hmc_float kappa, hmc_float csw)
+{
+    auto out_bufs = out->get_buffers();
+    auto gf_bufs = gf.get_buffers();
+    auto in_bufs = in.get_buffers();
+    
+    size_t num_bufs = out_bufs.size();
+    if(num_bufs != gf_bufs.size() || num_bufs != in_bufs.size()) {
+        throw std::invalid_argument("Given lattices do not use the same devices");
+    }
+    
+    for(size_t i = 0; i < num_bufs; ++i) {
+        auto fermion_code = out_bufs[i]->get_device()->get_fermion_code();
+        fermion_code->clover_eo_device(in_bufs[i], out_bufs[i], gf_bufs[i], evenodd, kappa, csw);
+    }
+}
+
+void physics::fermionmatrix::clover_eo_inverse(const physics::lattices::Spinorfield_eo * out, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& in, int evenodd, hmc_float kappa, hmc_float csw)
+{
+    auto out_bufs = out->get_buffers();
+    auto gf_bufs = gf.get_buffers();
+    auto in_bufs = in.get_buffers();
+    
+    size_t num_bufs = out_bufs.size();
+    if(num_bufs != gf_bufs.size() || num_bufs != in_bufs.size()) {
+        throw std::invalid_argument("Given lattices do not use the same devices");
+    }
+    
+    for(size_t i = 0; i < num_bufs; ++i) {
+        auto fermion_code = out_bufs[i]->get_device()->get_fermion_code();
+        fermion_code->clover_eo_inverse_device(in_bufs[i], out_bufs[i], gf_bufs[i], evenodd, kappa, csw);
+    }
+}

@@ -34,14 +34,169 @@
 
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system, const hmc_float kappa, const hmc_float csw)
 {
-    //for clover-improved Wilson-fermions one has to
+    //for force of clover-improved Wilson-fermions one has two contributions: Wilson + clover
+    //input for the clover-force: X = Qhat^(-2)*phi, Y = Qhat^(-1)*phi, X1/Y1 = -(1+T_ee)^(-1)*M_eo X/Y
+    //Qhat = c_0_hat * gamma_5 * (1 + T_oo - M_oe*(1+T_ee)^(-1)*M_eo))
     hmc_float c_0_hat = 1/(1 + 64 * kappa * kappa);
     
     // calculate X = Qhat^(-2)*phi, Y = Qhat^(-1)*phi
     // as input for fermion force clover1/2
     // calculate wilson force
     // add Wilson and clover1 and clover2
+    using physics::lattices::Spinorfield_eo;
+    using namespace physics::algorithms::solvers;
+    using namespace physics::fermionmatrix;
+    
+    const auto & params = system.get_inputparameters();
+    
+    logger.debug() << "\t\tcalc fermion_force...";
+    //the source is already set, it is Dpsi, where psi is the initial gaussian spinorfield
+    Spinorfield_eo solution(system);
+    Spinorfield_eo phi_inv(system);
+    Spinorfield_eo X(system);
+    Spinorfield_eo X1(system);
+    Spinorfield_eo Y(system);
+    Spinorfield_eo Y1(system);
+    Spinorfield_eo tmp1(system);
+    Spinorfield_eo tmp2(system);
+    Spinorfield_eo tmp3(system);
+    if(params.get_solver() == meta::Inputparameters::cg) {
+        //Wilson:
+        /**
+         * The first inversion calculates
+         * X_even = phi = (Qplusminus_eo)^-1 psi
+         * out of
+         * Qplusminus_eo phi_even = psi
+         */
+        logger.debug() << "\t\t\tstart solver";
+        
+        /** @todo at the moment, we can only put in a cold spinorfield
+         * or a point-source spinorfield as trial-solution
+         */
+        /**
+         * Trial solution for the spinorfield
+         */
+        solution.cold();
+        
+        const QplusQminus_eo fm(kappa, mubar, system);
+        cg(&solution, fm, gf, phi, system, params.get_force_prec());
+        
+        /**
+         * Y_even is now just
+         *  Y_even = (Qminus_eo) X_even = (Qminus_eo) (Qplusminus_eo)^-1 psi =
+         *    = (Qplus_eo)^-1 ps"\tinv. field before inversion i
+         */
+        const Qminus_eo qminus(kappa, mubar, system);
+        qminus(&phi_inv, gf, solution);
+        
+        //clover:
+        //X = Qhat^(-2) * phi
+        
+        //Y = Qhat^(-1) * phi
+        dslash(&tmp1, gf, phi, EVEN, kappa);
+        clover_eo_inverse(&tmp1, tmp1, gf, EVEN, kappa, csw);
+        dslash(tmp1, gf, tmp1, ODD, kappa);
+        clover_eo(&tmp2, phi, gf, EVEN, kappa, csw);
+        saxpy(tmp1, {1., 0.}, *tmp1, tmp2);
+        saxpy(tmp1, {-1., 0.}, *tmp1, phi);
+        sax(&tmp1, {c_0_hat, 0.}, tmp1);
+        tmp1.gamma5();
+    } else {
+        ///@todo if wanted, solvertimer has to be used here..
+        //logger.debug() << "\t\tcalc fermion force ingredients using bicgstab with eo.";
+        /**
+         * The first inversion calculates
+         * Y_even = phi = (Qplus_eo)^-1 psi
+         * out of
+         * Qplus_eo phi = psi
+         * This is also the energy of the final field!
+         */
+        //logger.debug() << "\t\tcalc Y_even...";
+        //logger.debug() << "\t\t\tstart solver";
+        
+        /** @todo at the moment, we can only put in a cold spinorfield
+         * or a point-source spinorfield as trial-solution
+         */
+        /**
+         * Trial solution for the spinorfield
+         */
+        solution.zero();
+        solution.gamma5();
+        
+        const Qplus_eo qplus(kappa, mubar, system);
+        bicgstab(&solution, qplus, gf, phi, system, params.get_force_prec());
+        
+        copyData(&phi_inv, solution);
+        
+        /**
+         * Now, one has to calculate
+         * X = (Qminus_eo)^-1 Y = (Qminus_eo)^-1 (Qplus_eo)^-1 psi = (QplusQminus_eo)^-1 psi ??
+         * out of
+         * Qminus_eo clmem_inout_eo = clmem_phi_inv_eo
+         * Therefore, when calculating the final energy of the spinorfield,
+         *  one can just take clmem_phi_inv_eo (see also above)!!
+         */
+        
+        //logger.debug() << "\t\tcalc X_even...";
+        //copy former solution to clmem_source
+        Spinorfield_eo source_even(system);
+        copyData(&source_even, solution);
+        
+        //this sets clmem_inout cold as trial-solution
+        solution.cold();
+        
+        const Qminus_eo qminus(kappa, mubar, system);
+        bicgstab(&solution, qminus, gf, source_even, system, params.get_force_prec());
+    }
+    /**
+     * At this point, one has calculated X_odd and Y_odd.
+     * If one has a fermionmatrix
+     *  M = R + D
+     * these are:
+     *  X_odd = -R(-mu)_inv D X_even
+     *  Y_odd = -R(mu)_inv D Y_even
+     */
+    
+    ///@NOTE the following calculations could also go in a new function for convenience
+    //calculate X_odd
+    //therefore, clmem_tmp_eo_1 is used as intermediate state. The result is saved in clmem_inout, since
+    //  this is used as a default in the force-function.
+    Spinorfield_eo tmp_1(system);
+    if(params.get_fermact() == meta::action::wilson) {
+        dslash(&tmp_1, gf, solution, ODD, kappa);
+        sax(&tmp_1, { -1., 0.}, tmp_1);
+    } else if(params.get_fermact() == meta::action::twistedmass) {
+        Spinorfield_eo tmp_2(system);
+        dslash(&tmp_1, gf, solution, ODD, kappa);
+        M_tm_inverse_sitediagonal_minus(&tmp_2, tmp_1, mubar);
+        sax(&tmp_1, { -1., 0.}, tmp_2);
+    } else {
+        throw Print_Error_Message("The selected fermion force has not been implemented.", __FILE__, __LINE__);
+    }
+    //logger.debug() << "\t\tcalc eo fermion_force F(Y_even, X_odd)...";
+    //Calc F(Y_even, X_odd) = F(clmem_phi_inv_eo, clmem_tmp_eo_1)
+    fermion_force(force, phi_inv, tmp_1, EVEN, gf, kappa);
+    
+    //calculate Y_odd
+    //therefore, clmem_tmp_eo_1 is used as intermediate state. The result is saved in clmem_phi_inv, since
+    //  this is used as a default in the force-function.
+    if(params.get_fermact() == meta::action::wilson) {
+        dslash(&tmp_1, gf, phi_inv, ODD, kappa);
+        sax(&tmp_1, { -1., 0.}, tmp_1);
+    } else if(params.get_fermact() == meta::action::twistedmass) {
+        Spinorfield_eo tmp_2(system);
+        dslash(&tmp_1, gf, phi_inv, ODD, kappa);
+        M_tm_inverse_sitediagonal(&tmp_2, tmp_1, mubar);
+        sax(&tmp_1, { -1., 0.}, tmp_2);
+    } else {
+        throw Print_Error_Message("The selected fermion force has not been implemented.", __FILE__, __LINE__);
+    }
+    //logger.debug() << "\t\tcalc eoprec fermion_force F(Y_odd, X_even)...";
+    //Calc F(Y_odd, X_even) = F(clmem_tmp_eo_1, clmem_inout_eo)
+    fermion_force(force, tmp_1, solution, ODD, gf, kappa);
 }
+
+
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system, const hmc_float kappa, const hmc_float mubar)
 {
 	using physics::lattices::Spinorfield_eo;
