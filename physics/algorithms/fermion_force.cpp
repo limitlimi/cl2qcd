@@ -96,7 +96,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         dslash(&tmp1, gf, phi, EVEN, kappa);
         clover_eo_inverse(&tmp1, tmp1, gf, EVEN, kappa, csw);
         dslash(tmp1, gf, tmp1, ODD, kappa);
-        clover_eo(&tmp2, phi, gf, EVEN, kappa, csw);
+        clover_eo(&tmp2, phi, gf, ODD, kappa, csw);
         saxpy(tmp1, {1., 0.}, *tmp1, tmp2);
         saxpy(tmp1, {-1., 0.}, *tmp1, phi);
         sax(&tmp1, {c_0_hat, 0.}, tmp1);
