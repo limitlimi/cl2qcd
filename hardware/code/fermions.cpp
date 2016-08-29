@@ -45,7 +45,7 @@ void hardware::code::Fermions::fill_kernels()
 		M_tm_plus = createKernel("M_tm_plus") << sources << "fermionmatrix.cl" << "fermionmatrix_m_tm_plus.cl";
 		M_tm_minus = createKernel("M_tm_minus") << sources << "fermionmatrix.cl" << "fermionmatrix_m_tm_minus.cl";
 	} else if(get_parameters().get_fermact() == meta::action::clover) {
-		throw Print_Error_Message("no kernels for CLOVER-discretization implemented yet, aborting... ", __FILE__, __LINE__);
+		throw Print_Error_Message("no kernels for CLOVER-discretization without even-odd preconditioning implemented yet, aborting... ", __FILE__, __LINE__);
 	} else {
 		throw Print_Error_Message("there was a problem with which fermion-discretization to use, aborting... ", __FILE__, __LINE__);
 	}

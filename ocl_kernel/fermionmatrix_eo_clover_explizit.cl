@@ -1,6 +1,6 @@
 /* The clover Matrix (1+T) is a complex 12x12 Matrix for every lattice site
    T = c_sw sum_{mu,nu=0}^3 i/4 sigma_{mu,nu} F_{mu,nu} with F = lattice-field-strength-tensor
-   because of sigma_{mu,nu} 1 + T is blockdiagonal and one can store it as two complex 6x6 matrices
+   because of sigma_{mu,nu} (1 + T) is blockdiagonal and one can store it as two complex 6x6 matrices
    the implementation is done according to OpenQCD documentation section 4.1
  */
 
@@ -62,13 +62,13 @@ Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3Storage
     tmp = multiply_matrix3x3_by_complex(EB2, {0,1});
     put_3x3block_matrix6x6_upperright(out, subtract_matrix3x3(EB1, tmp));
     
-    //lower-right block = EB1 + i * EB2
+    //lower-left block = EB1 + i * EB2
     tmp = multiply_matrix3x3_by_complex(EB2, {0,1});
-    put_3x3block_matrix6x6_upperright(out, add_matrix3x3(EB1, tmp));
+    put_3x3block_matrix6x6_lowerleft(out, add_matrix3x3(EB1, tmp));
     
-    //lower-left block = 1 - EB3
+    //lower-right block = 1 - EB3
     tmp = subtract_matrix3x3(identity_matrix3x3(), EB3);
-    put_3x3block_matrix6x6_lowerleft(out, tmp);
+    put_3x3block_matrix6x6_lowerright(out, tmp);
     
     
     //Faktor of i and bc_tmp
@@ -127,19 +127,21 @@ Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3Storag
     //EB3 = E3 + B3
     EB3 = add_matrix3x3(E, B);
     
-    //upper-left block = EB3
-    put_3x3block_matrix6x6_upperleft(out, EB3);
+    //upper-left block = 1 + EB3
+    tmp = add_matrix3x3(identity_matrix3x3(), EB3);
+    put_3x3block_matrix6x6_upperleft(out, tmp);
     
     //upper-right block = EB1 - i * EB2
     tmp = multiply_matrix3x3_by_complex(EB2, {0,1});
     put_3x3block_matrix6x6_upperright(out, subtract_matrix3x3(EB1, tmp));
     
-    //lower-right block = EB1 + i * EB2
+    //lower-left block = EB1 + i * EB2
     tmp = multiply_matrix3x3_by_complex(EB2, {0,1});
-    put_3x3block_matrix6x6_upperright(out, add_matrix3x3(EB1, tmp));
+    put_3x3block_matrix6x6_lowerleft(out, add_matrix3x3(EB1, tmp));
     
-    //lower-left block = - EB3
-    put_3x3block_matrix6x6_lowerleft(out, multiply_matrix3x3_by_real(EB3, -1.));
+    //lower-right block = 1 - EB3
+    tmp = subtract_matrix3x3(identity_matrix3x3(), EB3);
+    put_3x3block_matrix6x6_lowerright(out, tmp);
     
     
     //Faktor of -i and bc_tmp

@@ -1,16 +1,61 @@
+void clover_eo_inverse_explizit_upper_left_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    Matrix6x6 out_tmp, tmp;
+    
+    Matrix6x6 tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
+    Matrix6x6 out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
+    
+    put6x6(out, pos, out_tmp); //pos??
+}
+
+void clover_eo_inverse_explizit_lower_right_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    Matrix6x6 out_tmp, tmp;
+    
+    Matrix6x6 tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    Matrix6x6 out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
+    
+    put6x6(out, pos, out_tmp);
+}
+
+__kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {//?????????????
+        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
+        clover_eo_inverse_explizit_upper_left_for_site(in, out, field, kappa_in, csw, pos);
+    }
+}
+
+__kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {//?????????????
+        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
+        clover_eo_inverse_explizit_lower_right_for_site(in, out, field, kappa_in, csw, pos);
+    }
+}
+
+
+//clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
+
 void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
+    spinor out_tmp;
+    
     halfspinor tmp1, tmp2;
     tmp1.e1 = in.e1;
     tmp1.e2 = in.e2;
     tmp2.e1 = in.e3;
     tmp2.e2 = in.e4;
-    spinor out_tmp;
     
+    //get 6x6 blocks
     Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
     Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    
+    //inversion of 6x6 blocks
     Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus);
     Matrix6x6 A_minus = inverse_6x6_via_Householder_triangularization(B_minus);
+    
+    //Inverse * spinor
     tmp1 = matrix6x6_times_halfspinor(A_plus, tmp1);
     tmp2 = matrix6x6_times_halfspinor(A_minus, tmp1);
     
@@ -31,8 +76,9 @@ __kernel void clover_eo_inverse(__global const spinorStorageType * const restric
 }
 
 /* This function performs the inversion a complex 6x6 matrix
- via Householder-Triangularization(see OpenQCD documentation "Implementation of the Dirac Operator" section 5
+   via Householder-Triangularization(see OpenQCD documentation "Implementation of the Dirac Operator" section 5
  */
+
 Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
 {
     Matrix6x6 out;
@@ -89,25 +135,23 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
         for(int i=k-1; i>=0; i=i-1){
             double complex r = 0.;
             for(int j=i+1; j<=k; j=j+1){
-                r = r + T[i][j] * S[j][k];
-            }
-            S[i][k] = - S[i][i] * r;
-        }
+                r = r + T[i][j] * S[j][k];}
+            S[i][k] = - S[i][i] * r;}
     }
 
 
     //R_prod = R_n-1,...,R_1
     double complex R_prod[rows][cols] = {0.};
     for(unsigned int m=0; m<rows; ++m){ //initialise as R_1
-    for(unsigned int n=0; n<cols; ++n){
-        R_prod[m][n] = R[0][m][n];}}
+        for(unsigned int n=0; n<cols; ++n){
+            R_prod[m][n] = R[0][m][n];}}
+    
     for(unsigned int k=1; k<(cols-1); k=k+1){ //multiply R_k's
         for(unsigned int m=0; m<rows; ++m){
             for(unsigned int n=0; n<cols; ++n){
                 N1[m][n] = 0.;
                 for(unsigned int l=0; l<rows; ++l){
-                    N1[m][n] = N1[m][n] + R[k][m][l] * R_prod[l][n];
-                }}}
+                    N1[m][n] = N1[m][n] + R[k][m][l] * R_prod[l][n];}}}
         for(unsigned int m=0; m<rows; ++m){
             for(unsigned int n=0; n<cols; ++n){
                 R_prod[m][n] = N1[m][n];}}

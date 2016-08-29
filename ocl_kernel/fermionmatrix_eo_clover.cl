@@ -21,7 +21,7 @@
 /*
  clover-term fermion matrix 1+T for eoprec spinorfields (c.f. paper of Jansen, Liu: Implementation of Symanzik's improvement program for simulations of dynamical wilson fermions in lattice QCD, URL:http://arxiv.org/abs/hep-lat/9603008)
  T=i/2*c_sw*kappa*sigma_{\mu \nu}*F_{\mu \nu}*delta_xy, with F=field strength tensor on the lattice
- sigma_{\mu \nu} = [gamma_\mu, gamma_\nu]
+ sigma_{\mu \nu} = i/2 * [gamma_\mu, gamma_\nu]
 */
 void clover_eo_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
@@ -50,8 +50,6 @@ __kernel void clover_eo(__global const spinorStorageType * const restrict in, __
 
 spinor clover_eoprec_unified_local(__global const spinorStorageType * const restrict in, __global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, const dir_idx dir, hmc_float kappa_in, hmc_float csw)
 {
-    //this is used to save the idx of the neighbors
-    st_idx idx_neigh;
     dir_idx dir2;
     
     spinor out_tmp, phi, tmp1, psi;
@@ -62,11 +60,11 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
     phi = getSpinor_eo(in, pos_eo);
     
     //this is used to save the BC-conditions...
-    hmc_complex bc_tmp = (dir == TDIR) ? (get_neighb) {//add c_sw here? /// factor 2 because of (1+T)~2*delta_xy // factor i/2 ??
-        kappa_in * TEMPORAL_RE, kappa_in * TEMPORAL_IM
+    hmc_complex bc_tmp = (dir == TDIR) ? (get_neighb) {
+        1./2. * csw * kappa_in * TEMPORAL_RE, 1./2. * csw * kappa_in * TEMPORAL_IM
     } :
     (hmc_complex) {
-        kappa_in * SPATIAL_RE, kappa_in * SPATIAL_IM
+        1./2. * csw * kappa_in * SPATIAL_RE, 1./2. * csw * kappa_in * SPATIAL_IM
     };
 
     
@@ -112,7 +110,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_02) * plus
+        //Calculate (1+sigma_02) * phi
         //with 1+sigma_02:
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
@@ -135,7 +133,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate 1+sigma_03 * plus
+        //Calculate 1+sigma_03 * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate (1+field-strength-tensor) * su3vec
@@ -158,7 +156,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 0
         dir2 = TDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_10) * plus
+        //Calculate (1+sigma_10) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -179,7 +177,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 1
         dir2 = XDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_11) * plus
+        //Calculate (1+sigma_11) * phi
         psi = phi;
         //calculate field-strength-tensor * spinor
         tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
@@ -200,7 +198,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
-        //Calculate sigma_12 * plus
+        //Calculate sigma_12 * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -222,7 +220,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_13) * plus
+        //Calculate (1+sigma_13) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -244,7 +242,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 0
         dir2 = TDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_20) * plus
+        //Calculate (1+sigma_20) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -266,7 +264,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 1
         dir2 = XDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_21) * plus
+        //Calculate (1+sigma_21) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         psi3 = su3vec_acc(psi3,plus.e3);
@@ -289,7 +287,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_22) * plus
+        //Calculate (1+sigma_22) * phi
         psi = phi;
         //calculate field-strength-tensor * spinor
         tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
@@ -310,7 +308,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_23) * plus
+        //Calculate (1+sigma_23) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -332,7 +330,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 0
         dir2 = TDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_30) * plus
+        //Calculate (1+sigma_30) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -354,7 +352,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 1
         dir2 = XDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_31) * plus
+        //Calculate (1+sigma_31) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -376,7 +374,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_32) * plus
+        //Calculate (1+sigma_32) * phi
         tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
         psi = spinor_acc(phi, tmp1);
         //calculate field-strength-tensor * spinor
@@ -398,7 +396,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_3) * plus
+        //Calculate (1+sigma_33) * phi
         psi = phi;
         //calculate field-strength-tensor * spinor
         tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
@@ -416,6 +414,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         
     }
     out_tmp = spinor_times_complex(out_temp, bc_temp);
+    out_tmp = spinor_times_complex(out_temp, {0., 1.});
     return out_tmp;
 }
 

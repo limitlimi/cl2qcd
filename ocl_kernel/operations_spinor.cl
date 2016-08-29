@@ -77,7 +77,7 @@ spinor sigma_mu_nu_times_spinor(spinor in, uint mu, uint nu)
             out.e0 = su3vec_times_real(in.e0, -1.);
             out.e1 = in.e1;
             out.e2 = su3vec_times_real(in.e2, -1.);
-            out.e3 = in.e3;0
+            out.e3 = in.e3;
         }
         else if(nu==3)
         {
