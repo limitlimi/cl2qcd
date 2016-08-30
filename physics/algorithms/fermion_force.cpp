@@ -30,8 +30,6 @@
 #include "../../hardware/device.hpp"
 #include "../../hardware/code/molecular_dynamics.hpp"
 
-//this function takes to args kappa and mubar because one has to use it with different masses when mass-prec is used and when not
-
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system, const hmc_float kappa, const hmc_float csw)
 {
     //for force of clover-improved Wilson-fermions one has two contributions: Wilson + clover
@@ -196,7 +194,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     fermion_force(force, tmp_1, solution, ODD, gf, kappa);
 }
 
-
+//this function takes to args kappa and mubar because one has to use it with different masses when mass-prec is used and when not
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system, const hmc_float kappa, const hmc_float mubar)
 {
 	using physics::lattices::Spinorfield_eo;
