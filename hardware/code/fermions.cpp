@@ -146,7 +146,7 @@ void hardware::code::Fermions::get_work_sizes(const cl_kernel kernel, size_t * l
 
 
 //explicit fermionmatrix-kernel calling functions
-void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const
+void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const
 {
     //get kappa
     hmc_float kappa_tmp;
@@ -184,7 +184,7 @@ void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Plain<s
     get_device()->enqueue_kernel( clover_eo, gs2, ls2);
 }
 
-void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const
+void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const
 {
     //get kappa
     hmc_float kappa_tmp;

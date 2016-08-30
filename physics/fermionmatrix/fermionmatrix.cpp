@@ -251,9 +251,9 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 			break;
         case meta::action::clover:
             dslash(&tmp, gf, in, ODD, kappa);
-            clover_eo_inverse(&tmp2, tmp, gf, ODD, kappa, csw);
+            clover_eo_inverse(&tmp2, gf, tmp, ODD, kappa, csw);
             dslash(out, gf, tmp2, EVEN, kappa);
-            clover_eo(&tmp, in, gf, EVEN, kappa, csw);
+            clover_eo(&tmp, gf, in, EVEN, kappa, csw);
             saxpy(out, {1., 0.}, *out, tmp);
             break;
 		default:

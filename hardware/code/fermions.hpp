@@ -65,8 +65,8 @@ public:
 	void M_tm_sitediagonal_minus_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, hmc_float mubar = ARG_DEF) const;
     //    clover_eo
     //        explizit
-    void clover_eo_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const;
-    void clover_eo_inverse_device(const hardware::buffers::Plain<spinor> * in, const hardware::buffers::Plain<spinor> * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float csw) const;
+    void clover_eo_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
+    void clover_eo_inverse_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
 	/**
 	 * Perform dslash_eo on the whole buffer.
 	 */
