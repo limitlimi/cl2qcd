@@ -55,6 +55,14 @@ void hardware::code::Molecular_Dynamics::fill_kernels()
 		fermion_force_eo_2 = createKernel("fermion_force_eo_2") << basic_molecular_dynamics_code  << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "force_fermion_eo.cl";
 		fermion_force_eo_3 = createKernel("fermion_force_eo_3") << basic_molecular_dynamics_code  << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "force_fermion_eo.cl";
 		fermion_stagg_partial_force_eo = createKernel("fermion_staggered_partial_force_eo") << basic_molecular_dynamics_code << "operations_staggered.cl" << "spinorfield_staggered_eo.cl" << "force_staggered_fermion_eo.cl";
+        fermion_force_clover1_eo_0 = createKernel("fermion_force_clover1_eo_0") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover1_eo_1 = createKernel("fermion_force_clover1_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover1_eo_2 = createKernel("fermion_force_clover1_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover1_eo_3 = createKernel("fermion_force_clover1_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover2_eo_0 = createKernel("fermion_force_clover2_eo_0") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover2_eo_1 = createKernel("fermion_force_clover2_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover2_eo_2 = createKernel("fermion_force_clover2_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover2_eo_3 = createKernel("fermion_force_clover2_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
 	}
 	fermion_force = createKernel("fermion_force") << basic_molecular_dynamics_code << "fermionmatrix.cl" << "force_fermion.cl";
 	md_update_gaugefield = createKernel("md_update_gaugefield") << basic_molecular_dynamics_code << "md_update_gaugefield.cl";
@@ -98,6 +106,16 @@ void hardware::code::Molecular_Dynamics::clear_kernels()
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 		clerr = clReleaseKernel(fermion_stagg_partial_force_eo);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+        clerr = clReleaseKernel(fermion_force_clover1_eo_3);
+        clerr = clReleaseKernel(fermion_force_clover1_eo_2);
+        clerr = clReleaseKernel(fermion_force_clover1_eo_1);
+        clerr = clReleaseKernel(fermion_force_clover1_eo_0);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+        clerr = clReleaseKernel(fermion_force_clover2_eo_3);
+        clerr = clReleaseKernel(fermion_force_clover2_eo_2);
+        clerr = clReleaseKernel(fermion_force_clover2_eo_1);
+        clerr = clReleaseKernel(fermion_force_clover2_eo_0);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	} else {
 		clerr = clReleaseKernel(fermion_force);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
@@ -267,6 +285,14 @@ void hardware::code::Molecular_Dynamics::print_profiling(const std::string& file
 	Opencl_Module::print_profiling(filename, fermion_force_eo_3);
 	Opencl_Module::print_profiling(filename, fermion_stagg_partial_force_eo);
 	Opencl_Module::print_profiling(filename, stout_smear_fermion_force);
+    Opencl_Module::print_profiling(filename, fermion_force_clover1_eo_0);
+    Opencl_Module::print_profiling(filename, fermion_force_clover1_eo_1);
+    Opencl_Module::print_profiling(filename, fermion_force_clover1_eo_2);
+    Opencl_Module::print_profiling(filename, fermion_force_clover1_eo_3);
+    Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_0);
+    Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_1);
+    Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_2);
+    Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_3);
 }
 
 void hardware::code::Molecular_Dynamics::md_update_gaugefield_device(const hardware::buffers::Gaugemomentum * gm_in, const hardware::buffers::SU3 * gf_out, hmc_float eps) const
