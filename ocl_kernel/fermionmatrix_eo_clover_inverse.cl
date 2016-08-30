@@ -36,7 +36,6 @@ __kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6Sto
 
 
 //clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
-
 void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
     spinor out_tmp;

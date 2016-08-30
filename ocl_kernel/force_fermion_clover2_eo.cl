@@ -544,8 +544,8 @@ Matrixsu3 triangle(__global const Matrix6x6StorageType * const restrict __global
 {
     Matrixsu3 out;
     Matrix3x3 tmp1;
-    B_plus = get_matrix6x6(C, pos_triangle); //upper left block of (1+T_ee)^(-1) = {{B_11, B_12},{B_21, B_22}}
-    B_minus = get_matrix6x6(D, pos_triangle); //lower right block of (1+T_ee)^(-1) = {{B_33, B_34},{B_43, B_44}}
+    B_plus = get6x6(C, pos_triangle); //upper left block of (1+T_ee)^(-1) = {{B_11, B_12},{B_21, B_22}}
+    B_minus = get6x6(D, pos_triangle); //lower right block of (1+T_ee)^(-1) = {{B_33, B_34},{B_43, B_44}}
     if(dir1 ==0){
         if(dir2 == 1){ //B_12 + B_21 - B_34 - B_43
             tmp1 = get_3x3_block_upperright(B_plus)

@@ -16,7 +16,15 @@ halfspinor matrix6x6_times_halfspinor(Matrix6x6 u, halfspinor in)
     return out;
 }
 
+inline Matrixsu3 get6x6(__global const Matrix6x6StorageType * const restrict in, const uint idx)
+{
+    return in[idx];
+}
 
+inline void put6x6(__global Matrix6x6StorageType * const restrict out, const uint idx, const Matrix6x6 val)
+{
+    out[idx] = val;
+}
 
 Matrix3x3 get_3x3_block_upperleft(Matrix6x6 in)
 {
