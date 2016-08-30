@@ -38,7 +38,6 @@ void hardware::code::Fermions::fill_kernels()
 	}
 
 	logger.debug() << "Creating Fermions kernels...";
-	
 	if(get_parameters().get_fermact() == meta::action::wilson) {
 		M_wilson = createKernel("M_wilson") << sources << "fermionmatrix.cl" << "fermionmatrix_m.cl";
 	} else if(get_parameters().get_fermact() == meta::action::twistedmass) {
@@ -158,6 +157,7 @@ void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Plain<s
     if(csw == ARG_DEF) csw_tmp = get_parameters().get_csw();
     else csw_tmp = csw;
     
+    cl_int eo = evenodd;
     //query work-sizes for kernel
     size_t ls2, gs2;
     cl_uint num_groups;
@@ -195,6 +195,7 @@ void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers:
     if(csw == ARG_DEF) csw_tmp = get_parameters().get_csw();
     else csw_tmp = csw;
     
+    cl_int eo = evenodd;
     //query work-sizes for kernel
     size_t ls2, gs2;
     cl_uint num_groups;
