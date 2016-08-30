@@ -61,10 +61,10 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
     
     //this is used to save the BC-conditions...
     hmc_complex bc_tmp = (dir == TDIR) ? (get_neighb) {
-        1./2. * csw * kappa_in * TEMPORAL_RE, 1./2. * csw * kappa_in * TEMPORAL_IM
+        1./4. * csw * kappa_in * TEMPORAL_RE, 1./4. * csw * kappa_in * TEMPORAL_IM
     } :
     (hmc_complex) {
-        1./2. * csw * kappa_in * SPATIAL_RE, 1./2. * csw * kappa_in * SPATIAL_IM
+        1./4. * csw * kappa_in * SPATIAL_RE, 1./4. * csw * kappa_in * SPATIAL_IM
     };
 
     
