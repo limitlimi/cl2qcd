@@ -163,7 +163,7 @@ static void invert_M_nf2_upperflavour(const physics::lattices::Spinorfield* resu
 			//save the result to result_buf
 			copyData(&result_eo, source_even);
 		} else {
-			Aee f_eo(params.get_kappa(), meta::get_mubar(params), 0, system);
+			Aee f_eo(params.get_kappa(), meta::get_mubar(params), system);
 			converged = bicgstab(&result_eo, f_eo, gf, source_even, system, params.get_solver_prec());
 		}
 
