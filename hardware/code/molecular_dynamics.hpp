@@ -129,6 +129,14 @@ private:
 	cl_kernel fermion_force_eo_1;
 	cl_kernel fermion_force_eo_2;
 	cl_kernel fermion_force_eo_3;
+    cl_kernel fermion_force_clover1_eo_0;
+    cl_kernel fermion_force_clover1_eo_1;
+    cl_kernel fermion_force_clover1_eo_2;
+    cl_kernel fermion_force_clover1_eo_3;
+    cl_kernel fermion_force_clover2_eo_0;
+    cl_kernel fermion_force_clover2_eo_1;
+    cl_kernel fermion_force_clover2_eo_2;
+    cl_kernel fermion_force_clover2_eo_3;
 	cl_kernel stout_smear_fermion_force;
 	
 	//staggered kernels
