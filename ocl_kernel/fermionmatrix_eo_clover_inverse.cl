@@ -20,7 +20,7 @@ void clover_eo_inverse_explizit_lower_right_for_site(__global const Matrix6x6Sto
 
 __kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
 {
-    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {//?????????????
+    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
         clover_eo_inverse_explizit_upper_left_for_site(in, out, field, kappa_in, csw, pos);
     }
@@ -28,7 +28,7 @@ __kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6Stor
 
 __kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
 {
-    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {//?????????????
+    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
         clover_eo_inverse_explizit_lower_right_for_site(in, out, field, kappa_in, csw, pos);
     }
