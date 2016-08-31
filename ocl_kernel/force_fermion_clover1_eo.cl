@@ -3,7 +3,7 @@
 */
 
 //spinorfield input X1/Y1 ^= X_even/Y_even = -(1+T_ee)^(-1) M_eo X_o/Y_o
-__kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+__kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too

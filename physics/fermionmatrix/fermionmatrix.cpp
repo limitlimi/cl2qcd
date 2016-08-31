@@ -249,6 +249,7 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 			M_tm_sitediagonal(&tmp, in, mubar);
 			saxpy(out, {1., 0.}, *out, tmp);
 			break;
+        //for the clover case R = {{1+T_ee,0},{0,1+T_oo}}, D = Wilson
         case meta::action::clover:
             dslash(&tmp, gf, in, ODD, kappa);
             clover_eo_inverse(&tmp2, gf, tmp, ODD, kappa, csw);
