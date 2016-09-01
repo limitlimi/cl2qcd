@@ -53,14 +53,14 @@ void hardware::code::Molecular_Dynamics::fill_kernels()
 		fermion_force_eo_2 = createKernel("fermion_force_eo_2") << basic_molecular_dynamics_code  << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "force_fermion_eo.cl";
 		fermion_force_eo_3 = createKernel("fermion_force_eo_3") << basic_molecular_dynamics_code  << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "force_fermion_eo.cl";
 		fermion_stagg_partial_force_eo = createKernel("fermion_staggered_partial_force_eo") << basic_molecular_dynamics_code << "operations_staggered.cl" << "spinorfield_staggered_eo.cl" << "force_staggered_fermion_eo.cl";
-        fermion_force_clover1_eo_0 = createKernel("fermion_force_clover1_eo_0") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
-        fermion_force_clover1_eo_1 = createKernel("fermion_force_clover1_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
-        fermion_force_clover1_eo_2 = createKernel("fermion_force_clover1_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
-        fermion_force_clover1_eo_3 = createKernel("fermion_force_clover1_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover1_eo.cl";
-        fermion_force_clover2_eo_0 = createKernel("fermion_force_clover2_eo_0") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
-        fermion_force_clover2_eo_1 = createKernel("fermion_force_clover2_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
-        fermion_force_clover2_eo_2 = createKernel("fermion_force_clover2_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
-        fermion_force_clover2_eo_3 = createKernel("fermion_force_clover2_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover1_eo_0 = createKernel("fermion_force_clover1_eo_0") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover1_eo_1 = createKernel("fermion_force_clover1_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover1_eo_2 = createKernel("fermion_force_clover1_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover1_eo_3 = createKernel("fermion_force_clover1_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover1_eo.cl";
+        fermion_force_clover2_eo_0 = createKernel("fermion_force_clover2_eo_0") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover2_eo_1 = createKernel("fermion_force_clover2_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover2_eo_2 = createKernel("fermion_force_clover2_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
+        fermion_force_clover2_eo_3 = createKernel("fermion_force_clover2_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
 	}
 	fermion_force = createKernel("fermion_force") << basic_molecular_dynamics_code << "fermionmatrix.cl" << "force_fermion.cl";
 	md_update_gaugefield = createKernel("md_update_gaugefield") << basic_molecular_dynamics_code << "md_update_gaugefield.cl";
@@ -608,7 +608,9 @@ void hardware::code::Molecular_Dynamics::stout_smeared_fermion_force_device(std:
 
 hardware::code::Molecular_Dynamics::Molecular_Dynamics(const hardware::code::OpenClKernelParametersInterface& kernelParameters, const hardware::Device * device)
 	: Opencl_Module(kernelParameters, device), md_update_gaugefield (0), gauge_force (0),
-	  gauge_force_tlsym (0), fermion_force (0), fermion_force_eo_0(0), fermion_force_eo_1(0), fermion_force_eo_2(0), fermion_force_eo_3(0), stout_smear_fermion_force(0),
+	  gauge_force_tlsym (0), fermion_force (0), fermion_force_eo_0(0), fermion_force_eo_1(0), fermion_force_eo_2(0), fermion_force_eo_3(0),
+	  fermion_force_clover1_eo_0(0), fermion_force_clover1_eo_1(0), fermion_force_clover1_eo_2(0), fermion_force_clover1_eo_3(0),
+	  fermion_force_clover2_eo_0(0), fermion_force_clover2_eo_1(0), fermion_force_clover2_eo_2(0), fermion_force_clover2_eo_3(0), stout_smear_fermion_force(0),
 	  fermion_stagg_partial_force_eo(0),
 	  gauge_force_tlsym_1 (0), gauge_force_tlsym_2 (0), gauge_force_tlsym_3 (0),
 	  gauge_force_tlsym_4 (0), gauge_force_tlsym_5 (0), gauge_force_tlsym_6 (0),
