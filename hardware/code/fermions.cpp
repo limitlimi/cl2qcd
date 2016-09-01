@@ -21,29 +21,30 @@
 #include "fermions.hpp"
 
 #include "../../host_functionality/logger.hpp"
-#include "../../meta/util.hpp"
 #include "../device.hpp"
 #include "spinors.hpp"
 
 #include <cassert>
 #include <cmath>
+#include "flopUtilities.hpp"
 
 using namespace std;
 
 void hardware::code::Fermions::fill_kernels()
 {
 	sources = get_basic_sources() << "operations_geometry.cl" << "operations_complex.h" << "types_fermions.h" << "operations_matrix_su3.cl" << "operations_matrix.cl" << "operations_gaugefield.cl" << "operations_su3vec.cl" << "operations_spinor.cl" << "spinorfield.cl" << "operations_matrix6x6.cl";
-	if(get_parameters().get_use_eo()) {
+	if(kernelParameters->getUseEo()) {
 		sources = sources << "operations_spinorfield_eo.cl";
 	}
 
 	logger.debug() << "Creating Fermions kernels...";
-	if(get_parameters().get_fermact() == meta::action::wilson) {
+	
+	if(kernelParameters->getFermact() == common::action::wilson) {
 		M_wilson = createKernel("M_wilson") << sources << "fermionmatrix.cl" << "fermionmatrix_m.cl";
-	} else if(get_parameters().get_fermact() == meta::action::twistedmass) {
+	} else if(kernelParameters->getFermact() == common::action::twistedmass) {
 		M_tm_plus = createKernel("M_tm_plus") << sources << "fermionmatrix.cl" << "fermionmatrix_m_tm_plus.cl";
 		M_tm_minus = createKernel("M_tm_minus") << sources << "fermionmatrix.cl" << "fermionmatrix_m_tm_minus.cl";
-	} else if(get_parameters().get_fermact() == meta::action::clover) {
+	} else if(kernelParameters->getFermact() == common::action::clover) {
 		throw Print_Error_Message("no kernels for CLOVER-discretization without even-odd preconditioning implemented yet, aborting... ", __FILE__, __LINE__);
 	} else {
 		throw Print_Error_Message("there was a problem with which fermion-discretization to use, aborting... ", __FILE__, __LINE__);
@@ -51,13 +52,13 @@ void hardware::code::Fermions::fill_kernels()
 	
 	gamma5 = createKernel("gamma5") << sources << "fermionmatrix.cl" << "fermionmatrix_gamma5.cl";
 	//Kernels needed if eoprec is used
-	if(get_parameters().get_use_eo() == true) {
-		if(get_parameters().get_fermact() == meta::action::twistedmass) {
+	if(kernelParameters->getUseEo() == true) {
+		if(kernelParameters->getFermact() == common::action::twistedmass) {
 			M_tm_sitediagonal = createKernel("M_tm_sitediagonal") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_m.cl";
 			M_tm_inverse_sitediagonal = createKernel("M_tm_inverse_sitediagonal") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_m.cl";
 			M_tm_sitediagonal_minus = createKernel("M_tm_sitediagonal_minus") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_m.cl";
 			M_tm_inverse_sitediagonal_minus = createKernel("M_tm_inverse_sitediagonal_minus") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_m.cl";
-        } else if(get_parameters().get_fermact() == meta::action::clover) {
+        } else if(kernelParameters->getFermact() == common::action::clover) {
             //create kernels for (1+T), (1+T)^(-1) + sources << ... <<
             clover_eo = createKernel("clover_eo") << sources << "fermionmatrix_eo_clover.cl";
             clover_eo_inverse = createKernel("clover_eo_inverse") << sources << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
@@ -67,7 +68,7 @@ void hardware::code::Fermions::fill_kernels()
 		_dslash_eo_inner = createKernel("dslash_eo_inner") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_dslash.cl";
 		gamma5_eo = createKernel("gamma5_eo") << sources << "fermionmatrix.cl" << "fermionmatrix_eo_gamma5.cl";
 		//merged kernels
-		if (get_parameters().get_use_merge_kernels_fermion() == true) {
+		if (kernelParameters->getUseMergeKernelsFermion() == true) {
 			dslash_AND_M_tm_inverse_sitediagonal_eo = createKernel("dslash_AND_M_tm_inverse_sitediagonal_eo") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_dslash_AND_M_tm_inverse_sitediagonal.cl";
 			dslash_AND_M_tm_inverse_sitediagonal_minus_eo = createKernel("dslash_AND_M_tm_inverse_sitediagonal_minus_eo") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_dslash_AND_M_tm_inverse_sitediagonal_minus.cl";
 			M_tm_sitediagonal_AND_gamma5_eo = createKernel("M_tm_sitediagonal_AND_gamma5_eo") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_m_merged.cl";
@@ -100,33 +101,83 @@ void hardware::code::Fermions::clear_kernels()
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	}
 
-	if(get_parameters().get_use_eo()) {
-		clerr = clReleaseKernel(dslash_eo);
-		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-		clerr = clReleaseKernel(_dslash_eo_boundary);
-		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-		clerr = clReleaseKernel(_dslash_eo_inner);
-		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-		clerr = clReleaseKernel(gamma5_eo);
-		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-		if(get_parameters().get_fermact() == meta::action::twistedmass) {
-			clerr = clReleaseKernel(M_tm_sitediagonal);
-			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-			clerr = clReleaseKernel(M_tm_inverse_sitediagonal);
-			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-			clerr = clReleaseKernel(M_tm_sitediagonal_minus);
-			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-			clerr = clReleaseKernel(M_tm_inverse_sitediagonal_minus);
-			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
-			clerr = clReleaseKernel(saxpy_AND_gamma5_eo);
+	if(kernelParameters->getUseEo()) {
+		if(dslash_eo)
+		{
+			clerr = clReleaseKernel(dslash_eo);
 			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 		}
-        else if(get_parameters().get_fermact() == meta::action::clover) {
+		if(_dslash_eo_boundary)
+		{
+			clerr = clReleaseKernel(_dslash_eo_boundary);
+			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+		}
+		if(_dslash_eo_inner)
+		{
+			clerr = clReleaseKernel(_dslash_eo_inner);
+			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+		}
+		if (gamma5_eo)
+		{
+			clerr = clReleaseKernel(gamma5_eo);
+			if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+		}
+		if(kernelParameters->getFermact() == common::action::twistedmass) {
+			if(M_tm_sitediagonal)
+			{
+				clerr = clReleaseKernel(M_tm_sitediagonal);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if (M_tm_inverse_sitediagonal)
+			{
+				clerr = clReleaseKernel(M_tm_inverse_sitediagonal);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if(M_tm_sitediagonal_minus)
+			{
+				clerr = clReleaseKernel(M_tm_sitediagonal_minus);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if(M_tm_inverse_sitediagonal_minus)
+			{
+				clerr = clReleaseKernel(M_tm_inverse_sitediagonal_minus);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+		}
+        else if(kernelParameters->getFermact() == common::action::clover) {
             clerr = clReleaseKernel(clover_eo);
             if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
             clerr = clReleaseKernel(clover_eo_inverse);
             if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
         }
+		if (kernelParameters->getUseMergeKernelsFermion() == true)
+		{
+			if(saxpy_AND_gamma5_eo)
+			{
+				clerr = clReleaseKernel(saxpy_AND_gamma5_eo);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if(dslash_AND_M_tm_inverse_sitediagonal_eo)
+			{
+				clerr = clReleaseKernel(dslash_AND_M_tm_inverse_sitediagonal_eo);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if(dslash_AND_M_tm_inverse_sitediagonal_minus_eo)
+			{
+				clerr = clReleaseKernel(dslash_AND_M_tm_inverse_sitediagonal_minus_eo);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if(M_tm_sitediagonal_AND_gamma5_eo)
+			{
+				clerr = clReleaseKernel(M_tm_sitediagonal_AND_gamma5_eo);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+			if(M_tm_sitediagonal_minus_AND_gamma5_eo)
+			{
+				clerr = clReleaseKernel(M_tm_sitediagonal_minus_AND_gamma5_eo);
+				if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+			}
+		}
 	}
 }
 
@@ -150,11 +201,11 @@ void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Spinor 
 {
     //get kappa
     hmc_float kappa_tmp;
-    if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+    if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
     else kappa_tmp = kappa;
     //get csw
     hmc_float csw_tmp;
-    if(csw == ARG_DEF) csw_tmp = get_parameters().get_csw();
+    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
     else csw_tmp = csw;
     
     cl_int eo = evenodd;
@@ -188,11 +239,11 @@ void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers:
 {
     //get kappa
     hmc_float kappa_tmp;
-    if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+    if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
     else kappa_tmp = kappa;
     //get csw
     hmc_float csw_tmp;
-    if(csw == ARG_DEF) csw_tmp = get_parameters().get_csw();
+    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
     else csw_tmp = csw;
     
     cl_int eo = evenodd;
@@ -226,7 +277,7 @@ void hardware::code::Fermions::M_wilson_device(const hardware::buffers::Plain<sp
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	//query work-sizes for kernel
@@ -253,12 +304,12 @@ void hardware::code::Fermions::M_tm_plus_device(const hardware::buffers::Plain<s
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -288,12 +339,12 @@ void hardware::code::Fermions::M_tm_minus_device(const hardware::buffers::Plain<
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -375,7 +426,7 @@ void hardware::code::Fermions::dslash_eo_device(const hardware::buffers::Spinor 
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	cl_int eo = evenodd;
@@ -406,7 +457,7 @@ void hardware::code::Fermions::dslash_eo_boundary(const hardware::buffers::Spino
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	cl_int eo = evenodd;
@@ -437,7 +488,7 @@ void hardware::code::Fermions::dslash_eo_inner(const hardware::buffers::Spinor *
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	cl_int eo = evenodd;
@@ -466,13 +517,6 @@ void hardware::code::Fermions::dslash_eo_inner(const hardware::buffers::Spinor *
 
 void hardware::code::Fermions::dslash_AND_M_tm_inverse_sitediagonal_eo_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float mubar) const
 {
-	//get kappa
-	hmc_float kappa_tmp, mubar_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
-	else kappa_tmp = kappa;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
-	else mubar_tmp = kappa;
-
 	cl_int eo = evenodd;
 	//query work-sizes for kernel
 	size_t ls2, gs2;
@@ -491,10 +535,10 @@ void hardware::code::Fermions::dslash_AND_M_tm_inverse_sitediagonal_eo_device(co
 	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_eo, 3, sizeof(cl_int), &eo);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_eo, 4, sizeof(hmc_float), &kappa_tmp);
+	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_eo, 4, sizeof(hmc_float), &kappa);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_eo, 5, sizeof(hmc_float), &mubar_tmp);
+	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_eo, 5, sizeof(hmc_float), &mubar);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
 	get_device()->enqueue_kernel(dslash_AND_M_tm_inverse_sitediagonal_eo , gs2, ls2);
@@ -502,13 +546,6 @@ void hardware::code::Fermions::dslash_AND_M_tm_inverse_sitediagonal_eo_device(co
 
 void hardware::code::Fermions::dslash_AND_M_tm_inverse_sitediagonal_minus_eo_device(const hardware::buffers::Spinor * in, const hardware::buffers::Spinor * out, const hardware::buffers::SU3 * gf, int evenodd, hmc_float kappa, hmc_float mubar) const
 {
-	//get kappa
-	hmc_float kappa_tmp, mubar_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = get_parameters().get_kappa();
-	else kappa_tmp = kappa;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
-	else mubar_tmp = kappa;
-
 	cl_int eo = evenodd;
 	//query work-sizes for kernel
 	size_t ls2, gs2;
@@ -527,10 +564,10 @@ void hardware::code::Fermions::dslash_AND_M_tm_inverse_sitediagonal_minus_eo_dev
 	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_minus_eo, 3, sizeof(cl_int), &eo);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_minus_eo, 4, sizeof(hmc_float), &kappa_tmp);
+	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_minus_eo, 4, sizeof(hmc_float), &kappa);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_minus_eo, 5, sizeof(hmc_float), &mubar_tmp);
+	clerr = clSetKernelArg(dslash_AND_M_tm_inverse_sitediagonal_minus_eo, 5, sizeof(hmc_float), &mubar);
 	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
 	get_device()->enqueue_kernel(dslash_AND_M_tm_inverse_sitediagonal_minus_eo , gs2, ls2);
@@ -540,7 +577,7 @@ void hardware::code::Fermions::M_tm_inverse_sitediagonal_device(const hardware::
 {
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -564,7 +601,7 @@ void hardware::code::Fermions::M_tm_sitediagonal_device(const hardware::buffers:
 {
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -588,7 +625,7 @@ void hardware::code::Fermions::M_tm_sitediagonal_AND_gamma5_eo_device(const hard
 {
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -612,7 +649,7 @@ void hardware::code::Fermions::M_tm_sitediagonal_minus_AND_gamma5_eo_device(cons
 {
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -636,7 +673,7 @@ void hardware::code::Fermions::M_tm_inverse_sitediagonal_minus_device(const hard
 {
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -660,7 +697,7 @@ void hardware::code::Fermions::M_tm_sitediagonal_minus_device(const hardware::bu
 {
 	//get mu
 	hmc_float mubar_tmp;
-	if(mubar == ARG_DEF) mubar_tmp = meta::get_mubar(get_parameters());
+	if(mubar == ARG_DEF) mubar_tmp = kernelParameters->getMuBar();
 	else mubar_tmp = mubar;
 
 	//query work-sizes for kernel
@@ -683,12 +720,12 @@ void hardware::code::Fermions::M_tm_sitediagonal_minus_device(const hardware::bu
 size_t hardware::code::Fermions::get_read_write_size(const std::string& in) const
 {
 	//Depending on the compile-options, one has different sizes...
-	size_t D = meta::get_float_size(get_parameters());
+	size_t D = kernelParameters->getFloatSize();
 	//this returns the number of entries in an su3-matrix
-	size_t R = meta::get_mat_size(get_parameters());
+	size_t R = kernelParameters->getMatSize();
 	//this is the number of spinors in the system (or number of sites)
-	size_t S = get_spinorfieldsize(get_parameters());
-	size_t Seo = get_eoprec_spinorfieldsize(get_parameters());
+	size_t S = kernelParameters->getSpinorFieldSize();
+	size_t Seo = kernelParameters->getEoprecSpinorFieldSize();
 	//factor for complex numbers
 	int C = 2;
 	//this is the same as in the function above
@@ -764,7 +801,7 @@ size_t hardware::code::Fermions::get_read_write_size(const std::string& in) cons
 	return 0;
 }
 
-static int flop_dslash_per_site(const meta::Inputparameters &)
+static int flop_dslash_per_site()
 {
 	/** @NOTE: this is the "original" dslash without any simplifications, counting everything "full". this is a much too hight number!!
 	   *  //this kernel performs for each eo site a 2*NDIM sum over (1 + gamma_mu) * su3matrix * spinor
@@ -773,18 +810,18 @@ static int flop_dslash_per_site(const meta::Inputparameters &)
 	   *  If I count our implementation of the dslash-kernel, I get 1632 flop per site:
 	   *  //the kernel performs 6 su3vec_acc, 2 su3_su3vec and 2 su3vec_complex in NDIM * 2 directions per site
 	  */
-	return NDIM * 2 * (meta::get_flop_su3_su3vec() * 2 + 6 * NC * 2 + 2 * NC * meta::get_flop_complex_mult() );
+	return NDIM * 2 * (hardware::code::getFlopSu3MatrixTimesSu3Vec() * 2 + 6 * NC * 2 + 2 * NC * hardware::code::getFlopComplexMult() );
 	/// I do not know for sure, but if one leaves out the 2 su3vec_complex operations in each directions one has almost 1320 flop per site. This would correspond to have the kappa in the diagonal matrix still.
 
 }
 
 uint64_t hardware::code::Fermions::get_flop_size(const std::string& in) const
 {
-	size_t S = get_spinorfieldsize(get_parameters());
-	size_t Seo = get_eoprec_spinorfieldsize(get_parameters());
+	size_t S = kernelParameters->getSpinorFieldSize();
+	size_t Seo = kernelParameters->getEoprecSpinorFieldSize();
 	if (in == "M_wilson") {
 		//this kernel performs one dslash on each site and adds this to a spinor
-		return S * (flop_dslash_per_site(get_parameters()) + NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2 );
+		return S * (flop_dslash_per_site() + NC * NDIM * getFlopComplexMult() + NC * NDIM * 2 );
 	}
 	if (in == "gamma5") {
 		//this kernel performs ND*NC*2/2 real mults
@@ -792,11 +829,11 @@ uint64_t hardware::code::Fermions::get_flop_size(const std::string& in) const
 	}
 	if (in == "M_tm_plus") {
 		//this kernel performs ND*NC complex mults and one dslash on each site and adds the results
-		return S * (flop_dslash_per_site(get_parameters()) + NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2 );
+		return S * (flop_dslash_per_site() + NC * NDIM * getFlopComplexMult() + NC * NDIM * 2 );
 	}
 	if (in == "M_tm_minus") {
 		//this kernel performs ND*NC complex mults and one dslash on each site and adds the results
-		return S * (flop_dslash_per_site(get_parameters()) + NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2 );
+		return S * (flop_dslash_per_site() + NC * NDIM * getFlopComplexMult() + NC * NDIM * 2 );
 	}
 	if (in == "gamma5_eo") {
 		//this kernel performs ND*NC*2/2 real mults
@@ -804,41 +841,41 @@ uint64_t hardware::code::Fermions::get_flop_size(const std::string& in) const
 	}
 	if (in == "M_tm_sitediagonal") {
 		//this kernel performs ND*NC complex mults
-		return Seo * ( NC * NDIM * meta::get_flop_complex_mult() );
+		return Seo * ( NC * NDIM * getFlopComplexMult() );
 	}
 	if (in == "M_tm_inverse_sitediagonal") {
 		//this kernel performs ND*NC complex mults and ND*NC*2 real mults
-		return Seo * ( NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2  );
+		return Seo * ( NC * NDIM * getFlopComplexMult() + NC * NDIM * 2  );
 	}
 	if (in == "M_tm_sitediagonal_minus") {
 		//this kernel performs ND*NC complex mults
-		return Seo * ( NC * NDIM * meta::get_flop_complex_mult() );
+		return Seo * ( NC * NDIM * getFlopComplexMult() );
 	}
 	if (in == "M_tm_inverse_sitediagonal_minus") {
 		//this kernel performs ND*NC complex mults and ND*NC*2 real mults
-		return Seo * ( NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2 );
+		return Seo * ( NC * NDIM * getFlopComplexMult() + NC * NDIM * 2 );
 	}
 	if (in == "dslash_eo") {
-		return Seo * flop_dslash_per_site(get_parameters());
+		return Seo * flop_dslash_per_site();
 	}
 	if (in == "dslash_AND_M_tm_inverse_sitediagonal_eo") {
-		return Seo * flop_dslash_per_site(get_parameters()) + Seo * ( NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2  );
+		return Seo * flop_dslash_per_site() + Seo * ( NC * NDIM * getFlopComplexMult() + NC * NDIM * 2  );
 	}
 	if (in == "dslash_AND_M_tm_inverse_sitediagonal_minus_eo") {
-		return Seo * flop_dslash_per_site(get_parameters()) + Seo * ( NC * NDIM * meta::get_flop_complex_mult() + NC * NDIM * 2  );
+		return Seo * flop_dslash_per_site() + Seo * ( NC * NDIM * getFlopComplexMult() + NC * NDIM * 2  );
 	}
 	if (in == "M_tm_sitediagonal_AND_gamma5_eo") {
 		//this kernel performs ND*NC complex mults and  ND*NC*2/2 real mults
-		return Seo * ( NC * NDIM * meta::get_flop_complex_mult() ) + Seo * NDIM * NC ;
+		return Seo * ( NC * NDIM * getFlopComplexMult() ) + Seo * NDIM * NC ;
 	}
 	if (in == "M_tm_sitediagonal_minus_AND_gamma5_eo") {
 		//this kernel performs ND*NC complex mults  ND*NC*2/2 real mults
-		return Seo * ( NC * NDIM * meta::get_flop_complex_mult() ) +  Seo * NDIM * NC;
+		return Seo * ( NC * NDIM * getFlopComplexMult() ) +  Seo * NDIM * NC;
 	}
 	if (in == "saxpy_AND_gamma5_eo") {
 		//saxpy performs on each site spinor_times_complex and spinor_add
 		//gamma5 performs ND*NC*2/2 real mults
-		return Seo * NDIM * NC * (1+  meta::get_flop_complex_mult() + 2); 
+		return Seo * NDIM * NC * (1+  getFlopComplexMult() + 2);
 	}
 	return 0;
 }
@@ -866,8 +903,8 @@ void hardware::code::Fermions::print_profiling(const std::string& filename, int 
     Opencl_Module::print_profiling(filename, clover_eo);
     Opencl_Module::print_profiling(filename, clover_eo_inverse);
 }
-hardware::code::Fermions::Fermions(const meta::Inputparameters& params, hardware::Device * device)
-	: Opencl_Module(params, device),
+hardware::code::Fermions::Fermions(const hardware::code::OpenClKernelParametersInterface& kernelParameters, const hardware::Device * device)
+	: Opencl_Module(kernelParameters, device),
 	  M_wilson(0),
 	  gamma5(0),
 	  M_tm_plus(0),
