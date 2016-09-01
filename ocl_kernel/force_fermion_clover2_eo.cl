@@ -3,8 +3,8 @@
 //
 
 //input C/D = upperright/lowerleft-block of (1+T)^(-1)
-__kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+__kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -58,9 +58,9 @@ __kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}
 
-Matrix3x3 add_up_diagrams2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+/*Matrix3x3 add_up_diagrams2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrix3x3 out, tmp;
     out = zero_matrix3x3();
@@ -636,11 +636,11 @@ Matrixsu3 triangle(__global const Matrix6x6StorageType * const restrict __global
     out = matrix_3x3tosu3(tmp1);
     out = multiply_matrixsu3_by_complex(out, {0., 1.});
     return out;
-}
+}*/
 
 
-__kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+__kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -693,10 +693,10 @@ __kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}
 
-__kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+__kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -750,10 +750,10 @@ __kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}
 
-__kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+__kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -807,4 +807,4 @@ __kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}

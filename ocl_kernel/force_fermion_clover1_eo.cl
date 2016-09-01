@@ -4,7 +4,7 @@
 
 //spinorfield input X1/Y1 ^= X_even/Y_even = -(1+T_ee)^(-1) M_eo X_o/Y_o
 __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -58,9 +58,9 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}
 
-Matrix3x3 add_up_diagrams(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+/*Matrix3x3 add_up_diagrams(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrix3x3 out, tmp;
     out = zero_matrix3x3();
@@ -580,11 +580,11 @@ Matrixsu3 square(__global const spinorStorageType * const restrict X, __global c
     out = matrix_3x3tosu3(tmp1);
     out = multiply_matrixsu3_by_complex(out, {0., 1.});
     return out;
-}
+}*/
 
 
 __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict X, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -638,10 +638,10 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}
 
 __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict X, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -695,10 +695,10 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}
 
 __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict X, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{
+{/*
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -752,4 +752,4 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-}
+*/}

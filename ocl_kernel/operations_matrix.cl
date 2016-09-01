@@ -118,7 +118,7 @@ inline Matrix3x3 multiply_matrix3x3_by_complex (Matrix3x3 in, hmc_complex factor
 	return out;
 }
 
-su3vec matrix3x3_times_su3vec(Matrix3x3 u, su3vec in)
+/*su3vec matrix3x3_times_su3vec(Matrix3x3 u, su3vec in)
 {
     su3vec tmp;
     
@@ -138,7 +138,7 @@ su3vec matrix3x3_times_su3vec(Matrix3x3 u, su3vec in)
     + u.e20.im * in.e0.re + u.e21.im * in.e1.re + u.e22.im * in.e2.re;
     
     return tmp;
-}
+}*/
 
 inline Matrix3x3 multiply_matrix3x3 (const Matrix3x3 p, const Matrix3x3 q)
 {

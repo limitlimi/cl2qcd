@@ -36,7 +36,7 @@ void print_spinor(spinor in)
 }
 #endif
 
-spinor sigma_mu_nu_times_spinor(spinor in, uint mu, uint nu)
+/*spinor sigma_mu_nu_times_spinor(spinor in, uint mu, uint nu)
 {
     spinor out = set_spinor_zero();
     if(mu==0)
@@ -136,7 +136,7 @@ spinor sigma_mu_nu_times_spinor(spinor in, uint mu, uint nu)
         }
     }
     return out;
-}
+}*/
 
 spinor set_spinor_zero()
 {
