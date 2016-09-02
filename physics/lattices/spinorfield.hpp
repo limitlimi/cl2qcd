@@ -89,7 +89,7 @@ class Spinorfield {
         /**
          * Set Spinorfield to be gaussian.
          */
-        void gaussian(const physics::PRNG& prng) const;
+        void setGaussian(const physics::PRNG& prng) const;
 
         /**
          * Update the halos of the spinorfield buffers.
@@ -169,6 +169,7 @@ void squarenorm(const Scalar<hmc_float>* res, const Spinorfield& field);
 void saxpy(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const Spinorfield& y);
 void saxpy(const Spinorfield* out, const Scalar<hmc_complex>& alpha, const Spinorfield& x, const Spinorfield& y);
 void saxpy(const Spinorfield* out, const Scalar<hmc_float>& alpha, const Spinorfield& x, const Spinorfield& y);
+void saxpy(const Spinorfield* out, const hmc_float alpha, const Spinorfield& x, const Spinorfield& y);
 void saxpy(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Spinorfield& y);
 
 /**
