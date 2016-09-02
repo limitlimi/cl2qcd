@@ -1,22 +1,6 @@
 
-//multiply matrix6x6 times halfspinor using 3x3 blocks and su3vecs, u={{u_11,u_12},{u_21,u_22}}, in={psi_1,psi_2}
-//u * in = {u_11 * psi_1 + u_12 * psi_2, u_21 * psi_1 + u_22 * psi_2}
-/*halfspinor matrix6x6_times_halfspinor(Matrix6x6 u, halfspinor in)
-{
-    halfspinor out;
-    su3vec tmp1, tmp2, tmp3, tmp4;
-    
-    tmp1 = matrix3x3_times_su3vec(get_3x3_block_upperleft(u), in.e1);
-    tmp2 = matrix3x3_times_su3vec(get_3x3_block_upperright(u), in.e2);
-    tmp3 = matrix3x3_times_su3vec(get_3x3_block_lowerleft(u), in.e1);
-    tmp4 = matrix3x3_times_su3vec(get_3x3_block_lowerright(u), in.e2);
-    
-    out.e1 = su3vec_acc(tmp1, tmp2);
-    out.e2 = su3vec_acc(tmp1, tmp2);
-    return out;
-}*/
 
-/*inline Matrixsu3 get6x6(__global const Matrix6x6StorageType * const restrict in, const uint idx)
+/*inline Matrix6x6 get6x6(__global const Matrix6x6StorageType * const restrict in, const uint idx)
 {
     return in[idx];
 }
@@ -140,7 +124,25 @@ Matrix3x3 get_3x3_block_lowerright(Matrix6x6 in)
 }
 
 
-/*void put_3x3block_matrix6x6_upperleft(Matrix6x6 inout, Matrix3x3 p)
+//multiply matrix6x6 times halfspinor using 3x3 blocks and su3vecs, u={{u_11,u_12},{u_21,u_22}}, in={psi_1,psi_2}
+//u * in = {u_11 * psi_1 + u_12 * psi_2, u_21 * psi_1 + u_22 * psi_2}
+halfspinor matrix6x6_times_halfspinor(Matrix6x6 u, halfspinor in)
+{
+    halfspinor out;
+    su3vec tmp1, tmp2, tmp3, tmp4;
+    
+    tmp1 = matrix3x3_times_su3vec(get_3x3_block_upperleft(u), in.e0);
+    tmp2 = matrix3x3_times_su3vec(get_3x3_block_upperright(u), in.e1);
+    tmp3 = matrix3x3_times_su3vec(get_3x3_block_lowerleft(u), in.e0);
+    tmp4 = matrix3x3_times_su3vec(get_3x3_block_lowerright(u), in.e1);
+    
+    out.e0 = su3vec_acc(tmp1, tmp2);
+    out.e1 = su3vec_acc(tmp3, tmp4);
+    return out;
+}
+
+
+void put_3x3block_matrix6x6_upperleft(Matrix6x6 inout, Matrix3x3 p)
 {
     inout.e00.re = p.e00.re;
     inout.e00.im = p.e00.im;
@@ -234,11 +236,11 @@ void put_3x3block_matrix6x6_lowerright(Matrix6x6 inout, Matrix3x3 p)
     inout.e54.im = p.e21.im;
     inout.e55.re = p.e22.re;
     inout.e55.im = p.e22.im;
-}*/
+}
 
-/*inline Matrix6x6 zero_matrix6x6 ()
+inline Matrix6x6 zero_matrix6x6 ()
 {
-    return (Matrix3x3) {
+    return (Matrix6x6) {
         {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.},
         {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.},
         {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.},
@@ -250,7 +252,7 @@ void put_3x3block_matrix6x6_lowerright(Matrix6x6 inout, Matrix3x3 p)
 
 inline Matrix6x6 identity_matrix6x6 ()
 {
-    return (Matrix3x3) {
+    return (Matrix6x6) {
         {1., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.},
         {0., 0.}, {1., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.},
         {0., 0.}, {0., 0.}, {1., 0.}, {0., 0.}, {0., 0.}, {0., 0.},
@@ -258,11 +260,11 @@ inline Matrix6x6 identity_matrix6x6 ()
         {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {1., 0.}, {0., 0.},
         {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {0., 0.}, {1., 0.},
     };
-}*/
+}
 
-/*inline Matrix6x6 multiply_matrix6x6_by_complex (Matrix3x3 in, hmc_complex factor)
+inline Matrix6x6 multiply_matrix6x6_by_complex (Matrix6x6 in, hmc_complex factor)
 {
-    Matrix3x3 out;
+    Matrix6x6 out;
     
     out.e00 = complexmult(in.e00, factor);
     out.e01 = complexmult(in.e01, factor);
@@ -302,4 +304,4 @@ inline Matrix6x6 identity_matrix6x6 ()
     out.e55 = complexmult(in.e55, factor);
     
     return out;
-}*/
+}
