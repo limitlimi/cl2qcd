@@ -124,7 +124,7 @@ template<class SPINORFIELD> static void init_spinorfield(const SPINORFIELD * phi
     const SPINORFIELD initial(system, interfacesHandler.getInterface<SPINORFIELD>());
 
     //init/update spinorfield phi
-    initial.gaussian(prng);
+    initial.setGaussian(prng);
     //calc init energy for spinorfield
     *spinor_energy_init = squarenorm(initial);
     //update spinorfield: det(kappa, mu)
@@ -157,12 +157,12 @@ template<class SPINORFIELD> static void init_spinorfield_mp(const SPINORFIELD * 
     const SPINORFIELD initial(system, interfacesHandler.getInterface<SPINORFIELD>());
 
     //init/update spinorfield phi
-    initial.gaussian(prng);
+    initial.setGaussian(prng);
     //calc init energy for spinorfield
     *spinor_energy_init = squarenorm(initial);
     //update spinorfield with heavy mass: det(kappa_mp, mu_mp)
     md_update_spinorfield(phi, gf, initial, system, interfacesHandler, additionalParametersMp);
-    initial.gaussian(prng);
+    initial.setGaussian(prng);
     //calc init energy for mass-prec spinorfield (this is the same as for the spinorfield above)
     *spinor_energy_init_mp = squarenorm(initial);
     //update detratio spinorfield: det(kappa, mu) / det(kappa_mp, mu_mp)

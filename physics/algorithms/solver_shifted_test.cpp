@@ -307,12 +307,15 @@ BOOST_AUTO_TEST_CASE(cgm_wilson_1)
 		for(uint i = 0; i < sigma.size(); i++)
 			out.emplace_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
 
-		pseudo_randomize<Spinorfield, spinor>(&b, 13);
+		pseudo_randomize<Spinorfield, spinor>(&b, 123);
 
 		logger.fatal() << "kappa = " << interfacesHandler.getAdditionalParameters<Spinorfield>().getKappa();
+		//Solve  (matrix +sigma) * out = b ; the field "out" is unknown
+		//Solve via out = (matrix + sigma)^-1 * b
 		int iter = cg_m(out, matrix, gf, sigma, b, system, interfacesHandler, 1.e-23, interfacesHandler.getAdditionalParameters<Spinorfield>());
 		logger.info() << "CG-M algorithm converged in " << iter << " iterations.";
-
+		//Now where "out" has been computed, compare the squarenorms of "out" and "b" via
+		// (matrix * out + sigma * out )^2 == b^2
 		std::vector<std::shared_ptr<Spinorfield> > aux;
 		std::vector<hmc_float> sqnorm_out;
 		hmc_float sqnorm_b = squarenorm(b);
@@ -322,7 +325,7 @@ BOOST_AUTO_TEST_CASE(cgm_wilson_1)
 			aux.push_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
 			matrix(aux[i].get(), gf, *out[i], interfacesHandler.getAdditionalParameters<Spinorfield>());
 			scalar.store(sigma[i]);
-			saxpy(aux[i].get(), scalar, *out[i], *aux[i]);
+			saxpy(aux[i].get(), scalar, *out[i], *aux[i]); // a * x + y => aux[i] = scalar * out[i] + aux[i]
 			sqnorm_out.push_back(squarenorm(*aux[i]));
 			logger.info() << "sqnorm((matrix + sigma[" << i << "]) * out[" << i << "])=" << std::setprecision(16) << sqnorm_out[i];
 			BOOST_CHECK_CLOSE(sqnorm_b, sqnorm_out[i], 1.e-8);

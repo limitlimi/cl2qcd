@@ -49,9 +49,9 @@ namespace physics {
 				virtual ~Rooted_Staggeredfield_eo(){}
 
 			/**
-			 * Rescale coefficients on the basis of a Rational_Approximation objects
+			 	 * Rescale coefficients on the basis of a Rational_Approximation objects
 			 */
-			void Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue);
+				void Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue);
 				/**
 				 * Staggeredfield_eo cannot be copied
 				 */

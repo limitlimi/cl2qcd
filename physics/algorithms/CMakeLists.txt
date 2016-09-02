@@ -61,3 +61,4 @@ add_unit_test(physics::algorithms::<rational_approximation> rational_approximati
 add_unit_test(physics::algorithms::solver::<solver_shifted> solver_shifted_test)
 add_unit_test(physics::algorithms::<find_minmax_eigenvalue> find_minmax_eigenvalue_test)
 add_unit_test(physics::algorithms::<calc_s_fermion> calc_s_fermion_test)
+add_unit_test(physics::algorithms::<rhmc> rhmc_test)

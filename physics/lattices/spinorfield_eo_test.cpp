@@ -310,9 +310,9 @@ BOOST_AUTO_TEST_CASE(conversion)
 
 	for(size_t i = 0; i < 11; i++) {
 		const Spinorfield orig(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-		orig.gaussian(prng);
+		orig.setGaussian(prng);
 		const Spinorfield recreated(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-		recreated.gaussian(prng);
+		recreated.setGaussian(prng);
 		const Spinorfield_eo even(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
 		const Spinorfield_eo odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
 		even.gaussian(prng);

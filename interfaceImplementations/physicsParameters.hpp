@@ -50,6 +50,10 @@ namespace physics{
             {
                 return withMassPreconditioning ? meta::get_mubar_mp(parameters) : meta::get_mubar(parameters);
             }
+            bool getConservative() const override
+            {
+            	return parameters.get_conservative();
+         	}
 
         private:
             const meta::Inputparameters& parameters;

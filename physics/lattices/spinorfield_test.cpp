@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(zero)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	sf.gaussian(prng);
+	sf.setGaussian(prng);
 	sf.setZero();
 	BOOST_CHECK_CLOSE(squarenorm(sf), 0., .1);
 }
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(cold)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	sf.gaussian(prng);
+	sf.setGaussian(prng);
 	sf.cold();
 	BOOST_CHECK_CLOSE(squarenorm(sf), 1., .1);
 }
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(gaussian)
 	sf.setZero();
 	sf.gamma5();
 	hmc_float const gamma5 = squarenorm(sf);
-	sf.gaussian(prng);
+	sf.setGaussian(prng);
 	BOOST_CHECK_NE(squarenorm(sf), gamma5);
 }
 
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(squarenorm)
 	sf.gamma5();
 	hmc_float const gamma5 = physics::lattices::squarenorm(sf);
 	BOOST_REQUIRE_CLOSE(gamma5, 0., .1);
-	sf.gaussian(prng);
+	sf.setGaussian(prng);
 	BOOST_CHECK_NE(physics::lattices::squarenorm(sf), gamma5);
 	sf.setZero();
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0., .1);
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(scalar_product)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gaussian.gaussian(prng);
+	gaussian.setGaussian(prng);
 
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	zero.setZero();
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(scalar_product_real_part)
 		physics::PRNG prng(system, &prngParameters);
 
 		Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-		gaussian.gaussian(prng);
+		gaussian.setGaussian(prng);
 
 		Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 		zero.setZero();
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(sax)
 
 
 	Spinorfield orig_sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	orig_sf.gaussian(prng);
+	orig_sf.setGaussian(prng);
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
 	physics::lattices::sax(&sf, {.5, 0}, orig_sf);
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(saxpy)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gaussian.gaussian(prng);
+	gaussian.setGaussian(prng);
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE(saxpy_real)
 
 
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gaussian.gaussian(prng);
+	gaussian.setGaussian(prng);
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
@@ -362,6 +362,41 @@ BOOST_AUTO_TEST_CASE(saxpy_real)
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
 }
 
+BOOST_AUTO_TEST_CASE(saxpy_real_arg)
+{
+	using physics::lattices::Spinorfield;
+
+	const char * _params[] = {"foo"};
+	meta::Inputparameters params(1, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+
+	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	gaussian.setGaussian(prng);
+	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	cold.cold();
+	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	zero.setZero();
+	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+
+	hmc_float real = 1.;
+	physics::lattices::saxpy(&sf, real, gaussian, zero);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
+
+	real = 0.;
+	physics::lattices::saxpy(&sf, real, gaussian, gaussian);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1e-8);
+
+	real = .3;
+	physics::lattices::saxpy(&sf, real, cold, zero);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
+}
+
 BOOST_AUTO_TEST_CASE(saxpy_real_vec)
 {
 	using physics::lattices::Spinorfield;
@@ -378,7 +413,7 @@ BOOST_AUTO_TEST_CASE(saxpy_real_vec)
 
 
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gaussian.gaussian(prng);
+	gaussian.setGaussian(prng);
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
@@ -427,7 +462,7 @@ BOOST_AUTO_TEST_CASE(saxpby)
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	zero.setZero();
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gaussian.gaussian(prng);
+	gaussian.setGaussian(prng);
 	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 
 	physics::lattices::Vector<hmc_float> real_vec1(5, system);
@@ -466,7 +501,7 @@ BOOST_AUTO_TEST_CASE(saxsbypz)
 	physics::PRNG prng(system, &prngParameters);
 
 	Spinorfield gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-	gaussian.gaussian(prng);
+	gaussian.setGaussian(prng);
 	Spinorfield cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
 	cold.cold();
 	Spinorfield zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());

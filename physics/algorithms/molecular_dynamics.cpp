@@ -107,8 +107,9 @@ template<class FERMIONMATRIX, class ROOTED_SPINORFIELD, class SPINORFIELD> void 
     logger.trace() << "\t\t...end solver in " << iterations << " iterations";
 
     physics::lattices::sax(out, { out->Get_a0(), 0. }, orig);
-    for (int i = 0; i < out->Get_order(); i++)
-        physics::lattices::saxpy(out, { (out->Get_a())[i], 0. }, *X[i], *out);
+    for (int i = 0; i < out->Get_order(); i++){
+    	physics::lattices::saxpy(out, (out->Get_a())[i], *X[i], *out); // out = out->Get_a() * (*X[i]) + out
+    }
 
     log_squarenorm("Spinorfield after update", *out);
 }

@@ -82,7 +82,7 @@ public:
 	/**
 	 * Set Staggeredfield to be gaussian.
 	 */
-	void set_gaussian(const physics::PRNG& prng) const;
+	void setGaussian(const physics::PRNG& prng) const;
 
 	/**
 	 * Update the halos of the spinorfield buffers.

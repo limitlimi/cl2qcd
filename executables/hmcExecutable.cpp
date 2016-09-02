@@ -74,6 +74,7 @@ void hmcExecutable::generateAccordingToSpecificAlgorithm()
 
 void hmcExecutable::performOnlineMeasurements()
 {
+	//TODO: set stream buffer here
     if(((iteration + 1) % writeFrequency) == 0) {
         std::string gaugeout_name = meta::get_hmc_obs_file_name(parameters, "");
         printHmcObservables(gaugeout_name);

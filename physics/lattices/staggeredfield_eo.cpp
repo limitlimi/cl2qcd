@@ -143,7 +143,7 @@ for(auto buffer: staggeredFieldEo.get_buffers()) {
 	}
 }
 
-void physics::lattices::Staggeredfield_eo::set_gaussian(const physics::PRNG& prng) const
+void physics::lattices::Staggeredfield_eo::setGaussian(const physics::PRNG& prng) const
 {
 	auto prng_bufs = prng.get_buffers();
 

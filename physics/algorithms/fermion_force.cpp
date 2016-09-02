@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2013 Matthias Bach <bach@compeng.uni-frankfurt.de>
  * Copyright (c) 2013 Alessandro Sciarra <sciarra@th.phys.uni-frankfurt.de>
+ * Copyright (c) 2016 Christopher Czaban <czaban@th.phys.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
@@ -214,6 +215,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 
     } else {
         logger.debug() << "\t\tcalc fermion force ingredients using bicgstab without eo";
+        logger.error() << "\t\tcalc fermion force ingredients using bicgstab without eo";
 
         /**
          * The first inversion calculates
@@ -269,6 +271,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
                                              const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
+    logger.error() << "\tRHMC [MET]:\tcomputing the fermion force ";
     using physics::lattices::Spinorfield;
     using namespace physics::algorithms::solvers;
     using namespace physics::fermionmatrix;

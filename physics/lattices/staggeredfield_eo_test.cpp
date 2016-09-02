@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(squarenorm)
 	sf.setZero();
 	hmc_float const sq = physics::lattices::squarenorm(sf);
 	BOOST_REQUIRE_EQUAL(sq, 0);
-	sf.set_gaussian(prng);
+	sf.setGaussian(prng);
 	BOOST_CHECK_NE(physics::lattices::squarenorm(sf), sq);
 	sf.setZero();
 	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(zero)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	sf.set_gaussian(prng);
+	sf.setGaussian(prng);
 	sf.setZero();
 	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
 }
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(cold)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	sf.set_gaussian(prng);
+	sf.setGaussian(prng);
 	sf.set_cold();
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.5, 1.e-8);
 }
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(gaussian)
 	Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	sf.set_cold();
 	hmc_float const sq = physics::lattices::squarenorm(sf);
-	sf.set_gaussian(prng);
+	sf.setGaussian(prng);
 	BOOST_CHECK_NE(physics::lattices::squarenorm(sf), sq);
 }
 
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(scalar_product)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo gaussian(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	gaussian.set_gaussian(prng);
+	gaussian.setGaussian(prng);
 
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	zero.setZero();
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(sax)
 	physics::lattices::Vector<hmc_float> real_vec(5, system);
 	
 	//Complex
-	orig_sf.set_gaussian(prng);
+	orig_sf.setGaussian(prng);
 	physics::lattices::sax(&sf, {0.5, 0.}, orig_sf);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.25 * physics::lattices::squarenorm(orig_sf), 1.e-8);
 	physics::lattices::sax(&sf, {2., 0.}, orig_sf);
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(sax)
 	physics::lattices::sax(&sf, cplx, orig_sf);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.25625, 1.e-8);
 	//Real
-	orig_sf.set_gaussian(prng);
+	orig_sf.setGaussian(prng);
 	physics::lattices::sax(&sf, 0.5, orig_sf);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.25 * physics::lattices::squarenorm(orig_sf), 1.e-8);
 	physics::lattices::sax(&sf, 2.0, orig_sf);
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(saxpy)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo gaussian(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	gaussian.set_gaussian(prng);
+	gaussian.setGaussian(prng);
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(saxpby)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo gaussian(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	gaussian.set_gaussian(prng);
+	gaussian.setGaussian(prng);
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE(saxpbypz)
 	physics::PRNG prng(system, &prngParameters);
 
 	Staggeredfield_eo gaussian(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-	gaussian.set_gaussian(prng);
+	gaussian.setGaussian(prng);
 	Staggeredfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
 	cold.set_cold();
 	Staggeredfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());

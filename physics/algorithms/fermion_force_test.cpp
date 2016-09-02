@@ -2,6 +2,7 @@
  * Tests of the fermion force algorithms
  *
  * Copyright (c) 2013 Matthias Bach <bach@compeng.uni-frankfurt.de>
+ * Copyright (c) 2016 Christopher Czaban <czaban@th.physik.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
