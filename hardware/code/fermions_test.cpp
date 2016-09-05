@@ -150,7 +150,7 @@ struct DslashEvenOddTestParameters: public WilsonTestParameters
 struct CloverEvenOddTestParameters: public CloverTestParameters
 {
     CloverEvenOddTestParameters(const LatticeExtents latticeExtentsIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypeIn, const CloverParameters massParametersIn) :
-        TestParameters(latticeExtentsIn), CloverTestParameters(latticeExtentsIn, spinorFillTypeIn, gaugefieldFillTypeIn, massParametersIn), massParameters(massParametersIn)
+        TestParameters(latticeExtentsIn), CloverTestParameters(latticeExtentsIn, spinorFillTypeIn, gaugefieldFillTypeIn, massParametersIn), cloverParameters(massParametersIn){}
     CloverParameters cloverParameters;
 };
 
@@ -269,8 +269,8 @@ struct CloverEvenOddTester: public FermionmatrixTesterWithSumAsKernelResult<Even
         FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>("clover_eo", parameterCollection, tP, calculateReferenceValuesCloverEvenOdd())
         {
             evenOrOddIn ?
-                code->clover_eo_device(in, out, gaugefieldBuffer, EVEN, tp.massparameters.kappa, tp.massparameters.csw) :
-                code->clover_eo_device(in, out, gaugefieldBuffer, ODD, tp.massparameters.kappa, tp.massparameters.csw);
+                code->clover_eo_device(in, out, gaugefieldBuffer, EVEN, tP.massParameters.kappa, tP.massParameters.csw) :
+                code->clover_eo_device(in, out, gaugefieldBuffer, ODD, tP.massParameters.kappa, tP.massParameters.csw);
         }
 };
 
@@ -395,12 +395,12 @@ void testMTmInverseSitediagonalMinus(const LatticeExtents latticeExtentsIn, cons
 	callTest<MTmInverseSitediagonalMinusTester>(latticeExtentsIn, spinorFillTypeIn, massParametersIn, true);
 }
 
-void testCloverEvenOdd(const LatticeExtents latticeExtentsIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType, gaugefieldFillTypeIn,
+void testCloverEvenOdd(const LatticeExtents latticeExtentsIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypeIn,
         const CloverParameters cloverParametersIn, const bool evenOrOddIn)
 {
-    CloverEvenOddTestParameters parametersForThisTest(latticeExtentsIn, spinorFillTypeIn, gaugefieldFillTypeIn, CloverParametersIn);
+    CloverEvenOddTestParameters parametersForThisTest(latticeExtentsIn, spinorFillTypeIn, gaugefieldFillTypeIn, cloverParametersIn);
     hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true);
-    hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true, parametersForThisTest.CloverParameters.kappa, parametersForThisTest.CloverParameters.csw);
+    hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true, parametersForThisTest.cloverParameters.kappa, parametersForThisTest.cloverParameters.csw);
     ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
     CloverEvenOddTester tester(parameterCollection, parametersForThisTest, evenOrOddIn);
 }
@@ -553,7 +553,7 @@ BOOST_AUTO_TEST_SUITE(CLOVER_EO)
 
     BOOST_AUTO_TEST_CASE( CLOVER_EO_2)
     {
-    testCloverEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::nonTrivial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+    	testCloverEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::nonTrivial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
