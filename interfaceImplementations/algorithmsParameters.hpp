@@ -318,6 +318,10 @@ namespace physics{
             {
                 return parameters.get_beta();
             }
+            virtual common::action getFermact() const override
+            {
+            	return parameters.get_fermact();
+            }
             virtual bool getConservative() const override
             {
                 return parameters.get_conservative();

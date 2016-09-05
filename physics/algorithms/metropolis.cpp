@@ -31,7 +31,9 @@
 #include "../observables/gaugeObservables.hpp"
 
 static void print_info_debug(physics::InterfacesHandler& interfacesHandler, std::string metropolis_part, hmc_float value, bool info = true);
-
+template<class ROOTED_SPINORFIELD, class SPINORFIELD, class FERMIONMATRIX>
+static hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const ROOTED_SPINORFIELD& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
 
 hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield& phi, const hardware::System& system,
                                               physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
@@ -107,9 +109,11 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
 
 
 template<class ROOTED_SPINORFIELD, class SPINORFIELD, class FERMIONMATRIX>
-hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const ROOTED_SPINORFIELD& phi, const hardware::System& system,
+static hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const ROOTED_SPINORFIELD& phi, const hardware::System& system,
                                               physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
+    logger.error() << "\tRHMC [MET]:\tcomputing the fermionic action: ";
+
 	using namespace physics::algorithms::solvers;
 	using namespace physics::fermionmatrix;
 

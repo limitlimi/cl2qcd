@@ -39,7 +39,7 @@ namespace physics {
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield& phi, const hardware::System& system,
                                  physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
-                                                      physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
+        						 physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                  physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,

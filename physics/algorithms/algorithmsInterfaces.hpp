@@ -111,6 +111,7 @@ namespace physics{
             public:
                 virtual ~RhmcParametersInterface(){}
                 virtual double getBeta() const = 0;
+                virtual common::action getFermact() const = 0;
                 virtual bool getConservative() const = 0;
                 virtual double getFindMinMaxPrec() const = 0;
                 virtual double getMass() const = 0;

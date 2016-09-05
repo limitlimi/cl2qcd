@@ -318,7 +318,8 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 //    	log_squarenorm("\tY ", Y[i]);
 //    	log_squarenorm("\tX ", X[i]);
     	fermion_force(&tmp, *Y[i], *X[i], gf, additionalParameters);
-    	physics::lattices::saxpy(force, -1. * (phi.Get_a())[i], tmp);
+//    	physics::lattices::saxpy(force, -1. * (phi.Get_a())[i], tmp);
+    	physics::lattices::saxpy(force, (phi.Get_a())[i], tmp); // I removed the -1* because I think in the Wilson case the "-" is already contained in the fermion force calculation.
     }
 
     logger.debug() << "\t\tcalc fermion_force...";

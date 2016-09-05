@@ -24,7 +24,9 @@
 #include "../lattices/gaugemomenta.hpp"
 #include "../lattices/util.hpp"
 #include "../lattices/rooted_staggeredfield_eo.hpp"
+#include "../lattices/rooted_spinorfield.hpp"
 #include "../fermionmatrix/fermionmatrix_stagg.hpp"
+#include "../fermionmatrix/fermionmatrix.hpp"
 #include "../../meta/util.hpp"
 #include "integrator.hpp"
 #include "metropolis.hpp"
@@ -36,7 +38,7 @@
 template<class SPINORFIELD> static void init_spinorfield(const SPINORFIELD * phi, hmc_float * const spinor_energy_init, const physics::lattices::Gaugefield& gf,
         const physics::PRNG& prng, const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
 
-template<class SPINORFIELD> static hmc_observables perform_rhmc_step(const physics::algorithms::Rational_Approximation& approx1,
+template<class SPINORFIELD, class FERMIONMATRIX> static hmc_observables perform_rhmc_step(const physics::algorithms::Rational_Approximation& approx1,
         const physics::algorithms::Rational_Approximation& approx2, const physics::algorithms::Rational_Approximation& approx3,
         const physics::lattices::Gaugefield * const gf, const int iter, const hmc_float rnd_number, physics::PRNG& prng, const hardware::System& system,
         physics::InterfacesHandler& interfacesHandler)
@@ -59,7 +61,7 @@ template<class SPINORFIELD> static hmc_observables perform_rhmc_step(const physi
     hmc_float spinor_energy_init = 0.f;
     hmc_float spinor_energy_init_mp = 0.f;
     //Here the coefficients of phi have to be set to the rescaled ones on the base of approx1
-    physics::fermionmatrix::MdagM_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::MdagM_eo>());
+    FERMIONMATRIX fm(system, interfacesHandler.getInterface<FERMIONMATRIX>());
 	hmc_float maxEigenvalue;
 	hmc_float minEigenvalue;
     find_maxmin_eigenvalue(maxEigenvalue, minEigenvalue, fm, *gf, system, interfacesHandler, parametersInterface.getFindMinMaxPrec(), additionalParameters);
@@ -85,6 +87,7 @@ template<class SPINORFIELD> static hmc_observables perform_rhmc_step(const physi
 
     //here, clmem_phi is inverted several times and stored in clmem_phi_inv
     logger.debug() << "\tRHMC:\tcall integrator";
+    logger.error() << "\tRHMC:\tcall integrator";
     //Before MD the coefficients of phi have to be set to the rescaled ones on the base of approx2
     phi.Rescale_Coefficients(approx2, minEigenvalue, maxEigenvalue);
     if(parametersInterface.getUseMp()) {
@@ -96,6 +99,7 @@ template<class SPINORFIELD> static hmc_observables perform_rhmc_step(const physi
 
     //metropolis step: afterwards, the updated config is again in gaugefield and p
     logger.debug() << "\tRHMC [MET]:\tperform Metropolis step: ";
+    logger.error() << "\tRHMC [MET]:\tperform Metropolis step: ";
     //Before Metropolis test the coeff. of phi have to be set to the rescaled ones on the base of approx3
     find_maxmin_eigenvalue(maxEigenvalue, minEigenvalue, fm, new_u, system, interfacesHandler, parametersInterface.getFindMinMaxPrec(), additionalParameters);
 	if(parametersInterface.getConservative())
@@ -104,6 +108,8 @@ template<class SPINORFIELD> static hmc_observables perform_rhmc_step(const physi
     //this call calculates also the HMC-Observables
     const hmc_observables obs = metropolis(rnd_number, parametersInterface.getBeta(), *gf, new_u, p, new_p, phi, spinor_energy_init,
                                            phi_mp.get(), spinor_energy_init_mp, system, interfacesHandler);
+
+    logger.error() << "\tRHMC [MET]:\tMetropolis step done: ";
 
     if(obs.accept == 1) {
         // perform the change nonprimed->primed !
@@ -134,12 +140,42 @@ hmc_observables physics::algorithms::perform_rhmc_step(const physics::algorithms
         physics::InterfacesHandler& interfaceHandler)
 {
     using namespace physics::lattices;
+    using namespace physics::fermionmatrix;
 
     const physics::algorithms::RhmcParametersInterface & parametersInterface = interfaceHandler.getRhmcParametersInterface();
-    if(parametersInterface.getUseEo()) {
-        return ::perform_rhmc_step<Rooted_Staggeredfield_eo>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
+
+    if(parametersInterface.getFermact() == common::action::wilson){
+    	 if(parametersInterface.getUseEo() == false) {
+    		 return ::perform_rhmc_step<wilson::Rooted_Spinorfield, QplusQminus>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
+    	 } else {
+    		 throw Print_Error_Message("Wilson RHMC algorithm not implemented for even-odd preconditioned fields!", __FILE__, __LINE__);
+    		 //return ::perform_rhmc_step<Rooted_Staggeredfield>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system);
+    	 }
+    }else if(parametersInterface.getFermact() == common::action::rooted_stagg){
+    	if(parametersInterface.getUseEo()) {
+    		return ::perform_rhmc_step<Rooted_Staggeredfield_eo, MdagM_eo>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
+    	} else {
+    		throw Print_Error_Message("Staggered RHMC algorithm not implemented for non even-odd preconditioned fields!", __FILE__, __LINE__);
+    		//return ::perform_rhmc_step<Rooted_Staggeredfield>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system);
+    	}
+    }else{
+    	throw Print_Error_Message("Action not implemented for RHMC algorithm!", __FILE__, __LINE__);
+    }
+}
+
+hmc_observables physics::algorithms::perform_wilson_rhmc_step(const physics::algorithms::Rational_Approximation& approx1,
+        const physics::algorithms::Rational_Approximation& approx2, const physics::algorithms::Rational_Approximation& approx3,
+        const physics::lattices::Gaugefield * const gf, const int iter, const hmc_float rnd_number, physics::PRNG& prng, const hardware::System& system,
+        physics::InterfacesHandler& interfaceHandler)
+{
+    using namespace physics::lattices;
+    using namespace physics::fermionmatrix;
+
+    const physics::algorithms::RhmcParametersInterface & parametersInterface = interfaceHandler.getRhmcParametersInterface();
+    if(parametersInterface.getUseEo() == false) {
+        return ::perform_rhmc_step<wilson::Rooted_Spinorfield, QplusQminus>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
     } else {
-        throw Print_Error_Message("RHMC algorithm not implemented for non even-odd preconditioned fields!", __FILE__, __LINE__);
+        throw Print_Error_Message("Wilson RHMC algorithm not implemented for even-odd preconditioned fields!", __FILE__, __LINE__);
         //return ::perform_rhmc_step<Rooted_Staggeredfield>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system);
     }
 }
@@ -153,7 +189,7 @@ template<class SPINORFIELD> static void init_spinorfield(const SPINORFIELD * phi
     const SPINORFIELD initial(system, interfacesHandler.getInterface<SPINORFIELD>());
 
     //init/update spinorfield phi
-    initial.set_gaussian(prng);
+    initial.setGaussian(prng);
     //calc init energy for spinorfield
     *spinor_energy_init = squarenorm(initial);
     //update spinorfield
