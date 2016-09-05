@@ -30,17 +30,17 @@ namespace hardware {
     
     namespace lattices {
         
-        class Matrix6x6
+        class Matrix6x6Field
         {
         public:
             
-            virtual ~Matrix6x6();
+            virtual ~Matrix6x6Field();
             
-            Matrix6x6(const hardware::System& system);
+            Matrix6x6Field(const hardware::System& system);
             
-            const std::vector<const hardware::buffers::6x6 *> get_buffers() const noexcept;
-            std::vector<const hardware::buffers::6x6 *> allocate_buffers();
-            void release_buffers(std::vector<const hardware::buffers::6x6 *>* buffers);
+            const std::vector<const hardware::buffers::matrix6x6 *> get_buffers() const noexcept;
+            std::vector<const hardware::buffers::matrix6x6 *> allocate_buffers();
+            void release_buffers(std::vector<const hardware::buffers::matrix6x6 *>* buffers);
             void send_matrix6x6_to_buffers(const Matrix6x6 * const gf_host);
             void fetch_matrix6x6_from_buffers( Matrix6x6 * const gf_host);
             
@@ -49,10 +49,10 @@ namespace hardware {
             
         private:
             hardware::System const& system;
-            std::vector<const hardware::buffers::6x6 *> buffers;
+            std::vector<const hardware::buffers::matrix6x6 *> buffers;
             
-            void update_halo_soa(std::vector<const hardware::buffers::6x6 *> buffers, const hardware::System& system) const;
-            void update_halo_aos(std::vector<const hardware::buffers::6x6 *> buffers, const hardware::System& system) const;
+            void update_halo_soa(std::vector<const hardware::buffers::matrix6x6 *> buffers, const hardware::System& system) const;
+            void update_halo_aos(std::vector<const hardware::buffers::matrix6x6 *> buffers, const hardware::System& system) const;
 
         };
         

@@ -29,6 +29,7 @@ add_library(buffers
 	spinor.cpp
 	gaugemomentum.cpp
 	3x3.cpp
+	6x6.cpp
 	halo_update.cpp
 	su3vec.cpp
 )

@@ -35,7 +35,7 @@ size_t hardware::buffers::calculate6x6FieldSize(const LatticeExtents latticeExte
     return 	latticeExtentsIn.getLatticeVolume();
 }
 
-hardware::buffers::6x6::6x6(const size_t elems, const hardware::Device * device)
+hardware::buffers::matrix6x6::matrix6x6(const size_t elems, const hardware::Device * device)
 : Buffer(calculate_6x6_buffer_size(elems, device), device),
 elems(elems),
 soa(check_6x6_for_SOA(device))
@@ -43,7 +43,7 @@ soa(check_6x6_for_SOA(device))
     // nothing to do
 }
 
-hardware::buffers::6x6::6x6(const LatticeExtents lE, const hardware::Device * device)
+hardware::buffers::matrix6x6::matrix6x6(const LatticeExtents lE, const hardware::Device * device)
 : Buffer(calculate_6x6_buffer_size(calculate6x6FieldSize(lE), device), device),
 elems(calculate6x6FieldSize(lE)),
 soa(check_6x6_for_SOA(device))
@@ -63,7 +63,7 @@ static size_t calculate_6x6_buffer_size(const size_t elems, const hardware::Devi
         size_t stride = get_6x6_buffer_stride(elems, device);
         return stride * soa_storage_lanes * sizeof(soa_storage_t);
     } else {
-        return elems * sizeof(Matrix6x6);
+        return elems * sizeof(::Matrix6x6);
     }
 }
 
@@ -72,45 +72,45 @@ size_t hardware::buffers::get_6x6_buffer_stride(const size_t elems, const Device
     return device->recommendStride(elems, sizeof(soa_storage_t), soa_storage_lanes);
 }
 
-size_t hardware::buffers::6x6::get_elements() const noexcept
+size_t hardware::buffers::matrix6x6::get_elements() const noexcept
 {
     return elems;
 }
 
-bool hardware::buffers::6x6::is_soa() const noexcept
+bool hardware::buffers::matrix6x6::is_soa() const noexcept
 {
     return soa;
 }
 
-void hardware::buffers::6x6::load(const Matrix6x6 * ptr, const size_t elems, const size_t offset) const
+void hardware::buffers::matrix6x6::load(const Matrix6x6 * ptr, const size_t elems, const size_t offset) const
 {
     if(is_soa()) {
         throw std::logic_error("Data cannot be loaded into SOA buffers.");
     } else {
-        Buffer::load(ptr, elems * sizeof(Matrix6x6), offset * sizeof(Matrix6x6));
+        Buffer::load(ptr, elems * sizeof(::Matrix6x6), offset * sizeof(::Matrix6x6));
     }
 }
 
-void hardware::buffers::6x6::dump(Matrix6x6 * ptr, const size_t elems, const size_t offset) const
+void hardware::buffers::matrix6x6::dump(Matrix6x6 * ptr, const size_t elems, const size_t offset) const
 {
     if(is_soa()) {
         throw std::logic_error("Data cannot be dumped from SOA buffers.");
     } else {
-        Buffer::dump(ptr, elems * sizeof(Matrix6x6), offset * sizeof(Matrix6x6));
+        Buffer::dump(ptr, elems * sizeof(::Matrix6x6), offset * sizeof(::Matrix6x6));
     }
 }
 
-size_t hardware::buffers::6x6::get_storage_type_size() const noexcept
+size_t hardware::buffers::matrix6x6::get_storage_type_size() const noexcept
 {
-    return soa ? sizeof(soa_storage_t) : sizeof(Matrix6x6);
+    return soa ? sizeof(soa_storage_t) : sizeof(::Matrix6x6);
 }
 
-size_t hardware::buffers::6x6::get_lane_stride() const noexcept
+size_t hardware::buffers::matrix6x6::get_lane_stride() const noexcept
 {
     return soa ? (get_bytes() / sizeof(soa_storage_t) / soa_storage_lanes) : 0;
 }
 
-size_t hardware::buffers::6x6::get_lane_count() const noexcept
+size_t hardware::buffers::matrix6x6::get_lane_count() const noexcept
 {
     return soa ? soa_storage_lanes : 1;
 }

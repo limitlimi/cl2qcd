@@ -43,7 +43,7 @@ namespace buffers {
     /*
      * A buffer storing 6x6s on the device
      */
-    class 6x6 : public Buffer {
+    class matrix6x6 : public Buffer {
         
     public:
         /**
@@ -53,15 +53,15 @@ namespace buffers {
          * \param elems The size of the buffer in elements
          * \param device The device to locate the buffer on
          */
-        6x6(const size_t elems, const Device * device);
-        6x6(const LatticeExtents lE, const Device * device);
+        matrix6x6(const size_t elems, const Device * device);
+        matrix6x6(const LatticeExtents lE, const Device * device);
         
         /*
-         * 6x6 buffers cannot be copied
+         * Matrix6x6 buffers cannot be copied
          */
-        6x6& operator=(const 6x6&) = delete;
-        6x6(const 6x6&) = delete;
-        6x6() = delete;
+        matrix6x6& operator=(const matrix6x6&) = delete;
+        matrix6x6(const matrix6x6&) = delete;
+        matrix6x6() = delete;
         
         /**
          * Load data from the given pointer into the buffer.
