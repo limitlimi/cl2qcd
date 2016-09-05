@@ -49,6 +49,16 @@ struct TwistedMassMassParameters : public WilsonMassParameters
 	double getMubar() const { return 2.*kappa*mu; }
 };
 
+struct CloverParameters : public WilsonMassParameters
+{
+    CloverParameters(const double kappaIn, const double cswIn):
+        WilsonMassParameters(kappaIn), csw(cswIn) {}
+
+    const double csw;
+    
+    double getCsw() const { return csw; }
+};
+
 struct FermionTestParameters : public SpinorTestParameters, GaugefieldTestParameters
 {
 	FermionTestParameters(const LatticeExtents lE, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypesIn) :
@@ -106,6 +116,7 @@ template< class MassParameters>
 
 typedef FermionMatrixTestParameters<WilsonMassParameters> WilsonTestParameters;
 typedef FermionMatrixTestParameters<TwistedMassMassParameters> TwistedMassTestParameters;
+typedef FermionMatrixTestParameters<CloverParameters> CloverTestParameters;
 
 template <class BufferType, class CreatorType>
 struct FermionmatrixTester : public KernelTester

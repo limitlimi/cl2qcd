@@ -527,6 +527,35 @@ namespace hardware
 			common::action fermact;
 			const bool useMergedKernels;
 		};
+        
+        class OpenClKernelParametersMockupForCloverEvenOdd : public OpenClKernelParametersMockupForSpinorTests
+        {
+        public:
+            OpenClKernelParametersMockupForCloverEvenOdd(int nsIn, int ntIn, const bool needEvenOddIn, const double kappaIn, const double cswIn) :
+            OpenClKernelParametersMockupForSpinorTests(nsIn, ntIn, needEvenOddIn), fermact(common::action::clover)
+                , csw(cswIn), kappa(kappaIn)
+            {
+                //NOTE: for the moment, these member are set here in order to overwrite the settings from the parent class, but this should be done nicer!
+                fermact = common::action::clover;
+                //todo: kappa and mu should be set to 0 or so as they should not be used in the test
+            }
+            virtual common::action  getFermact() const override
+            {
+                return fermact;
+            }
+            virtual double getCsw() const override
+            {
+                return csw;
+            }
+            virtual double getKappa() const override
+            {
+                return kappa;
+            }
+            common::action fermact;
+            double csw;
+            double kappa;
+        };
+        
 		class OpenClKernelParametersMockupForDslashEvenOdd : public OpenClKernelParametersMockupForSpinorTests
 		{
 		public:
