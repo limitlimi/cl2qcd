@@ -1,79 +1,3 @@
-void clover_eo_inverse_explizit_upper_left_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
-    Matrix6x6 out_tmp, tmp;
-    
-    Matrix6x6 tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
-    Matrix6x6 out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
-    
-    put6x6(out, pos, out_tmp); //pos??
-}
-
-void clover_eo_inverse_explizit_lower_right_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
-    Matrix6x6 out_tmp, tmp;
-    
-    Matrix6x6 tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
-    Matrix6x6 out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
-    
-    put6x6(out, pos, out_tmp);
-}
-
-__kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{
-    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
-        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
-        clover_eo_inverse_explizit_upper_left_for_site(in, out, field, kappa_in, csw, pos);
-    }
-}
-
-__kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{
-    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
-        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
-        clover_eo_inverse_explizit_lower_right_for_site(in, out, field, kappa_in, csw, pos);
-    }
-}
-
-
-//clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
-void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
-    spinor out_tmp;
-    
-    halfspinor tmp1, tmp2;
-    tmp1.e1 = in.e1;
-    tmp1.e2 = in.e2;
-    tmp2.e1 = in.e3;
-    tmp2.e2 = in.e4;
-    
-    //get 6x6 blocks
-    Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
-    Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
-    
-    //inversion of 6x6 blocks
-    Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus);
-    Matrix6x6 A_minus = inverse_6x6_via_Householder_triangularization(B_minus);
-    
-    //Inverse * spinor
-    tmp1 = matrix6x6_times_halfspinor(A_plus, tmp1);
-    tmp2 = matrix6x6_times_halfspinor(A_minus, tmp1);
-    
-    out_tmp.e1 = tmp1.e1;
-    out_tmp.e2 = tmp1.e2;
-    out_tmp.e3 = tmp2.e1;
-    out_tmp.e4 = tmp2.e2;
-    
-    putSpinor_eo(out, get_eo_site_idx_from_st_idx(pos), out_tmp);
-}
-
-__kernel void clover_eo_inverse(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, const int evenodd, hmc_float kappa_in, hmc_float csw)
-{
-    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
-        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
-        clover_eo_inverse_for_site(in, out, field, kappa_in, csw, pos);
-    }
-}
-
 /* This function performs the inversion a complex 6x6 matrix
    via Householder-Triangularization(see OpenQCD documentation "Implementation of the Dirac Operator" section 5
  */
@@ -210,4 +134,81 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
     out.e54.re = creal(r[5][4]); out.e54.im = cimag(r[5][4]);
     out.e55.re = creal(r[5][5]); out.e55.im = cimag(r[5][5]);
     return out;
+}
+
+void clover_eo_inverse_explizit_upper_left_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    Matrix6x6 out_tmp, tmp;
+    
+    tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
+    out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
+    
+    put6x6(out, pos, out_tmp); //pos??
+}
+
+void clover_eo_inverse_explizit_lower_right_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    Matrix6x6 out_tmp, tmp;
+    
+    tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
+    
+    put6x6(out, pos, out_tmp);
+}
+
+__kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
+        st_idx pos = get_st_idx_from_site_idx(id_local);
+        clover_eo_inverse_explizit_upper_left_for_site(in, out, field, kappa_in, csw, pos);
+    }
+}
+
+__kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
+        st_idx pos = get_st_idx_from_site_idx(id_local);
+        clover_eo_inverse_explizit_lower_right_for_site(in, out, field, kappa_in, csw, pos);
+    }
+}
+
+
+//clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
+void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+{
+    spinor out_tmp, phi;
+    site_idx pos_eo = get_eo_site_idx_from_st_idx(pos);
+    phi = getSpinor_eo(in, pos_eo);
+    halfspinor tmp1, tmp2;
+    tmp1.e0 = phi.e0;
+    tmp1.e1 = phi.e1;
+    tmp2.e0 = phi.e2;
+    tmp2.e1 = phi.e3;
+    
+    //get 6x6 blocks
+    Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
+    Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    
+    //inversion of 6x6 blocks
+    Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus);
+    Matrix6x6 A_minus = inverse_6x6_via_Householder_triangularization(B_minus);
+    
+    //Inverse * spinor
+    tmp1 = matrix6x6_times_halfspinor(A_plus, tmp1);
+    tmp2 = matrix6x6_times_halfspinor(A_minus, tmp1);
+    
+    out_tmp.e0 = tmp1.e0;
+    out_tmp.e1 = tmp1.e1;
+    out_tmp.e2 = tmp2.e0;
+    out_tmp.e3 = tmp2.e1;
+    
+    putSpinor_eo(out, get_eo_site_idx_from_st_idx(pos), out_tmp);
+}
+
+__kernel void clover_eo_inverse(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, const int evenodd, hmc_float kappa_in, hmc_float csw)
+{
+    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
+        st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
+        clover_eo_inverse_for_site(in, out, field, kappa_in, csw, pos);
+    }
 }
