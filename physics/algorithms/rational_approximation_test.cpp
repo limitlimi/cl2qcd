@@ -140,9 +140,20 @@ BOOST_AUTO_TEST_CASE(rescale)
 
 	Rational_Approximation approx(15,1,4,1e-5,1,false);
 
-	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--num_dev=1"};
-	meta::Inputparameters params(4, _params);
-
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--mass=0.567", "--conservative=false", "--num_dev=1"};
+	meta::Inputparameters params(6, _params);
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+	
+	//Operator for the test
+	physics::fermionmatrix::MdagM_eo matrix(system, interfacesHandler.getInterface<physics::fermionmatrix::MdagM_eo>());
+	//This configuration for the Ref.Code is the same as for example dks_input_5
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	
 	//Min and max eigenvalues for conservative and not conservative case
 	hmc_float minEigenvalue = 0.3485318319429664;
 	hmc_float maxEigenvalue = 5.2827906935473500;
@@ -208,7 +219,6 @@ BOOST_AUTO_TEST_CASE(rescale)
 		BOOST_CHECK_CLOSE(a_cons[i], a_ref_cons[i], 2.e-4);
 		BOOST_CHECK_CLOSE(b_cons[i], b_ref_cons[i], 2.e-4);
 	}
-
 	logger.info() << "Test done!";
 }
 

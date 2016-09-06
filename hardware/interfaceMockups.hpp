@@ -383,6 +383,10 @@ namespace hardware
 				OpenClKernelParametersMockup(nsIn, ntIn, false), prec(64), useEvenOdd(false), useRec12Value(checkBoostRuntimeArgumentsForRec12Usage()) {};
 			OpenClKernelParametersMockupForSpinorTests(const int nsIn, const int ntIn, const bool useEvenOddIn) :
 				OpenClKernelParametersMockup(nsIn, ntIn, false), prec(64), useEvenOdd(useEvenOddIn), useRec12Value(checkBoostRuntimeArgumentsForRec12Usage()) {};
+			OpenClKernelParametersMockupForSpinorTests(const LatticeExtents lE) :
+				OpenClKernelParametersMockup(lE, false), prec(64), useEvenOdd(false), useRec12Value(checkBoostRuntimeArgumentsForRec12Usage()) {};
+			OpenClKernelParametersMockupForSpinorTests(const LatticeExtents lE, const bool useEvenOddIn) :
+				OpenClKernelParametersMockup(lE, false), prec(64), useEvenOdd(useEvenOddIn), useRec12Value(checkBoostRuntimeArgumentsForRec12Usage()) {};
 			~OpenClKernelParametersMockupForSpinorTests()	{};
 
 			virtual size_t getPrecision() const override
@@ -418,13 +422,13 @@ namespace hardware
 		class OpenClKernelParametersMockupForSpinorStaggered : public OpenClKernelParametersMockupForSpinorTests
 		{
 		public:
-			OpenClKernelParametersMockupForSpinorStaggered(const int nsIn, const int ntIn) :
-				OpenClKernelParametersMockupForSpinorTests(nsIn, ntIn), fermact(common::action::rooted_stagg)
+			OpenClKernelParametersMockupForSpinorStaggered(const LatticeExtents lE) :
+				OpenClKernelParametersMockupForSpinorTests(lE), fermact(common::action::rooted_stagg)
 		{
 				fermact = common::action::rooted_stagg;
 		};
-			OpenClKernelParametersMockupForSpinorStaggered(const int nsIn, const int ntIn, const bool useEvenOddIn) :
-				OpenClKernelParametersMockupForSpinorTests(nsIn, ntIn, useEvenOddIn), fermact(common::action::rooted_stagg)
+			OpenClKernelParametersMockupForSpinorStaggered(const LatticeExtents lE, const bool useEvenOddIn) :
+				OpenClKernelParametersMockupForSpinorTests(lE, useEvenOddIn), fermact(common::action::rooted_stagg)
 		{
 				fermact = common::action::rooted_stagg;
 		};
@@ -476,6 +480,26 @@ namespace hardware
 			}
 			const common::sourcecontents sC;
 			const common::sourcetypes sT;
+		};
+
+		struct OpenClKernelParametersMockupForStaggeredSourceTests : public OpenClKernelParametersMockupForSpinorStaggered
+		{
+			OpenClKernelParametersMockupForStaggeredSourceTests(const LatticeExtents lE, const common::sourcecontents sC) :
+				OpenClKernelParametersMockupForSpinorStaggered(lE, true), sC(sC) {};
+
+			virtual common::sourcecontents getSourceContent() const override
+			{
+				return sC;
+			}
+			virtual common::sourcetypes getSourceType() const override
+			{
+				return common::sourcetypes::volume;
+			}
+			virtual bool getMeasureCorrelators() const override
+			{
+				return false;
+			}
+			const common::sourcecontents sC;
 		};
 
 		class OpenClKernelParametersMockupForTwistedMass : public OpenClKernelParametersMockupForSpinorTests
@@ -544,6 +568,51 @@ namespace hardware
 			bool useChemPotIm, useChemPotRe;
 			hmc_complex chemPot;
 		};
+
+		class OpenClKernelParametersMockupForFermionsStaggeredTests : public OpenClKernelParametersMockupForSpinorStaggered
+		{
+		public:
+			OpenClKernelParametersMockupForFermionsStaggeredTests(LatticeExtents lE, const double massIn, const bool useEvenOddIn, const double thetaTIn , const double thetaSIn , const double ImChemPot = 0.):
+				OpenClKernelParametersMockupForSpinorStaggered(lE,useEvenOddIn), mass(massIn), useEvenOdd(useEvenOddIn), thetaFermionTemporal(thetaTIn), thetaFermionSpatial(thetaSIn), useChemPotIm(true), imaginaryChemicalPotential(ImChemPot) {}
+			OpenClKernelParametersMockupForFermionsStaggeredTests(LatticeExtents lE, const bool useEvenOddIn, const double thetaTIn , const double thetaSIn, const double ImChemPot ):
+				OpenClKernelParametersMockupForSpinorStaggered(lE,useEvenOddIn), mass(0.), useEvenOdd(useEvenOddIn), thetaFermionTemporal(thetaTIn), thetaFermionSpatial(thetaSIn), useChemPotIm(true), imaginaryChemicalPotential(ImChemPot) {}
+			OpenClKernelParametersMockupForFermionsStaggeredTests(LatticeExtents lE, const bool useEvenOddIn):
+				OpenClKernelParametersMockupForSpinorStaggered(lE,useEvenOddIn), mass(0.), useEvenOdd(useEvenOddIn), thetaFermionTemporal(0.), thetaFermionSpatial(0.), useChemPotIm(false), imaginaryChemicalPotential(0.) {}
+
+			virtual double getMass() const override
+			{
+				return mass;
+			}
+			virtual double getThetaFermionTemporal() const override
+			{
+				return thetaFermionTemporal;
+			}
+			virtual double getThetaFermionSpatial() const override
+			{
+				return thetaFermionSpatial;
+			}
+			virtual bool getUseEo() const override
+			{
+				return useEvenOdd;
+			}
+			virtual double getChemPotIm() const override
+			{
+				return imaginaryChemicalPotential;
+			}
+			virtual bool getUseChemPotIm() const override
+			{
+				return useChemPotIm;
+			}
+
+		protected:
+			const double mass;
+			const bool useEvenOdd;
+			const double thetaFermionTemporal;
+			const double thetaFermionSpatial;
+			bool useChemPotIm;
+			const double imaginaryChemicalPotential;
+		};
+
 		class OpenClKernelParametersMockupForMergedFermionKernels : public OpenClKernelParametersMockupForSpinorTests
 		{
 		public:
@@ -579,7 +648,7 @@ namespace hardware
 			}
 			virtual double getC1() const override
 			{
-				return 1.;
+				return -0.083333333;
 			}
 			virtual bool getUseEo() const override
 			{
@@ -589,6 +658,26 @@ namespace hardware
 		protected:
 			common::action gaugeact;
 			const bool useEvenOdd;
+		};
+
+		class OpenClKernelParametersMockupForMolecularDynamicsStaggered : public OpenClKernelParametersMockupForMolecularDynamics
+		{
+		public:
+			OpenClKernelParametersMockupForMolecularDynamicsStaggered(LatticeExtents lE) :
+				OpenClKernelParametersMockupForMolecularDynamics(lE), fermact(common::action::rooted_stagg)
+			{
+					fermact = common::action::rooted_stagg;
+			};
+			virtual common::action getFermact() const override
+			{
+				return fermact;
+			}
+			virtual bool getUseEo() const override
+			{
+				return true;
+			}
+		protected:
+			common::action fermact;
 		};
 	}
 }

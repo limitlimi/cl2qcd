@@ -29,11 +29,9 @@
 #include "../interfaceMockups.hpp"
 #include "../../geometry/latticeExtents.hpp"
 
-enum ComparisonType{difference=1, smallerThan};
-
 const double nonTrivialParameter = 0.123456;
 
-typedef std::vector<double> ReferenceValues;
+typedef std::vector<boost::any> ReferenceValues;
 ReferenceValues defaultReferenceValues();
 
 struct TestParameters
@@ -41,13 +39,10 @@ struct TestParameters
 	int ns;
 	int nt;
 	LatticeExtents latticeExtents;
-	ComparisonType typeOfComparison;
 	const double testPrecision = 10e-8;
 
-	TestParameters(const LatticeExtents latticeExtentsIn):
-		ns(latticeExtentsIn.getNs()), nt(latticeExtentsIn.getNt()), latticeExtents(latticeExtentsIn), typeOfComparison(ComparisonType::difference) {}
-	TestParameters(const LatticeExtents latticeExtentsIn, const ComparisonType typeOfComparisonIn):
-		ns(latticeExtentsIn.getNs()), nt(latticeExtentsIn.getNt()), latticeExtents(latticeExtentsIn),typeOfComparison(typeOfComparisonIn) {}
+	TestParameters(const LatticeExtents latticeExtentsIn, const double testPrecisionIn = 10e-8):
+		ns(latticeExtentsIn.getNs()), nt(latticeExtentsIn.getNt()), latticeExtents(latticeExtentsIn), testPrecision(testPrecisionIn) {}
 	TestParameters() = delete;
 };
 
@@ -68,7 +63,7 @@ struct KernelTester
 protected:
 	const TestParameters testParameters;
 	std::vector<double> kernelResult;
-	ReferenceValues referenceValues;
+	ReferenceValues refValues;
 	
 	const hardware::System * system;
 	hardware::Device * device;

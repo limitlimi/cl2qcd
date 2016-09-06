@@ -27,6 +27,7 @@
 enum SpinorFillType{ zero, one, zeroOne, oneZero, ascendingReal, ascendingComplex};
 typedef std::vector<SpinorFillType> SpinorFillTypes;
 typedef std::vector<hmc_complex> ComplexNumbers;
+typedef std::vector<hmc_float> RealNumbers;
 typedef size_t NumberOfSpinors;
 
 int calculateSpinorfieldSize(LatticeExtents latticeExtendsIn) noexcept;
@@ -40,8 +41,6 @@ struct SpinorTestParameters: public virtual TestParameters
 {
 	SpinorTestParameters(const LatticeExtents latticeExtendsIn) :
 		TestParameters(latticeExtendsIn), fillTypes(SpinorFillType::one) {};
-	SpinorTestParameters(const LatticeExtents latticeExtendsIn, const ComparisonType typeOfComparisionIn) :
-		TestParameters(latticeExtendsIn, typeOfComparisionIn), fillTypes(SpinorFillType::one) {};
 	SpinorTestParameters(const LatticeExtents latticeExtendsIn, const SpinorFillTypes fillTypesIn) :
 		TestParameters(latticeExtendsIn), fillTypes(fillTypesIn) {};
 

@@ -50,7 +50,7 @@ physics::algorithms::Rational_Coefficients::Rational_Coefficients(const int d, c
 
 int physics::algorithms::Rational_Coefficients::Get_order() const
 {
-    return _d;
+	return _d;
 }
 
 hmc_float physics::algorithms::Rational_Coefficients::Get_a0() const

@@ -43,7 +43,6 @@ template<class SPINORFIELD, class FERMIONMATRIX> static hmc_observables perform_
         const physics::lattices::Gaugefield * const gf, const int iter, const hmc_float rnd_number, physics::PRNG& prng, const hardware::System& system,
         physics::InterfacesHandler& interfacesHandler)
 {
-
     using namespace physics::algorithms;
     using namespace physics::lattices;
 
@@ -61,6 +60,7 @@ template<class SPINORFIELD, class FERMIONMATRIX> static hmc_observables perform_
     hmc_float spinor_energy_init = 0.f;
     hmc_float spinor_energy_init_mp = 0.f;
     //Here the coefficients of phi have to be set to the rescaled ones on the base of approx1
+    //
     FERMIONMATRIX fm(system, interfacesHandler.getInterface<FERMIONMATRIX>());
 	hmc_float maxEigenvalue;
 	hmc_float minEigenvalue;
@@ -69,6 +69,7 @@ template<class SPINORFIELD, class FERMIONMATRIX> static hmc_observables perform_
 		maxEigenvalue *= 1.05;
 	hmc_float conditionNumber=maxEigenvalue/minEigenvalue;
 	phi.Rescale_Coefficients(approx1, minEigenvalue, maxEigenvalue);
+
     if(!parametersInterface.getUseGaugeOnly()) {
         if(parametersInterface.getUseMp()) {
             throw Print_Error_Message("Mass preconditioning not implemented for staggered fermions!", __FILE__, __LINE__);
@@ -102,8 +103,10 @@ template<class SPINORFIELD, class FERMIONMATRIX> static hmc_observables perform_
     logger.error() << "\tRHMC [MET]:\tperform Metropolis step: ";
     //Before Metropolis test the coeff. of phi have to be set to the rescaled ones on the base of approx3
     find_maxmin_eigenvalue(maxEigenvalue, minEigenvalue, fm, new_u, system, interfacesHandler, parametersInterface.getFindMinMaxPrec(), additionalParameters);
+
 	if(parametersInterface.getConservative())
 		maxEigenvalue *= 1.05;
+
 	phi.Rescale_Coefficients(approx3, minEigenvalue, maxEigenvalue);
     //this call calculates also the HMC-Observables
     const hmc_observables obs = metropolis(rnd_number, parametersInterface.getBeta(), *gf, new_u, p, new_p, phi, spinor_energy_init,
@@ -125,10 +128,12 @@ template<class SPINORFIELD, class FERMIONMATRIX> static hmc_observables perform_
 	std::ostringstream reportOnConditionNumber;
 	reportOnConditionNumber << "\tRHMC:\tcondition number for trajectory " << iter << ": lambda_max/lambda_min = " << conditionNumber;
 	unsigned optimalNumberPseudofermions = std::floor(0.5*std::log(conditionNumber));
+
 	if(optimalNumberPseudofermions <= 1)
 		reportOnConditionNumber << "  =>  multiple pseudofermions method not advantageous!";
 	else
 		reportOnConditionNumber << "  =>  multiple pseudofermions method suggested  =>  optimal number of pseudofermion: n_opt = " << optimalNumberPseudofermions;
+
 	logger.info() << reportOnConditionNumber.str();
 
     return obs;

@@ -29,24 +29,23 @@
 //Utilities methods
 std::vector<hmc_float> reals_from_su3vec(su3vec v);
 hmc_float count_sf(su3vec * in, int size);
+hmc_float squareNorm(su3vec * in, int size);
 hmc_float calc_var_sf(su3vec * in, int size, hmc_float sum);
 
 struct SpinorStaggeredTestParameters: public virtual TestParameters
 {
 	SpinorStaggeredTestParameters(const LatticeExtents latticeExtendsIn) :
 		TestParameters(latticeExtendsIn), fillTypes(SpinorFillType::one) {};
-	SpinorStaggeredTestParameters(const LatticeExtents latticeExtendsIn, const ComparisonType typeOfComparisionIn) :
-		TestParameters(latticeExtendsIn, typeOfComparisionIn), fillTypes(SpinorFillType::one) {};
 	SpinorStaggeredTestParameters(const LatticeExtents latticeExtendsIn, const SpinorFillTypes fillTypesIn) :
 		TestParameters(latticeExtendsIn), fillTypes(fillTypesIn) {};
 
 	const SpinorFillTypes fillTypes;
 };
 
-class SpinorStaggeredTester2 : public KernelTester
+class SpinorStaggeredTester : public KernelTester
 {
 public:
-	SpinorStaggeredTester2(const std::string kernelName, const ParameterCollection, const SpinorStaggeredTestParameters &, const ReferenceValues);
+	SpinorStaggeredTester(const std::string kernelName, const ParameterCollection, const SpinorStaggeredTestParameters &, const ReferenceValues);
 protected:
 	void calcSquarenormAndStoreAsKernelResult(const hardware::buffers::Plain<su3vec> * in);
 	void calcSquarenormEvenOddAndStoreAsKernelResult(const hardware::buffers::SU3vec * in);
@@ -78,16 +77,16 @@ struct EvenOddSpinorStaggeredfieldCreator : public SpinorStaggeredfieldCreator
 	LatticeExtents latticeExtents;
 };
 
-struct NonEvenOddSpinorStaggeredTester : public SpinorStaggeredTester2
+struct NonEvenOddSpinorStaggeredTester : public SpinorStaggeredTester
 {
 	NonEvenOddSpinorStaggeredTester(const std::string kernelName, const ParameterCollection pC, const SpinorStaggeredTestParameters & tP, const ReferenceValues & rV) :
-		SpinorStaggeredTester2(kernelName, pC, tP, rV) {};
+		SpinorStaggeredTester(kernelName, pC, tP, rV) {};
 };
 
-struct EvenOddSpinorStaggeredTester : public SpinorStaggeredTester2
+struct EvenOddSpinorStaggeredTester : public SpinorStaggeredTester
 {
 	EvenOddSpinorStaggeredTester(const std::string kernelName, const ParameterCollection pC, const SpinorStaggeredTestParameters & tP, const ReferenceValues & rV) :
-		SpinorStaggeredTester2(kernelName, pC, tP, rV) {};
+		SpinorStaggeredTester(kernelName, pC, tP, rV) {};
 };
 
 #endif // _HARDWARE_CODE_SPINOR_STAGGERED_TESTER_

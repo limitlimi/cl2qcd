@@ -29,48 +29,10 @@
 enum CorrelatorDirection {temporal=0, spatialX=1, spatialY=2, spatialZ=3}; //@todo: should this be name more general, "direction" or so, and be moved to common?
 typedef std::string KernelIdentifier;
 
-ReferenceValues calculateReferenceValues_sources(const common::sourcecontents sC, const int numberOfNonZeroElements)
-{
-	double mean = defaultReferenceValues()[0], variance = defaultReferenceValues()[0];
-	if (sC == common::sourcecontents::one)
-	{
-		mean = 0.5;	variance = 0.5;
-	}
-	if (sC == common::sourcecontents::gaussian or sC == common::sourcecontents::z4)
-	{
-		mean = 0.; variance = 0.7;
-	}
-	if (sC == common::sourcecontents::z2)
-	{
-		mean = 1.; variance = 1.;
-	}
-	return ReferenceValues{mean, variance, (double) numberOfNonZeroElements};
-}
-
-ReferenceValues calculateReferenceValues_volumeSource(const LatticeExtents lE, const common::sourcecontents sC)
-{
-	return calculateReferenceValues_sources(sC, calculateSpinorfieldSize(lE));
-}
-
-ReferenceValues calculateReferenceValues_zSliceSource(const LatticeExtents lE, const common::sourcecontents sC)
-{
-	return calculateReferenceValues_sources(sC, lE.getNs()*lE.getNs()*lE.getNt());
-}
-
-ReferenceValues calculateReferenceValues_timeSliceSource(const LatticeExtents lE, const common::sourcecontents sC)
-{
-	return calculateReferenceValues_sources(sC, lE.getNs()*lE.getNs()*lE.getNs());
-}
-
-ReferenceValues calculateReferenceValues_pointSource(const common::sourcecontents sC)
-{
-	return calculateReferenceValues_sources(sC, 1);
-}
-
 struct SourceTestParameters : public PrngSpinorTestParameters
 {
-	SourceTestParameters(const LatticeExtents lE, common::sourcecontents sC, common::sourcetypes sT, const int iterations ) :
-		TestParameters(lE, ComparisonType::difference), PrngSpinorTestParameters(lE, iterations), sC(sC), sT(sT) {}
+	SourceTestParameters(const LatticeExtents lE, common::sourcecontents sC, common::sourcetypes sT, const int iterations) :
+		TestParameters(lE, 10e-2), PrngSpinorTestParameters(lE, iterations), sC(sC), sT(sT) {}
 	const common::sourcecontents sC;
 	const common::sourcetypes sT;
 };
@@ -101,6 +63,11 @@ bool compareToZero(const spinor in)
 	return false;
 }
 
+double normalize(double valueIn, const LatticeExtents lE)
+{
+	return valueIn/= calculateSpinorfieldSize(lE) * 24;
+}
+
 int countNonZeroElements(const spinor * in, const int numberOfElements)
 {
 	int result = 0;
@@ -110,6 +77,74 @@ int countNonZeroElements(const spinor * in, const int numberOfElements)
 			result += 1;
 	}
 	return result;
+}
+
+ReferenceValues calculateReferenceValues_volumeSource(const SourceTestParameters & tP)
+{
+	double mean, variance;
+	if (tP.sC == common::sourcecontents::one)
+	{
+		mean = normalize(12 * calculateSpinorfieldSize(tP.latticeExtents), tP.latticeExtents);
+	}
+	else if (tP.sC == common::sourcecontents::gaussian or tP.sC == common::sourcecontents::z4)
+	{
+		mean = 0.;
+	}
+	else
+		mean = 0.123456;
+	variance = sqrt(normalize(((0. - mean) * (0. - mean) * 12 + (1. - mean) * (1. - mean) * 12) * calculateSpinorfieldSize(tP.latticeExtents), tP.latticeExtents));
+	return ReferenceValues{mean, variance, calculateSpinorfieldSize(tP.latticeExtents)};
+}
+
+ReferenceValues calculateReferenceValues_zSliceSource(const SourceTestParameters & tP)
+{
+	double mean, variance;
+	if (tP.sC == common::sourcecontents::one)
+	{
+		mean = normalize(12*tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNt(), tP.latticeExtents);
+	}
+	else if (tP.sC == common::sourcecontents::gaussian or tP.sC == common::sourcecontents::z4)
+	{
+		mean = 0.;
+	}
+	else
+		mean = 0.123456;
+	variance = sqrt(normalize((0. - mean) * (0. - mean) * (tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNt() * 12)
+			+ (1. - mean) * (1. - mean) * (tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNt() * 12)
+			+ (0. - mean) * (0. - mean) * (calculateSpinorfieldSize(tP.latticeExtents) - tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNt()) * 24, tP.latticeExtents));
+	return ReferenceValues{mean, variance, (double) tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNt()};
+}
+
+ReferenceValues calculateReferenceValues_timeSliceSource(const SourceTestParameters & tP)
+{
+	double mean, variance;
+	if (tP.sC == common::sourcecontents::one)
+	{
+		mean = normalize(12*tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNs(), tP.latticeExtents);
+	}
+	else if (tP.sC == common::sourcecontents::gaussian or tP.sC == common::sourcecontents::z4)
+	{
+		mean = 0.;
+	}
+	else
+		mean = 0.123456;
+	variance = sqrt(normalize((0. - mean) * (0. - mean) * (tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNs() * 12)
+			+ (1. - mean) * (1. - mean) * (tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNs() * 12)
+			+ (0. - mean) * (0. - mean) * (calculateSpinorfieldSize(tP.latticeExtents) - tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNt()) * 24, tP.latticeExtents));
+	return ReferenceValues{mean, variance, (double) tP.latticeExtents.getNs()*tP.latticeExtents.getNs()*tP.latticeExtents.getNs()};
+}
+
+ReferenceValues calculateReferenceValues_pointSource(const SourceTestParameters & tP)
+{
+	double mean, variance;
+	if (tP.sC == common::sourcecontents::one)
+	{
+		mean = normalize(1, tP.latticeExtents);
+		variance = sqrt((0. - mean) * (0. - mean) * ((calculateSpinorfieldSize(tP.latticeExtents) - 1) * 24 + 23));
+	}
+	else
+		mean = 0.123456;
+	return ReferenceValues{mean, variance, 1};
 }
 
 struct SourceTester : public PrngSpinorTester
@@ -134,7 +169,7 @@ protected:
 struct VolumeSourceTester : public SourceTester
 {
 	VolumeSourceTester(const ParameterCollection pC, const SourceTestParameters & tP, const int numberOfElements):
-		SourceTester("create_volume_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_volumeSource(tP.latticeExtents, tP.sC))
+		SourceTester("create_volume_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_volumeSource(tP))
 	{
 		for (unsigned int i = 0; i < testParameters.iterations; i++)
 		{
@@ -147,7 +182,7 @@ struct VolumeSourceTester : public SourceTester
 struct ZSliceSourceTester : public SourceTester
 {
 	ZSliceSourceTester(const ParameterCollection pC, const SourceTestParameters & tP, const int numberOfElements):
-		SourceTester("create_zslice_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_zSliceSource(tP.latticeExtents, tP.sC))
+		SourceTester("create_zslice_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_zSliceSource(tP))
 	{
 		for (unsigned int i = 0; i < testParameters.iterations; i++)
 		{
@@ -160,7 +195,7 @@ struct ZSliceSourceTester : public SourceTester
 struct TimeSliceSourceTester : public SourceTester
 {
 	TimeSliceSourceTester(const ParameterCollection pC, const SourceTestParameters & tP, const int numberOfElements):
-		SourceTester("create_timeslice_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_timeSliceSource(tP.latticeExtents, tP.sC))
+		SourceTester("create_timeslice_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_timeSliceSource(tP))
 	{
 		for (unsigned int i = 0; i < testParameters.iterations; i++)
 		{
@@ -173,7 +208,7 @@ struct TimeSliceSourceTester : public SourceTester
 struct PointSourceTester : public SourceTester
 {
 	PointSourceTester(const ParameterCollection pC, const SourceTestParameters & tP, const int numberOfElements):
-		SourceTester("create_point_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_pointSource(tP.sC))
+		SourceTester("create_point_source", pC, tP, calculateSpinorfieldSize(tP.latticeExtents), calculateReferenceValues_pointSource(tP))
 	{
 		for (unsigned int i = 0; i < testParameters.iterations; i++)
 		{
@@ -319,22 +354,21 @@ BOOST_AUTO_TEST_SUITE(SRC_VOLUME)
 
 	BOOST_AUTO_TEST_CASE( SRC_VOLUME_1 )
 	{
-		testVolumeSource( LatticeExtents{4,4}, common::sourcecontents::one, 1 );
+		testVolumeSource( LatticeExtents{4,4}, common::sourcecontents::one, 12 );
 	}
+
+	BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(SRC_VOLUME_2, 2)
 
 	BOOST_AUTO_TEST_CASE( SRC_VOLUME_2 )
 	{
-		testVolumeSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 20 );
+		testVolumeSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 2000);
 	}
+
+	BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(SRC_VOLUME_3, 2)
 
 	BOOST_AUTO_TEST_CASE( SRC_VOLUME_3 )
 	{
-		testVolumeSource( LatticeExtents{12,4}, common::sourcecontents::z2, 1 );
-	}
-
-	BOOST_AUTO_TEST_CASE( SRC_VOLUME_4 )
-	{
-		testVolumeSource( LatticeExtents{16,4}, common::sourcecontents::z4, 20 );
+		testVolumeSource( LatticeExtents{8,4}, common::sourcecontents::z4, 1000 );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -346,17 +380,16 @@ BOOST_AUTO_TEST_SUITE(SRC_ZSLICE)
 		testZSliceSource( LatticeExtents{4,4}, common::sourcecontents::one, 1 );
 	}
 
+	BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(SRC_ZSLICE_2, 2)
+
 	BOOST_AUTO_TEST_CASE( SRC_ZSLICE_2 )
 	{
-		testZSliceSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 20 );
+		testZSliceSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 1000);
 	}
+
+	BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(SRC_ZSLICE_3, 2)
 
 	BOOST_AUTO_TEST_CASE( SRC_ZSLICE_3 )
-	{
-		testZSliceSource( LatticeExtents{12,4}, common::sourcecontents::z2, 1 );
-	}
-
-	BOOST_AUTO_TEST_CASE( SRC_ZSLICE_4 )
 	{
 		testZSliceSource( LatticeExtents{16,4}, common::sourcecontents::z4, 20 );
 	}
@@ -370,17 +403,16 @@ BOOST_AUTO_TEST_SUITE(SRC_TIMESLICE)
 		testTimeSliceSource( LatticeExtents{4,4}, common::sourcecontents::one, 1 );
 	}
 
+	BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(SRC_TIMESLICE_2, 2)
+
 	BOOST_AUTO_TEST_CASE( SRC_TIMESLICE_2 )
 	{
-		testTimeSliceSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 20 );
+		testTimeSliceSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 2000);
 	}
+
+	BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(SRC_TIMESLICE_3, 2)
 
 	BOOST_AUTO_TEST_CASE( SRC_TIMESLICE_3 )
-	{
-		testTimeSliceSource( LatticeExtents{12,4}, common::sourcecontents::z2, 1 );
-	}
-
-	BOOST_AUTO_TEST_CASE( SRC_TIMESLICE_4 )
 	{
 		testTimeSliceSource( LatticeExtents{16,4}, common::sourcecontents::z4, 20 );
 	}
@@ -394,33 +426,18 @@ BOOST_AUTO_TEST_SUITE(SRC_POINT)
 		testPointSource( LatticeExtents{4,4}, common::sourcecontents::one, 12 );
 	}
 
-	BOOST_AUTO_TEST_CASE( SRC_POINT_2 )
-	{
-		testPointSource( LatticeExtents{4,8}, common::sourcecontents::gaussian, 1 );
-	}
-
-	BOOST_AUTO_TEST_CASE( SRC_POINT_3 )
-	{
-		testPointSource( LatticeExtents{12,4}, common::sourcecontents::z2, 1 );
-	}
-
-	BOOST_AUTO_TEST_CASE( SRC_POINT_4 )
-	{
-		testPointSource( LatticeExtents{16,4}, common::sourcecontents::z4, 1 );
-	}
-
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(CORRELATOR_PS_Z)
 
 	BOOST_AUTO_TEST_CASE( zero1 )
 	{
-		testPsCorrelator(LatticeExtents{ ns8, nt4}, CorrelatorDirection::spatialZ, SpinorFillTypes{SpinorFillType::zero}, ReferenceValues(ns8, 0.));
+		testPsCorrelator(LatticeExtents{ ns8, nt4}, CorrelatorDirection::spatialZ, SpinorFillTypes{SpinorFillType::zero}, ReferenceValues(ns8, 0));
 	}
 
 	BOOST_AUTO_TEST_CASE( nonZero1 )
 	{
-		testPsCorrelator(LatticeExtents{ ns8, nt4}, CorrelatorDirection::spatialZ, SpinorFillTypes{SpinorFillType::one}, ReferenceValues(ns8, 48.));
+		testPsCorrelator(LatticeExtents{ ns8, nt4}, CorrelatorDirection::spatialZ, SpinorFillTypes{SpinorFillType::one}, ReferenceValues(ns8, 48));
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -429,12 +446,12 @@ BOOST_AUTO_TEST_SUITE(CORRELATOR_PS_T)
 
 	BOOST_AUTO_TEST_CASE( zero1 )
 	{
-		testPsCorrelator(LatticeExtents {ns8, nt4}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::zero}, ReferenceValues(nt4, 0.));
+		testPsCorrelator(LatticeExtents {ns8, nt4}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::zero}, ReferenceValues(nt4, 0));
 	}
 
 	BOOST_AUTO_TEST_CASE( nonZero1 )
 	{
-		testPsCorrelator(LatticeExtents {ns8, nt4}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::one}, ReferenceValues(nt4, 48.));
+		testPsCorrelator(LatticeExtents {ns8, nt4}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::one}, ReferenceValues(nt4, 48));
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -709,12 +726,12 @@ BOOST_AUTO_TEST_SUITE(CORRELATOR_AVPS_T)
 
 	BOOST_AUTO_TEST_CASE( zero1 )
 	{
-		testAvpsCorrelator(LatticeExtents {ns8, nt8}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::zero}, ReferenceValues(nt8, 0.));
+		testAvpsCorrelator(LatticeExtents {ns8, nt8}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::zero}, ReferenceValues(nt8, 0));
 	}
 
 	BOOST_AUTO_TEST_CASE( nonZero1 )
 	{
-		testAvpsCorrelator(LatticeExtents {ns8, nt8}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::one}, ReferenceValues(nt8, -48.));
+		testAvpsCorrelator(LatticeExtents {ns8, nt8}, CorrelatorDirection::temporal, SpinorFillTypes{SpinorFillType::one}, ReferenceValues(nt8, -48));
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

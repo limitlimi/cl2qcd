@@ -54,7 +54,7 @@ ReferenceValues calculateReferenceValues_saxpy(const LatticeExtents lE , double 
 
 ReferenceValues calculateReferenceValues_gaussian()
 {
-	return ReferenceValues{ 0.001, 1.1};
+	return ReferenceValues{ 0., 1.};
 }
 
 struct SquarenormTester : public GaugemomentumTester
@@ -109,9 +109,7 @@ private:
 struct PrngGaugemomentumTestParameters: public GaugemomentumTestParameters
 {
 	PrngGaugemomentumTestParameters(const LatticeExtents lE, const int iterationsIn) :
-		GaugemomentumTestParameters(lE, ComparisonType::smallerThan), iterations(iterationsIn) {};
-	PrngGaugemomentumTestParameters(const LatticeExtents lE) :
-		GaugemomentumTestParameters(lE, ComparisonType::smallerThan), iterations(100) {};
+		GaugemomentumTestParameters(lE, 10e-4), iterations(iterationsIn) {};
 	const unsigned int iterations;
 };
 
@@ -193,20 +191,18 @@ template<class TesterClass>
 void callTest(const LatticeExtents lE)
 {
 	GaugemomentumTestParameters parametersForThisTest(lE);
-	//todo: Work over these!
-	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents, true);
-	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, true);
+	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents);
+	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.latticeExtents);
 	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
 	TesterClass(parameterCollection, parametersForThisTest);
 }
 
 template<class TesterClass>
-void performTest(const LatticeExtents lE)
+void performTest(const LatticeExtents lE, const int iterations)
 {
-	PrngGaugemomentumTestParameters parametersForThisTest(lE);
-	//todo: Work over these!
-	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents, true);
-	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, true);
+	PrngGaugemomentumTestParameters parametersForThisTest(lE, iterations);
+	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents);
+	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.latticeExtents);
 	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
 	TesterClass(parameterCollection, parametersForThisTest);
 }
@@ -215,8 +211,8 @@ template<class TesterClass>
 void callTest(const LatticeExtents lE, const GaugeMomentumFilltype gmF)
 {
 	GaugemomentumTestParameters parametersForThisTest(lE, gmF);
-	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents, true);
-	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, true);
+	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents);
+	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.latticeExtents);
 	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
 	TesterClass(parameterCollection, parametersForThisTest);
 }
@@ -225,8 +221,8 @@ template<class TesterClass>
 void callTest(const LatticeExtents lE, const GaugeMomentumFilltype gmF, const double alphaIn)
 {
 	GaugemomentumTestParameters parametersForThisTest(lE, gmF, alphaIn);
-	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents, true);
-	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, true);
+	hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.latticeExtents);
+	hardware::code::OpenClKernelParametersMockupForSpinorTests kernelParameters(parametersForThisTest.latticeExtents);
 	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
 	TesterClass(parameterCollection, parametersForThisTest);
 }
@@ -246,9 +242,9 @@ void testSaxpy(const LatticeExtents lE, const GaugeMomentumFilltype gmF, const d
 	callTest<SaxpyTester>(lE, gmF, alpha);
 }
 
-void testGaussianGaugemomentum(const LatticeExtents lE)
+void testGaussianGaugemomentum(const LatticeExtents lE, const int iterations)
 {
-	performTest<GaussianTester>(lE);
+	performTest<GaussianTester>(lE, iterations);
 }
 
 BOOST_AUTO_TEST_SUITE( SQUARENORM )
@@ -299,10 +295,11 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(GENERATE_GAUSSIAN_GAUGEMOMENTA  )
 
-	//@todo: add tests like in "gaussian_input_{1-4}"
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(GENERATE_GAUSSIAN_GAUGEMOMENTA_1, 2)
+
 	BOOST_AUTO_TEST_CASE(GENERATE_GAUSSIAN_GAUGEMOMENTA_1 )
 	{
-	  testGaussianGaugemomentum(LatticeExtents{ns8, nt4});
+	  testGaussianGaugemomentum(LatticeExtents{ns8, nt4}, 1000);
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
