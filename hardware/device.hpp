@@ -51,6 +51,7 @@ class DGMAGhostBuffer;
 
 namespace code {
 // forward decleration to improve decoupling and speed up compilation
+class matrix6x6Field;
 class Gaugefield;
 class Prng;
 class Real;
@@ -165,6 +166,7 @@ public:
 	/**
 	 * Get access to the specific kernels on this device.
 	 */
+    const hardware::code::matrix6x6Field * getMatrix6x6FieldCode() const;
 	const hardware::code::Gaugefield * getGaugefieldCode() const;
 	const hardware::code::Prng * getPrngCode() const;
 	const hardware::code::Real * getRealCode() const;
@@ -217,6 +219,7 @@ private:
 	 * Pointers to specific code objects.
 	 * Initialized on demand.
 	 */
+    mutable hardware::code::matrix6x6Field * matrix6x6Field_code;
 	mutable hardware::code::Gaugefield * gaugefield_code;
 	mutable hardware::code::Prng * prng_code;
 	mutable hardware::code::Real * real_code;

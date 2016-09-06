@@ -72,7 +72,7 @@ void hardware::lattices::Matrix6x6Field::send_matrix6x6_to_buffers(const Matrix6
         auto device = buffer->get_device();
         TemporalParallelizationHandlerLink tmp2(device->getGridPos(), device->getLocalLatticeExtents(), sizeof(Matrix6x6), device->getHaloExtent());
         
-        if(buffers.size() == 1) {}//device->getGaugefieldCode()->importGaugefield(buffer, gf_host); //TODO: here there should be something like device->getMatrix6x6FieldCode()->exportMatrix6x6Field(gf_host, buffers[0]);
+        if(buffers.size() == 1) device->getMatrix6x6FieldCode()->importMatrix6x6Field(gf_host, buffers[0]);
         else{
             Matrix6x6 * mem_host = new Matrix6x6[buffer->get_elements()];
             //				//todo: put these calls into own fct.! With smart pointers?
@@ -80,7 +80,7 @@ void hardware::lattices::Matrix6x6Field::send_matrix6x6_to_buffers(const Matrix6
             memcpy(&mem_host[tmp2.getFirstHaloIndex_destination()] , &gf_host[tmp2.getFirstHaloPartIndex_source()] , tmp2.getHaloPartSizeInBytes());
             memcpy(&mem_host[tmp2.getSecondHaloIndex_destination()], &gf_host[tmp2.getSecondHaloPartIndex_source()], tmp2.getHaloPartSizeInBytes());
             
-            //importMatrix6x6Field(buffer, mem_host); //TODO: here there should be something like device->getMatrix6x6FieldCode()->exportMatrix6x6Field(gf_host, buffers[0]);
+            device->getMatrix6x6FieldCode()->importMatrix6x6Field(gf_host, buffers[0]);
             delete[] mem_host;
         }
         device->synchronize();
@@ -94,7 +94,7 @@ void hardware::lattices::Matrix6x6Field::fetch_matrix6x6_from_buffers(Matrix6x6 
     logger.trace() << "fetching matrix6x6field";
     if(buffers.size() == 1) {
         auto device = buffers[0]->get_device();
-        //exportMatrix6x6Field(gf_host, buffers[0]); //TODO: here there should be something like device->getMatrix6x6FieldCode()->exportMatrix6x6Field(gf_host, buffers[0]);
+        device->getMatrix6x6FieldCode()->exportMatrix6x6Field(gf_host, buffers[0]);
         device->synchronize();
     } else {
         for(auto const buffer: buffers) {
@@ -102,7 +102,7 @@ void hardware::lattices::Matrix6x6Field::fetch_matrix6x6_from_buffers(Matrix6x6 
             auto device = buffer->get_device();
             Matrix6x6 * mem_host = new Matrix6x6[buffer->get_elements()];
             
-            //exportMatrix6x6Field(mem_host, buffer); //TODO: here there should be something like device->getMatrix6x6FieldCode()->exportMatrix6x6Field(gf_host, buffers[0]);
+            device->getMatrix6x6FieldCode()->exportMatrix6x6Field(gf_host, buffers[0]);
             
             TemporalParallelizationHandlerLink tmp2(device->getGridPos(), device->getLocalLatticeExtents(), sizeof(Matrix6x6), device->getHaloExtent());
             memcpy(&gf_host[tmp2.getMainPartIndex_source()]  , &mem_host[tmp2.getMainPartIndex_destination()]  , tmp2.getMainPartSizeInBytes());

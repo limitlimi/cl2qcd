@@ -49,6 +49,10 @@ namespace hardware
 		{
 			return std::unique_ptr<hardware::code::Real>( new hardware::code::Real{*kernelParameters, deviceIn} ) ;
 		}
+        std::unique_ptr<hardware::code::matrix6x6Field> getCode_matrix6x6Field(const hardware::Device * deviceIn) const
+        {
+            return std::unique_ptr<hardware::code::matrix6x6Field>( new hardware::code::matrix6x6Field{*kernelParameters, deviceIn} ) ;
+        }
 		std::unique_ptr<hardware::code::Gaugefield> getCode_gaugefield(const hardware::Device * deviceIn) const
 		{
 			return std::unique_ptr<hardware::code::Gaugefield>( new hardware::code::Gaugefield{*kernelParameters, deviceIn} ) ;

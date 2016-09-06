@@ -32,6 +32,7 @@ hardware::Device::Device(cl_context context, cl_device_id device_id, LatticeGrid
 	openClCodeBuilder( &builderIn ), hardwareParameters(&parametersIn),
 	  context(context),
 	  profiling_data(),
+      matrix6x6Field_code(nullptr),
 	  gaugefield_code(nullptr),
 	  prng_code(nullptr),
 	  real_code(nullptr),
@@ -120,6 +121,9 @@ hardware::Device::~Device()
 	if(prng_code) {
 		delete prng_code;
 	}
+    if(matrix6x6Field_code) {
+        delete matrix6x6Field_code;
+    }
 	if(gaugefield_code) {
 		delete gaugefield_code;
 	}
@@ -336,6 +340,15 @@ hardware::ProfilingData hardware::Device::getProfilingData(const cl_kernel& kern
 	return profiling_data[kernel];
 }
 
+const hardware::code::matrix6x6Field * hardware::Device::getMatrix6x6FieldCode() const
+{
+    if(!matrix6x6Field_code) {
+        //todo: do not use release here. real_code itself should rather be a smart pointer
+        matrix6x6Field_code = openClCodeBuilder->getCode_matrix6x6Field(this).release();
+    }
+    return matrix6x6Field_code;
+}
+
 const hardware::code::Gaugefield * hardware::Device::getGaugefieldCode() const
 {
 	if(!gaugefield_code) {
@@ -503,6 +516,9 @@ void hardware::printProfiling(Device * device, const std::string& filename, int 
 	if(device->prng_code) {
 		device->prng_code->print_profiling(filename, id);
 	}
+    if(device->matrix6x6Field_code) {
+        device->matrix6x6Field_code->print_profiling(filename, id);
+    }
 	if(device->gaugefield_code) {
 		device->gaugefield_code->print_profiling(filename, id);
 	}
