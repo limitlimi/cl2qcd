@@ -34,6 +34,7 @@
 #include "../buffers/spinor.hpp"
 #include "../buffers/su3vec.hpp"
 #include "../buffers/gaugemomentum.hpp"
+//#include "../buffers/6x6.hpp"
 
 #include <string>
 #include <limits>

@@ -21,7 +21,7 @@
 
 #include "6x6.hpp"
 #include "../device.hpp"
-#include "../code/gaugefield.hpp"
+#include "../code/matrix6x6Field.hpp"
 
 #include <stdexcept>
 

@@ -23,7 +23,7 @@
 
 #include "../../host_functionality/logger.hpp"
 #include "../device.hpp"
-#include "../buffers/6x6.hpp"
+//#include "../buffers/6x6.hpp"
 #include "flopUtilities.hpp"
 #include "../../geometry/latticeGrid.hpp"
 
@@ -43,31 +43,46 @@ void hardware::code::matrix6x6Field::clear_kernels()
     Opencl_Module::print_profiling(filename, convertMatrix6x6FieldFromSOA);
 }*/
 
+void hardware::code::matrix6x6Field::get_work_sizes(const cl_kernel kernel, size_t * ls, size_t * gs, cl_uint * num_groups) const
+{
+	Opencl_Module::get_work_sizes(kernel, ls, gs, num_groups);
+}
+
+uint64_t hardware::code::matrix6x6Field::get_flop_size(const std::string& in) const
+{
+	return 0;
+}
+
+size_t hardware::code::matrix6x6Field::get_read_write_size(const std::string& in) const
+{
+	return 0;
+}
+
 void hardware::code::matrix6x6Field::importMatrix6x6Field(const hardware::buffers::matrix6x6 * matrix6x6Field, const Matrix6x6 * const data) const
 {
     using namespace hardware::buffers;
-    
+
     logger.trace() << "Import matrix6x6Field to get_device()";
     if(get_device()->get_prefers_soa()) {
-        Plain<Matrix6x6> tmp(matrix6x6->get_elements(), get_device());
+        Plain<Matrix6x6> tmp(matrix6x6Field->get_elements(), get_device());
         tmp.load(data);
-        convertGaugefieldToSOA_device(gaugefield, &tmp);
+        //convertGaugefieldToSOA_device(gaugefield, &tmp);
     } else {
-        matrix6x6->load(data);
+    	matrix6x6Field->load(data);
     }
 }
 
 void hardware::code::matrix6x6Field::exportMatrix6x6Field(Matrix6x6 * const dest, const hardware::buffers::matrix6x6 * matrix6x6Field) const
 {
     using namespace hardware::buffers;
-    
+
     logger.trace() << "Exporting matrix6x6Field from get_device()";
     if(get_device()->get_prefers_soa()) {
-        Plain<Matrix6x6> tmp(matrix6x6->get_elements(), get_device());
-        convertGaugefieldFromSOA_device(&tmp, gaugefield);
+        Plain<Matrix6x6> tmp(matrix6x6Field->get_elements(), get_device());
+        //convertGaugefieldFromSOA_device(&tmp, gaugefield);
         tmp.dump(dest);
     } else {
-        matrix6x6->dump(dest);
+    	matrix6x6Field->dump(dest);
     }
 }
 

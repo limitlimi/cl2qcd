@@ -26,6 +26,7 @@
 
 #include "../buffers/buffer.hpp"
 #include "gaugefield.hpp"
+#include "matrix6x6Field.hpp"
 
 namespace hardware {
 

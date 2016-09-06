@@ -21,7 +21,7 @@
 #define _HARDWARE_CODE_MATRIX6X6FIELD_
 
 #include "opencl_module.hpp"
-#inlcude "../buffers/6x6.cpp"
+#include "../lattices/matrix6x6.hpp"
 #include "../buffers/plain.hpp"
 
 namespace hardware {
@@ -37,13 +37,15 @@ namespace code {
 * @todo Everything is public to faciliate inheritance. Actually, more parts should be private.
 */
     
-class matrix6x6Field : public OpenCL_Module {
+class matrix6x6Field : public Opencl_Module {
    
 public:
     friend hardware::Device;
     
-    virtual ~matrix6x6Field
+    virtual ~matrix6x6Field();
     
+    matrix6x6Field(const hardware::code::OpenClKernelParametersInterface& kernelParameters, const hardware::Device * device);
+
     /**
      * Import the matrix6x6Field data into the OpenCL buffer using the device
      * specific storage format.
@@ -64,6 +66,33 @@ public:
      */
     void exportMatrix6x6Field(Matrix6x6 * const dest, const hardware::buffers::matrix6x6 * matrix6x6Field) const;
     
+protected:
+	/**
+	 * comutes work-sizes for a kernel
+	 * @todo autotune
+	 * @param ls local-work-size
+	 * @param gs global-work-size
+	 * @param num_groups number of work groups
+	 * @param dev_type type of device on which the kernel should be executed
+	 * @param name name of the kernel for possible autotune-usage, not yet used!!
+	 */
+	virtual void get_work_sizes(const cl_kernel kernel, size_t * ls, size_t * gs, cl_uint * num_groups) const override;
+
+	/**
+	 * Return amount of Floating point operations performed by a specific kernel per call.
+	 * NOTE: this is meant to be the "netto" amount in order to be comparable.
+	 *
+	 * @param in Name of the kernel under consideration.
+	 */
+	virtual uint64_t get_flop_size(const std::string& in) const override;
+
+	/**
+	 * Return amount of bytes read and written by a specific kernel per call.
+	 *
+	 * @param in Name of the kernel under consideration.
+	 */
+	virtual size_t get_read_write_size(const std::string& in) const override;
+
 private:
     //cl_kernel convertMatrix6x6FieldToSOA;
     //cl_kernel convertMatrix6x6FieldFromSOA;

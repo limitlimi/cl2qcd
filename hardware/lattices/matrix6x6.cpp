@@ -21,6 +21,7 @@
 #include "../../host_functionality/logger.hpp"
 #include "../device.hpp"
 #include "../buffers/halo_update.hpp"
+#include "../code/matrix6x6Field.hpp"
 #include "../../geometry/parallelization.hpp"
 
 hardware::lattices::Matrix6x6Field::Matrix6x6Field(const hardware::System& system):
@@ -72,7 +73,7 @@ void hardware::lattices::Matrix6x6Field::send_matrix6x6_to_buffers(const Matrix6
         auto device = buffer->get_device();
         TemporalParallelizationHandlerLink tmp2(device->getGridPos(), device->getLocalLatticeExtents(), sizeof(Matrix6x6), device->getHaloExtent());
         
-        if(buffers.size() == 1) device->getMatrix6x6FieldCode()->importMatrix6x6Field(gf_host, buffers[0]);
+        if(buffers.size() == 1) device->getMatrix6x6FieldCode()->importMatrix6x6Field(buffer, gf_host);
         else{
             Matrix6x6 * mem_host = new Matrix6x6[buffer->get_elements()];
             //				//todo: put these calls into own fct.! With smart pointers?
@@ -80,7 +81,7 @@ void hardware::lattices::Matrix6x6Field::send_matrix6x6_to_buffers(const Matrix6
             memcpy(&mem_host[tmp2.getFirstHaloIndex_destination()] , &gf_host[tmp2.getFirstHaloPartIndex_source()] , tmp2.getHaloPartSizeInBytes());
             memcpy(&mem_host[tmp2.getSecondHaloIndex_destination()], &gf_host[tmp2.getSecondHaloPartIndex_source()], tmp2.getHaloPartSizeInBytes());
             
-            device->getMatrix6x6FieldCode()->importMatrix6x6Field(gf_host, buffers[0]);
+            device->getMatrix6x6FieldCode()->importMatrix6x6Field(buffer, mem_host);
             delete[] mem_host;
         }
         device->synchronize();

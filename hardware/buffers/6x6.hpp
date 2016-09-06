@@ -19,6 +19,7 @@
  * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once //TODO: understand why a redefinition of the class occurs in case #pragma once is not there!
 #ifndef _HARDWARE_BUFFERS_6X6_
 #define _HARDWARE_BUFFERS_6x6_
 

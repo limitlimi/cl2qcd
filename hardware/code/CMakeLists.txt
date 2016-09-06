@@ -39,6 +39,7 @@ add_library(code
 		gaugemomentum.cpp
 		molecular_dynamics.cpp
 		buffer.cpp
+		matrix6x6Field.cpp
 )
 
 target_link_libraries(code
