@@ -23,9 +23,13 @@
 
 generationExecutable::generationExecutable(int argc, const char* argv[], std::string parameterSet) : generalExecutable(argc, argv, parameterSet)
 {
+	logger.debug() << "In generationExecutable constructor ...";
 	initializationTimer.reset();
+	logger.debug() << "Trying to initialize gaugefield ...";
 	gaugefield = new physics::lattices::Gaugefield(*system, &(interfacesHandler->getInterface<physics::lattices::Gaugefield>()), *prng);
+	logger.debug() << "Initialized gaugefield ...";
 	initializationTimer.add();
+	logger.debug() << "At the end of generationExecutable constructor ...";
 }
 
 void generationExecutable::setIterationParameters()

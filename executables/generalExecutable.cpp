@@ -76,6 +76,7 @@ generalExecutable::generalExecutable(int argc, const char* argv[], std::string p
 	interfacesHandler = std::unique_ptr<physics::InterfacesHandler>(new physics::InterfacesHandlerImplementation{parameters});
 	initializationTimer.add();
 }
+
 generalExecutable::~generalExecutable()
 {
     totalRuntimeOfExecutable.add();

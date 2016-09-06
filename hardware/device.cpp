@@ -338,10 +338,13 @@ hardware::ProfilingData hardware::Device::getProfilingData(const cl_kernel& kern
 
 const hardware::code::Gaugefield * hardware::Device::getGaugefieldCode() const
 {
+	logger.debug() << "In function getGaugefieldCode() ...";
 	if(!gaugefield_code) {
+		logger.debug() << "Entered if(!gaugefield_code){...} ...";
 		//todo: do not use release here. real_code itself should rather be a smart pointer
 		gaugefield_code = openClCodeBuilder->getCode_gaugefield(this).release();
 	}
+	logger.debug() << "Trying to return gaugefield_code ...";
 	return gaugefield_code;
 }
 

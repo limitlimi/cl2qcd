@@ -29,7 +29,7 @@
 int main(int argc, const char* argv[])
 {
 	try {
-	  std::pair<int,std::vector<const char*>> new_argc_argv = meta::addOptionsToArgv(argc, argv, {"--fermact=rooted_stagg"});
+	  std::pair<int,std::vector<const char*>> new_argc_argv = meta::addOptionsToArgv(argc, argv, {"--fermact=wilson"});
 	  rhmcExecutable rhmcInstance(new_argc_argv.first, &(new_argc_argv.second[0]));
 	  rhmcInstance.generateConfigurations();
 	} //try
