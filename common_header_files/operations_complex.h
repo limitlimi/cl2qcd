@@ -21,6 +21,8 @@
 #ifndef OPERATIONS_COMPLEX
 #define OPERATIONS_COMPLEX
 
+//#include "cmath"
+
 inline hmc_complex complexconj(hmc_complex in)
 {
 	in.im = -(in.im);
@@ -58,6 +60,19 @@ inline hmc_complex complexdivide(const hmc_complex numerator, const hmc_complex 
 	res.re = (numerator.re * denominator.re + numerator.im * denominator.im ) / norm;
 	res.im = (numerator.im * denominator.re - numerator.re * denominator.im ) / norm;
 	return res;
+}
+
+inline hmc_float complexabssquared(const hmc_complex in)
+{
+	hmc_float out = in.re * in.re + in.im * in.im;
+	return out;
+}
+
+inline hmc_complex convertfloattocomplex(const hmc_float in)
+{
+	hmc_complex out;
+	out.re = in; out.im = 0;
+	return out;
 }
 
 #ifdef _INKERNEL_
