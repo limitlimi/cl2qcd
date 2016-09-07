@@ -142,100 +142,116 @@ halfspinor matrix6x6_times_halfspinor(Matrix6x6 u, halfspinor in)
 }
 
 
-void put_3x3block_matrix6x6_upperleft(Matrix6x6 inout, Matrix3x3 p)
+Matrix6x6 put_3x3block_matrix6x6_upperleft(Matrix6x6 in, Matrix3x3 p)
 {
-    inout.e00.re = p.e00.re;
-    inout.e00.im = p.e00.im;
-    inout.e01.re = p.e01.re;
-    inout.e01.im = p.e01.im;
-    inout.e02.re = p.e02.re;
-    inout.e02.im = p.e02.im;
+	Matrix6x6 out = in;
+	
+    out.e00.re = p.e00.re;
+    out.e00.im = p.e00.im;
+    out.e01.re = p.e01.re;
+    out.e01.im = p.e01.im;
+    out.e02.re = p.e02.re;
+    out.e02.im = p.e02.im;
     
-    inout.e10.re = p.e10.re;
-    inout.e10.im = p.e10.im;
-    inout.e11.re = p.e11.re;
-    inout.e11.im = p.e11.im;
-    inout.e12.re = p.e12.re;
-    inout.e12.im = p.e12.im;
+    out.e10.re = p.e10.re;
+    out.e10.im = p.e10.im;
+    out.e11.re = p.e11.re;
+    out.e11.im = p.e11.im;
+    out.e12.re = p.e12.re;
+    out.e12.im = p.e12.im;
     
-    inout.e20.re = p.e20.re;
-    inout.e20.im = p.e20.im;
-    inout.e21.re = p.e21.re;
-    inout.e21.im = p.e21.im;
-    inout.e22.re = p.e22.re;
-    inout.e22.im = p.e22.im;
+    out.e20.re = p.e20.re;
+    out.e20.im = p.e20.im;
+    out.e21.re = p.e21.re;
+    out.e21.im = p.e21.im;
+    out.e22.re = p.e22.re;
+    out.e22.im = p.e22.im;
+    
+    return out;
 }
 
-void put_3x3block_matrix6x6_upperright(Matrix6x6 inout, Matrix3x3 p)
+Matrix6x6 put_3x3block_matrix6x6_upperright(Matrix6x6 in, Matrix3x3 p)
 {
-    inout.e03.re = p.e00.re;
-    inout.e03.im = p.e00.im;
-    inout.e04.re = p.e01.re;
-    inout.e04.im = p.e01.im;
-    inout.e05.re = p.e02.re;
-    inout.e05.im = p.e02.im;
+	Matrix6x6 out = in;
+
+    out.e03.re = p.e00.re;
+    out.e03.im = p.e00.im;
+    out.e04.re = p.e01.re;
+    out.e04.im = p.e01.im;
+    out.e05.re = p.e02.re;
+    out.e05.im = p.e02.im;
     
-    inout.e13.re = p.e10.re;
-    inout.e13.im = p.e10.im;
-    inout.e14.re = p.e11.re;
-    inout.e14.im = p.e11.im;
-    inout.e15.re = p.e12.re;
-    inout.e15.im = p.e12.im;
+    out.e13.re = p.e10.re;
+    out.e13.im = p.e10.im;
+    out.e14.re = p.e11.re;
+    out.e14.im = p.e11.im;
+    out.e15.re = p.e12.re;
+    out.e15.im = p.e12.im;
     
-    inout.e23.re = p.e20.re;
-    inout.e23.im = p.e20.im;
-    inout.e24.re = p.e21.re;
-    inout.e24.im = p.e21.im;
-    inout.e25.re = p.e22.re;
-    inout.e25.im = p.e22.im;
+    out.e23.re = p.e20.re;
+    out.e23.im = p.e20.im;
+    out.e24.re = p.e21.re;
+    out.e24.im = p.e21.im;
+    out.e25.re = p.e22.re;
+    out.e25.im = p.e22.im;
+    
+    return out;
 }
 
-void put_3x3block_matrix6x6_lowerleft(Matrix6x6 inout, Matrix3x3 p)
+Matrix6x6 put_3x3block_matrix6x6_lowerleft(Matrix6x6 in, Matrix3x3 p)
 {
-    inout.e30.re = p.e00.re;
-    inout.e30.im = p.e00.im;
-    inout.e31.re = p.e01.re;
-    inout.e31.im = p.e01.im;
-    inout.e32.re = p.e02.re;
-    inout.e32.im = p.e02.im;
+	Matrix6x6 out = in; 
+	
+    out.e30.re = p.e00.re;
+    out.e30.im = p.e00.im;
+    out.e31.re = p.e01.re;
+    out.e31.im = p.e01.im;
+    out.e32.re = p.e02.re;
+    out.e32.im = p.e02.im;
     
-    inout.e40.re = p.e10.re;
-    inout.e40.im = p.e10.im;
-    inout.e41.re = p.e11.re;
-    inout.e41.im = p.e11.im;
-    inout.e42.re = p.e12.re;
-    inout.e42.im = p.e12.im;
+    out.e40.re = p.e10.re;
+    out.e40.im = p.e10.im;
+    out.e41.re = p.e11.re;
+    out.e41.im = p.e11.im;
+    out.e42.re = p.e12.re;
+    out.e42.im = p.e12.im;
     
-    inout.e50.re = p.e20.re;
-    inout.e50.im = p.e20.im;
-    inout.e51.re = p.e21.re;
-    inout.e51.im = p.e21.im;
-    inout.e52.re = p.e22.re;
-    inout.e52.im = p.e22.im;
+    out.e50.re = p.e20.re;
+    out.e50.im = p.e20.im;
+    out.e51.re = p.e21.re;
+    out.e51.im = p.e21.im;
+    out.e52.re = p.e22.re;
+    out.e52.im = p.e22.im;
+    
+    return out;
 }
 
-void put_3x3block_matrix6x6_lowerright(Matrix6x6 inout, Matrix3x3 p)
+Matrix6x6 put_3x3block_matrix6x6_lowerright(Matrix6x6 in, Matrix3x3 p)
 {
-    inout.e33.re = p.e00.re;
-    inout.e33.im = p.e00.im;
-    inout.e34.re = p.e01.re;
-    inout.e34.im = p.e01.im;
-    inout.e35.re = p.e02.re;
-    inout.e35.im = p.e02.im;
+	Matrix6x6 out = in;
+	
+    out.e33.re = p.e00.re;
+    out.e33.im = p.e00.im;
+    out.e34.re = p.e01.re;
+    out.e34.im = p.e01.im;
+    out.e35.re = p.e02.re;
+    out.e35.im = p.e02.im;
     
-    inout.e43.re = p.e10.re;
-    inout.e43.im = p.e10.im;
-    inout.e44.re = p.e11.re;
-    inout.e44.im = p.e11.im;
-    inout.e45.re = p.e12.re;
-    inout.e45.im = p.e12.im;
+    out.e43.re = p.e10.re;
+    out.e43.im = p.e10.im;
+    out.e44.re = p.e11.re;
+    out.e44.im = p.e11.im;
+    out.e45.re = p.e12.re;
+    out.e45.im = p.e12.im;
     
-    inout.e53.re = p.e20.re;
-    inout.e53.im = p.e20.im;
-    inout.e54.re = p.e21.re;
-    inout.e54.im = p.e21.im;
-    inout.e55.re = p.e22.re;
-    inout.e55.im = p.e22.im;
+    out.e53.re = p.e20.re;
+    out.e53.im = p.e20.im;
+    out.e54.re = p.e21.re;
+    out.e54.im = p.e21.im;
+    out.e55.re = p.e22.re;
+    out.e55.im = p.e22.im;
+    
+    return out;
 }
 
 inline Matrix6x6 zero_matrix6x6 ()
