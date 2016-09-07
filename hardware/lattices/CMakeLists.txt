@@ -28,7 +28,7 @@ add_library(hardware_lattices
 	spinorfield.cpp
 	spinorfield_eo.cpp
 	staggeredfield_eo.cpp
-	matrix6x6.cpp
+	matrix6x6Field.cpp
 )
 
 target_link_libraries(hardware_lattices

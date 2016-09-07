@@ -21,7 +21,7 @@
 #define _HARDWARE_CODE_MATRIX6X6FIELD_
 
 #include "opencl_module.hpp"
-#include "../lattices/matrix6x6.hpp"
+#include "../lattices/matrix6x6Field.hpp"
 #include "../buffers/plain.hpp"
 
 namespace hardware {
