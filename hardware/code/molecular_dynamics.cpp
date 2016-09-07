@@ -558,6 +558,114 @@ void hardware::code::Molecular_Dynamics::fermion_force_eo_device(const hardware:
 	}
 }
 
+void hardware::code::Molecular_Dynamics::fermion_force_clover1_eo_device(const hardware::buffers::Spinor * Y, const hardware::buffers::Spinor * X, const hardware::buffers::Spinor * Y1, const hardware::buffers::Spinor * X1, const hardware::buffers::SU3 * gf, const hardware::buffers::Gaugemomentum * out, int evenodd, hmc_float kappa, hmc_float csw) const
+{
+    using namespace hardware::buffers;
+    //get kappa
+    hmc_float kappa_tmp;
+    if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
+    else kappa_tmp = kappa;
+
+    //get csw
+    hmc_float csw_tmp;
+    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
+    else csw_tmp = csw;
+
+    auto run_kernel = [&](cl_kernel kernel) {
+        //query work-sizes for kernel
+        size_t ls2, gs2;
+        cl_uint num_groups;
+        this->get_work_sizes(kernel, &ls2, &gs2, &num_groups);
+        //set arguments
+        int clerr = clSetKernelArg(kernel, 0, sizeof(cl_mem), gf->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 1, sizeof(cl_mem), X->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 2, sizeof(cl_mem), X1->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 3, sizeof(cl_mem), Y->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 4, sizeof(cl_mem), Y1->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 5, sizeof(cl_mem), out->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 6, sizeof(int), &evenodd);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 7, sizeof(hmc_float), &kappa_tmp);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 8, sizeof(hmc_float), &csw_tmp);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        get_device()->enqueue_kernel( kernel , gs2, ls2);
+    };
+
+    run_kernel(fermion_force_clover1_eo_0);
+    run_kernel(fermion_force_clover1_eo_1);
+    run_kernel(fermion_force_clover1_eo_2);
+    run_kernel(fermion_force_clover1_eo_3);
+
+}
+
+void hardware::code::Molecular_Dynamics::fermion_force_clover2_eo_device(const hardware::buffers::SU3 * gf, const hardware::buffers::matrix6x6 * C, const hardware::buffers::matrix6x6 * D, const hardware::buffers::Gaugemomentum * out, int evenodd, hmc_float kappa, hmc_float csw) const
+{
+    using namespace hardware::buffers;
+
+    //get kappa
+    hmc_float kappa_tmp;
+    if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
+    else kappa_tmp = kappa;
+
+    //get csw
+    hmc_float csw_tmp;
+    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
+    else csw_tmp = csw;
+
+
+    auto run_kernel = [&](cl_kernel kernel) {
+        //query work-sizes for kernel
+        size_t ls2, gs2;
+        cl_uint num_groups;
+        this->get_work_sizes(kernel, &ls2, &gs2, &num_groups);
+        //set arguments
+        int clerr = clSetKernelArg(kernel, 0, sizeof(cl_mem), gf->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 1, sizeof(cl_mem), C->get_cl_buffer());//Matrix6x6 C
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 2, sizeof(cl_mem), D->get_cl_buffer());//Matrix6x6 D
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 3, sizeof(cl_mem), out->get_cl_buffer());
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 4, sizeof(int), &evenodd);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 5, sizeof(hmc_float), &kappa_tmp);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        clerr = clSetKernelArg(kernel, 6, sizeof(hmc_float), &csw_tmp);
+        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+        get_device()->enqueue_kernel( kernel , gs2, ls2);
+    };
+
+    run_kernel(fermion_force_clover2_eo_0);
+    run_kernel(fermion_force_clover2_eo_1);
+    run_kernel(fermion_force_clover2_eo_2);
+    run_kernel(fermion_force_clover2_eo_3);
+
+}
+
 void hardware::code::Molecular_Dynamics::fermion_staggered_partial_force_device(const hardware::buffers::SU3 * gf, const hardware::buffers::SU3vec * A, const hardware::buffers::SU3vec * B, const hardware::buffers::Gaugemomentum * out, int evenodd) const
 {
 	using namespace hardware::buffers;
