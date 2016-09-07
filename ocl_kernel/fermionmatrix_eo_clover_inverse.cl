@@ -197,27 +197,27 @@ void clover_eo_inverse_explizit_lower_right_for_site(__global const Matrix6x6Sto
     out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
     
     put6x6(out, get_site_idx(pos), out_tmp);
-}
+}*/
 
 __kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
 {
-    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
+    /*PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_st_idx_from_site_idx(id_local);
         clover_eo_inverse_explizit_upper_left_for_site(in, out, field, kappa_in, csw, pos);
     }
-}
+*/}
 
 __kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{
+{/*
     PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_st_idx_from_site_idx(id_local);
         clover_eo_inverse_explizit_lower_right_for_site(in, out, field, kappa_in, csw, pos);
     }
-}
+*/}
 
 
 //clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
-void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+/*void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
     spinor out_tmp, phi;
     site_idx pos_eo = get_eo_site_idx_from_st_idx(pos);

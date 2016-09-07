@@ -212,7 +212,7 @@ void hardware::code::Fermions::clover_eo_device(const hardware::buffers::Spinor 
     //query work-sizes for kernel
     size_t ls2, gs2;
     cl_uint num_groups;
-    this->get_work_sizes(M_wilson, &ls2, &gs2, &num_groups);
+    this->get_work_sizes(clover_eo, &ls2, &gs2, &num_groups);
     //set arguments
     int clerr = clSetKernelArg(clover_eo, 0, sizeof(cl_mem), in->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
@@ -250,7 +250,7 @@ void hardware::code::Fermions::clover_eo_inverse_device(const hardware::buffers:
     //query work-sizes for kernel
     size_t ls2, gs2;
     cl_uint num_groups;
-    this->get_work_sizes(M_wilson, &ls2, &gs2, &num_groups);
+    this->get_work_sizes(clover_eo_inverse, &ls2, &gs2, &num_groups);
     //set arguments
     int clerr = clSetKernelArg(clover_eo_inverse, 0, sizeof(cl_mem), in->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
