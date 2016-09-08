@@ -588,22 +588,34 @@ void meta::print_info_rhmc(const Inputparameters& params)
 	logger.info() << "##  ";
 	logger.info() << "## Rational Approximations info:";
 	logger.info() << "##   - Generation of phi:";
-	logger.info() << "##       + x^(+" << params.get_num_tastes() << "/8)";
+	if(params.get_fermact() == common::action::rooted_stagg)
+		logger.info() << "##       + x^(+" << params.get_num_tastes() << "/8)";
+	else if(params.get_fermact() == common::action::wilson)
+		logger.info() << "##       + x^(+" << params.get_num_tastes() << "/4)";
 	logger.info() << "##       + order = " << params.get_metro_approx_ord();
 	logger.info() << "##       + range = [" << params.get_approx_lower() << " , "
 	              << params.get_approx_upper() << "]";
 	logger.info() << "##   - Molecular Dynamics:";
-	logger.info() << "##       + x^(-" << params.get_num_tastes() << "/4)";
+	if(params.get_fermact() == common::action::rooted_stagg)
+		logger.info() << "##       + x^(-" << params.get_num_tastes() << "/4)";
+	else if(params.get_fermact() == common::action::wilson)
+		logger.info() << "##       + x^(-" << params.get_num_tastes() << "/2)";
 	logger.info() << "##       + order = " << params.get_md_approx_ord();
 	logger.info() << "##       + range = [" << params.get_approx_lower() << " , "
 	              << params.get_approx_upper() << "]";
 	logger.info() << "##   - Evaluation of new action in Metropolis test:";
-	logger.info() << "##       + x^(-" << params.get_num_tastes() << "/4)";
+	if(params.get_fermact() == common::action::rooted_stagg)
+		logger.info() << "##       + x^(-" << params.get_num_tastes() << "/4)";
+	else if(params.get_fermact() == common::action::wilson)
+		logger.info() << "##       + x^(-" << params.get_num_tastes() << "/2)";
 	logger.info() << "##       + order = " << params.get_metro_approx_ord();
 	logger.info() << "##       + range = [" << params.get_approx_lower() << " , "
 	              << params.get_approx_upper() << "]";
 	logger.info() << "##  ";
-	logger.info() << "## Strategy for finding max and min MdagM eigenvalue: " << (params.get_conservative() ? "conservative" : "NOT conservative");
+	if(params.get_fermact() == common::action::rooted_stagg)
+		logger.info() << "## Strategy for finding max and min MdagM eigenvalue: " << (params.get_conservative() ? "conservative" : "NOT conservative");
+	else if(params.get_fermact() == common::action::wilson)
+		logger.info() << "## Strategy for finding max and min QplusQminus eigenvalue: " << (params.get_conservative() ? "conservative" : "NOT conservative");
 	logger.info() << "##  ";
 	logger.info() << "## Simulation info:";
 	logger.info() << "##   - RHMC steps  = " << params.get_rhmcsteps();
