@@ -32,6 +32,8 @@
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
 #include "../../host_functionality/logger.hpp"
 #include "../../meta/type_ops.hpp"
+#include "../fermionmatrix/fermionmatrix_stagg.hpp"
+#include "./gaugefield.hpp"
 #include <cmath>
 
 

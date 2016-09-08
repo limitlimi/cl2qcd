@@ -24,6 +24,10 @@
 #include "../../interfaceImplementations/interfacesHandler.hpp"
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
+#include "../../hardware/system.hpp"
+#include "../prng.hpp"
+#include "../fermionmatrix/fermionmatrix_stagg.hpp"
+#include "../lattices/gaugefield.hpp"
 
 // use the boost test framework
 #define BOOST_TEST_DYN_LINK
