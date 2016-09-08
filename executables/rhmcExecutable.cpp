@@ -26,7 +26,6 @@ static int getRationalApproximationDenominator(std::string whichRationalApproxim
 rhmcExecutable::rhmcExecutable(int argc, const char* argv[]) :  generationExecutable(argc, argv, "rhmc")
 {
     using namespace physics::algorithms;
-    logger.debug() << "In rhmcExecutable constructor";
     checkRhmcParameters(parameters);
     initializationTimer.reset();
     printParametersToScreenAndFile();
