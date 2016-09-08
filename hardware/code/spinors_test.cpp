@@ -419,7 +419,6 @@ struct ScalarProductRealTester: public NonEvenOddLinearCombinationTester
 
 		kernelResult.at(0) = resultTmp;
 		kernelResult.at(1) = 0;
-		referenceValues.at(1) = 0;
 	}
 };
 
@@ -488,7 +487,7 @@ struct SaxRealVecTester: public NonEvenOddLinearCombinationTesterWithSquarenormA
 		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("sax_real_vec", parameterCollection, testParameters, calculateReferenceValues_sax)
 		{
 			hardware::buffers::Plain<hmc_float> alpha_real_vec(5, device);
-			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.coefficients.at(0).re);
+			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.complexCoefficients.at(0).re);
 			const int index_alpha = 3;
 			alpha_real_vec.load(&alpha_host_real_vec[0]);
 			code->sax_device(spinorfields.at(0), &alpha_real_vec, index_alpha, getOutSpinor());
@@ -519,7 +518,7 @@ struct SaxpyRealTester: public NonEvenOddLinearCombinationTesterWithSquarenormAs
 		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_real", parameterCollection, testParameters, calculateReferenceValues_saxpy_real)
 		{
 			hardware::buffers::Plain<hmc_float> alpha_real_vec(1, device);
-			std::vector<hmc_float> alpha_host_real_vec(1, testParameters.coefficients.at(0).re);
+			std::vector<hmc_float> alpha_host_real_vec(1, testParameters.complexCoefficients.at(0).re);
 			alpha_real_vec.load(&alpha_host_real_vec[0]);
 			code->saxpy_device(spinorfields.at(0), spinorfields.at(1), &alpha_real_vec, getOutSpinor());
 		}
@@ -530,7 +529,7 @@ struct SaxpyRealArgTester: public NonEvenOddLinearCombinationTesterWithSquarenor
 	SaxpyRealArgTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
 		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_real_arg", parameterCollection, testParameters, calculateReferenceValues_saxpy_real)
 		{
-			code->saxpy_device(spinorfields.at(0), spinorfields.at(1), testParameters.coefficients.at(0).re, getOutSpinor());
+			code->saxpy_device(spinorfields.at(0), spinorfields.at(1), testParameters.complexCoefficients.at(0).re, getOutSpinor());
 		}
 };
 
@@ -540,7 +539,7 @@ struct SaxpyRealVecTester: public NonEvenOddLinearCombinationTesterWithSquarenor
 		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_real_vec", parameterCollection, testParameters, calculateReferenceValues_saxpy_real)
 		{
 			hardware::buffers::Plain<hmc_float> alpha_real_vec(5, device);
-			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.coefficients.at(0).re);
+			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.complexCoefficients.at(0).re);
 			const int index_alpha = 3;
 			alpha_real_vec.load(&alpha_host_real_vec[0]);
 			code->saxpy_device(spinorfields.at(0), spinorfields.at(1), &alpha_real_vec, index_alpha, getOutSpinor());
@@ -563,10 +562,10 @@ struct SaxpbyRealVecNonEvenOddTester: public NonEvenOddLinearCombinationTesterWi
 		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpby_real_vec", parameterCollection, testParameters, calculateReferenceValue_saxpby)
 		{
 			hardware::buffers::Plain<hmc_float> alpha_real_vec(5, device);
-			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.coefficients.at(0).re);
+			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.complexCoefficients.at(0).re);
 			const int index_alpha = 3;
 			hardware::buffers::Plain<hmc_float> beta_real_vec(5, device);
-			std::vector<hmc_float> beta_host_real_vec(5, testParameters.coefficients.at(1).re);
+			std::vector<hmc_float> beta_host_real_vec(5, testParameters.complexCoefficients.at(1).re);
 			const int index_beta = 2;
 			alpha_real_vec.load(&alpha_host_real_vec[0]);
 			beta_real_vec.load(&beta_host_real_vec[0]);
@@ -579,7 +578,7 @@ struct SaxpbyArgComplexTester: public NonEvenOddLinearCombinationTesterWithSquar
 	SaxpbyArgComplexTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
 		NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpby_cplx_arg", parameterCollection, testParameters, calculateReferenceValue_saxpby)
 		{
-		    code->saxpby_device(spinorfields.at(0), spinorfields.at(1), testParameters.coefficients.at(0), testParameters.coefficients.at(1), getOutSpinor());
+		    code->saxpby_device(spinorfields.at(0), spinorfields.at(1), testParameters.complexCoefficients.at(0), testParameters.complexCoefficients.at(1), getOutSpinor());
 		}
 };
 

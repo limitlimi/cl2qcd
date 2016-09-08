@@ -468,7 +468,6 @@ struct ScalarProductEvenOddRealTester: public EvenOddLinearCombinationTester
 			sqnorm.dump(&resultTmp);
 			kernelResult.at(0) = resultTmp;
 			kernelResult.at(1) = 0;
-			referenceValues.at(1) = 0;
 		}
 };
 
