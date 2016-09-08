@@ -41,19 +41,36 @@ rhmcExecutable::rhmcExecutable(int argc, const char* argv[]) :  generationExecut
         //global in parametersRhmc, if not I throw an exception to avoid discrepancies
         //between the parameters used (those in parametersRhmc) and those that the user
         //maybe would like to use (read TODO in parametersRhmc.hpp file for further info)
-        if(approx_hb->Get_order() != parameters.get_metro_approx_ord() ||
-           approx_md->Get_order() != parameters.get_md_approx_ord() ||
-           approx_met->Get_order() != parameters.get_metro_approx_ord() ||
-           approx_hb->Get_exponent()*8 != parameters.get_num_tastes() ||
-           approx_md->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
-           approx_met->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
-           approx_hb->Get_lower_bound() != parameters.get_approx_lower() ||
-           approx_md->Get_lower_bound() != parameters.get_approx_lower() ||
-           approx_met->Get_lower_bound() != parameters.get_approx_lower() ||
-           approx_hb->Get_upper_bound() != parameters.get_approx_upper() ||
-           approx_md->Get_upper_bound() != parameters.get_approx_upper() ||
-           approx_met->Get_upper_bound() != parameters.get_approx_upper()){
-            throw Print_Error_Message("The parameters of at least one Rational Approximation read from file are not coherent with those given as input!");
+        if(parameters.get_fermact() == common::action::wilson){
+        	if(approx_hb->Get_order() != parameters.get_metro_approx_ord() ||
+        			approx_md->Get_order() != parameters.get_md_approx_ord() ||
+					approx_met->Get_order() != parameters.get_metro_approx_ord() ||
+					approx_hb->Get_exponent()*4 != parameters.get_num_tastes() ||
+					approx_md->Get_exponent()*2*(-1) != parameters.get_num_tastes() ||
+					approx_met->Get_exponent()*2*(-1) != parameters.get_num_tastes() ||
+					approx_hb->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_md->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_met->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_hb->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_md->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_met->Get_upper_bound() != parameters.get_approx_upper()){
+        		throw Print_Error_Message("The parameters of at least one Rational Approximation read from file are not coherent with those given as input!");
+        	}
+        }else if(parameters.get_fermact() == common::action::rooted_stagg){
+        	if(approx_hb->Get_order() != parameters.get_metro_approx_ord() ||
+        			approx_md->Get_order() != parameters.get_md_approx_ord() ||
+					approx_met->Get_order() != parameters.get_metro_approx_ord() ||
+					approx_hb->Get_exponent()*8 != parameters.get_num_tastes() ||
+					approx_md->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
+					approx_met->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
+					approx_hb->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_md->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_met->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_hb->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_md->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_met->Get_upper_bound() != parameters.get_approx_upper()){
+        		throw Print_Error_Message("The parameters of at least one Rational Approximation read from file are not coherent with those given as input!");
+        	}
         }
     }else{
         logger.info() << "Generation of Rational Approximations...";
@@ -185,7 +202,7 @@ void rhmcExecutable::checkRhmcParameters(const meta::Inputparameters& p)
     if(!p.get_use_eo() && (p.get_fermact() == common::action::rooted_stagg)) // distinguish between wilson and staggered
         throw Invalid_Parameters("Staggered RHMC available only WITH eo-prec!", "use_eo=1", p.get_use_eo());
     if(p.get_use_eo() && (p.get_fermact() == common::action::wilson)) // distinguish between wilson and staggered
-            throw Invalid_Parameters("Wilson RHMC available only WITHOUT eo-prec!", "use_eo=1", p.get_use_eo());
+            throw Invalid_Parameters("Wilson RHMC available only WITHOUT eo-prec!", "use_eo=0", p.get_use_eo());
     //TODO: Check if mass preconditioning can be used with the Wilson Rhmc. If yes, then do a distinction between staggerend and wilson here.
     if(p.get_use_mp())
         throw Invalid_Parameters("RHMC available only WITHOUT mass preconditionig!", "use_mp=0", p.get_use_mp());
