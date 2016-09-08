@@ -4,21 +4,14 @@
 
 //matrixsu3 which is given by i * Trace_Dirac[gamma_5*sigma_{mu,nu} Y*X^dagger + gamma_5*sigma_{mu,nu} X*Y^dagger]
 //cf. equation (22) in Jansen Liu Paper
-Matrixsu3 square(__global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, const site_idx pos_square, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 square(__global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const site_idx pos_square, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 out;
     Matrix3x3 tmp1, tmp2;
     spinor x, y;
-    if(evenodd == ODD) {
-        x = getSpinor_eo(X, pos_square);
-        y = getSpinor_eo(Y, pos_square);
-    }
-    else if(evenodd == EVEN) {
-        //pos_odd = get_odd_st_idx(pos_square);//??????
-        //x_even/y_even = -(1+T_ee)^{-1} M_eo x_odd/y_odd
-        x = getSpinor_eo(X1, pos_square);
-        y = getSpinor_eo(Y1, pos_square);
-    }
+    x = getSpinor_eo(X, pos_square);
+    y = getSpinor_eo(Y, pos_square);
+    
     //calculate gamma_5 * simga_{mu,nu} * x
     x = gamma5_local(x);
     x = sigma_mu_nu_times_spinor(x, dir1, dir2);
@@ -34,7 +27,7 @@ Matrixsu3 square(__global const spinorStorageType * const restrict X, __global c
 }
 
 //input eo spinor X and Y where one is multiplied by gamma_5*sigma_{dir1,dir2}, Faktor i??
-Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -72,7 +65,7 @@ Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict fiel
     // square(x+nu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
     idx_neigh_eo = get_eo_site_idx_from_st_idx(idx_neigh);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_neigh_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_neigh_eo, dir1, dir2, evenodd));
     
     // U_nu(x)^dagger
     U = getSU3(field, get_link_idx(dir2, idx_arg));
@@ -89,7 +82,7 @@ Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram1a_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1a_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -128,7 +121,7 @@ Matrixsu3 diagram1a_down(__global const Matrixsu3StorageType * const restrict fi
     // square(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     idx_neigh_eo = get_eo_site_idx_from_st_idx(idx_neigh);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_neigh_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_neigh_eo, dir1, dir2, evenodd));
     
     // U_nu(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
@@ -149,7 +142,7 @@ Matrixsu3 diagram1a_down(__global const Matrixsu3StorageType * const restrict fi
 }
 
 
-Matrixsu3 diagram1b_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1b_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -199,11 +192,11 @@ Matrixsu3 diagram1b_up(__global const Matrixsu3StorageType * const restrict fiel
     
     // square(x)
     site_idx idx_arg_eo = get_eo_site_idx_from_st_idx(idx_arg);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_arg_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_arg_eo, dir1, dir2, evenodd));
     return out;
 }
 
-Matrixsu3 diagram1b_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1b_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -255,14 +248,14 @@ Matrixsu3 diagram1b_down(__global const Matrixsu3StorageType * const restrict fi
     
     // square(x)
     site_idx idx_arg_eo = get_eo_site_idx_from_st_idx(idx_arg);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_arg_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_arg_eo, dir1, dir2, evenodd));
     
     out = multiply_matrixsu3_by_real (out, -1.);
     return out;
 }
 
 
-Matrixsu3 diagram1c_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1c_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -272,7 +265,7 @@ Matrixsu3 diagram1c_up(__global const Matrixsu3StorageType * const restrict fiel
     // square(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
     idx_neigh_eo = get_eo_site_idx_from_st_idx(idx_neigh);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_neigh_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_neigh_eo, dir1, dir2, evenodd));
     
     // U_nu(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
@@ -317,7 +310,7 @@ Matrixsu3 diagram1c_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram1c_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1c_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -327,7 +320,7 @@ Matrixsu3 diagram1c_down(__global const Matrixsu3StorageType * const restrict fi
     // square(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
     idx_neigh_eo = get_eo_site_idx_from_st_idx(idx_neigh);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_neigh_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_neigh_eo, dir1, dir2, evenodd));
     
     // U_nu(x-nu+mu)^dagger
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
@@ -378,7 +371,7 @@ Matrixsu3 diagram1c_down(__global const Matrixsu3StorageType * const restrict fi
 
 
 
-Matrixsu3 diagram1d_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1d_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -403,7 +396,7 @@ Matrixsu3 diagram1d_up(__global const Matrixsu3StorageType * const restrict fiel
     idx_neigh1 = get_neighbor_from_st_idx(idx_arg, dir2); // x+nu
     idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x+nu)+mu
     idx_neigh_eo = get_eo_site_idx_from_st_idx(idx_neigh);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_neigh_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_neigh_eo, dir1, dir2, evenodd));
     
     // U_mu(x+nu)^dagger
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
@@ -434,7 +427,7 @@ Matrixsu3 diagram1d_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram1d_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrixsu3 diagram1d_down(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -460,7 +453,7 @@ Matrixsu3 diagram1d_down(__global const Matrixsu3StorageType * const restrict fi
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
     idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
     idx_neigh_eo = get_eo_site_idx_from_st_idx(idx_neigh);
-    out = multiply_matrixsu3(out, square(X, X1, Y, Y1, idx_neigh_eo, dir1, dir2, evenodd));
+    out = multiply_matrixsu3(out, square(X, Y, idx_neigh_eo, dir1, dir2, evenodd));
     
     // U_mu(x-nu)^dagger
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
@@ -493,34 +486,34 @@ Matrixsu3 diagram1d_down(__global const Matrixsu3StorageType * const restrict fi
     return out;
 }
 
-Matrix3x3 add_up_diagrams(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1 , const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrix3x3 add_up_diagrams(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
 	Matrixsu3 tmp;
     Matrix3x3 out;
     out = zero_matrix3x3();
     
-    tmp = diagram1a_up(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1a_up(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1a_down(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1a_down(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1b_up(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1b_up(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1b_down(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1b_down(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1c_up(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1c_up(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1c_down(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1c_down(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1d_up(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1d_up(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
-    tmp = diagram1d_down(field, X, X1, Y, Y1, idx_arg, dir1, dir2, evenodd);
+    tmp = diagram1d_down(field, X, Y, idx_arg, dir1, dir2, evenodd);
     out = add_matrix3x3(matrix_su3to3x3(tmp), out);
     
     return out;
 }
 
 //spinorfield input X1/Y1 ^= X_even/Y_even = -(1+T_ee)^(-1) M_eo X_o/Y_o
-__kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+__kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
@@ -556,19 +549,19 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         /////////////////////////////////
         // nu = 1
         dir2 = 1;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 2
         dir2 = 2;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 3
         dir2 = 3;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
@@ -578,7 +571,7 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
 }
 
 
-__kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+__kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
@@ -614,19 +607,19 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         /////////////////////////////////
         // nu = 0
         dir2 = 0;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 2
         dir2 = 2;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 3
         dir2 = 3;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
@@ -635,7 +628,7 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
     }
 }
 
-__kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+__kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
@@ -671,19 +664,19 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         /////////////////////////////////
         // nu = 0
         dir2 = 0;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 1
         dir2 = 1;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 3
         dir2 = 3;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
@@ -692,7 +685,7 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
     }
 }
 
-__kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict X1, __global const spinorStorageType * const restrict Y, __global const spinorStorageType * const restrict Y1, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+__kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
@@ -728,19 +721,19 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         /////////////////////////////////
         // nu = 0
         dir2 = 0;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 1
         dir2 = 1;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         /////////////////////////////////
         // nu = 2
         dir2 = 2;
-        v2 = add_up_diagrams(field,X,X1,Y,Y1,pos,dir1,dir2,evenodd);
+        v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
         v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);

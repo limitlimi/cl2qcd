@@ -4,7 +4,7 @@
 
 //matrixsu3 which is given by Dirac-Trace(i*sigma_{mu,nu}*(1+T_ee)^{-1})
 //cf. equation (22) in Jansen Liu Paper
-/*Matrixsu3 triangle(__global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, st_index pos_triangle, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 triangle(__global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, st_index pos_triangle, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 out;
     Matrix3x3 tmp1;
@@ -103,7 +103,7 @@
     return out;
 }
 
-Matrixsu3 diagram2a_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2a_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -157,7 +157,7 @@ Matrixsu3 diagram2a_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram2a_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2a_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -215,7 +215,7 @@ Matrixsu3 diagram2a_down(__global const Matrixsu3StorageType * const restrict fi
 }
 
 
-Matrixsu3 diagram2b_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2b_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -268,7 +268,7 @@ Matrixsu3 diagram2b_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram2b_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2b_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -325,7 +325,7 @@ Matrixsu3 diagram2b_down(__global const Matrixsu3StorageType * const restrict fi
 }
 
 
-Matrixsu3 diagram2c_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2c_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -379,7 +379,7 @@ Matrixsu3 diagram2c_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram2c_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2c_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -437,7 +437,7 @@ Matrixsu3 diagram2c_down(__global const Matrixsu3StorageType * const restrict fi
 }
 
 
-Matrixsu3 diagram2d_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2d_up(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -492,7 +492,7 @@ Matrixsu3 diagram2d_up(__global const Matrixsu3StorageType * const restrict fiel
     return out;
 }
 
-Matrixsu3 diagram2d_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
+Matrixsu3 diagram2d_down(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
@@ -549,7 +549,7 @@ Matrixsu3 diagram2d_down(__global const Matrixsu3StorageType * const restrict fi
     return out;
 }
 
-Matrix3x3 add_up_diagrams2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict __global C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
+Matrix3x3 add_up_diagrams2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrix3x3 out;
     Matrixsu3 tmp;
@@ -577,11 +577,11 @@ Matrix3x3 add_up_diagrams2(__global const Matrixsu3StorageType * const restrict 
     }
     
     return out;
-}*/
+}
 
 //input C/D = upperright/lowerleft-block of (1+T)^(-1)
-__kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * const restrict field, /*__global const Matrix6x6StorageType * const restrict __global C,*/ __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{/*
+__kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -635,10 +635,10 @@ __kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-*/}
+}
 
-__kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{/*
+__kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -691,10 +691,10 @@ __kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-*/}
+}
 
-__kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{/*
+__kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -748,10 +748,10 @@ __kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-*/}
+}
 
-__kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * const restrict field/*, __global const Matrix6x6StorageType * const restrict __global C*/, __global const Matrix6x6StorageType * const restrict D, aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
-{/*
+__kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
+{
     // must include HALO, as we are updating neighbouring sites
     // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
@@ -805,4 +805,4 @@ __kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * c
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
-*/}
+}

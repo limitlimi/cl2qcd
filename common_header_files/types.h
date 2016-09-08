@@ -240,7 +240,7 @@ struct Matrix6x6 {
 #ifdef _USE_SOA_
 typedef hmc_complex Matrix6x6StorageType;
 #else
-typedef Matrix3x3 Matrix6x6StorageType;
+typedef Matrix6x6 Matrix6x6StorageType;
 #endif
 
 #ifdef _USE_SOA_
