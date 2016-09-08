@@ -35,7 +35,7 @@ namespace physics
 			middle << std::right << number;
 		}
 		std::stringstream outfilename;
-		outfilename << prefix << middle << postfix;
+		outfilename << prefix << middle.str() << postfix;
 		return outfilename.str();
 	}
 }
