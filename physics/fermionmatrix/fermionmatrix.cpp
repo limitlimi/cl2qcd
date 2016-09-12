@@ -349,6 +349,19 @@ void physics::fermionmatrix::Aee_AND_gamma5_eo::operator()(const physics::lattic
 			saxpy_AND_gamma5_eo(out, {1., 0.}, *out, tmp);
 			break;
 		}
+        //for the clover case R = {{1+T_ee,0},{0,1+T_oo}}, D = Wilson
+        case common::action::clover: //explicit scope to be able to declare variable in it, initializing it at the same time
+		{
+        	hmc_float csw = additionalParameters.getCsw();
+            dslash(&tmp, gf, in, ODD, kappa);
+            clover_eo_inverse(&tmp2, gf, tmp, ODD, kappa, csw);
+            dslash(out, gf, tmp2, EVEN, kappa);
+            clover_eo(&tmp, gf, in, EVEN, kappa, csw);
+            //multiply by c_0_hat
+            hmc_float c_0_hat = 1/(1 + 64 * kappa * kappa);
+            saxpy_AND_gamma5_eo(out, {c_0_hat, 0.}, *out, tmp);
+            break;
+		}
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
 	}
@@ -435,6 +448,17 @@ void physics::fermionmatrix::Aee_minus::operator()(const physics::lattices::Spin
 			M_tm_sitediagonal_minus(&tmp, in, mubar);
 			saxpy(out, {1., 0.}, *out, tmp);
 			break;
+		}
+        //for the clover case R = {{1+T_ee,0},{0,1+T_oo}}, D = Wilson
+        case common::action::clover: //explicit scope to be able to declare variable in it, initializing it at the same time
+		{
+        	hmc_float csw = additionalParameters.getCsw();
+            dslash(&tmp, gf, in, ODD, kappa);
+            clover_eo_inverse(&tmp2, gf, tmp, ODD, kappa, csw);
+            dslash(out, gf, tmp2, EVEN, kappa);
+            clover_eo(&tmp, gf, in, EVEN, kappa, csw);
+            saxpy(out, {1., 0.}, *out, tmp);
+            break;
 		}
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());

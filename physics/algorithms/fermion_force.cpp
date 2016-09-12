@@ -30,10 +30,15 @@
 #include "../../hardware/device.hpp"
 #include "../../hardware/code/molecular_dynamics.hpp"
 
+
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                              const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
+    //for force of clover-improved Wilson-fermions one has two contributions: Wilson + clover
+    //input for the clover-force: X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi, X_even/Y_even = -(1+T_ee)^(-1)*M_eo X_odd/Y_odd
+    //Q_hat = c_0_hat * gamma_5 * (1 + T_oo - M_oe*(1+T_ee)^(-1)*M_eo))
+
     using physics::lattices::Spinorfield_eo;
     using namespace physics::algorithms::solvers;
     using namespace physics::fermionmatrix;
@@ -71,6 +76,12 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
          */
         const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
         qminus(&phi_inv, gf, solution, additionalParameters);
+        if(parametersInterface.getFermact() == common::action::clover)
+        {
+        	//Q_hat = Aee_AND_gamma5_eo or new one?
+        	//Q_hat^2 new Fermionmatrix??
+        	//calculate X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi
+        }
     } else {
         ///@todo if wanted, solvertimer has to be used here..
         //logger.debug() << "\t\tcalc fermion force ingredients using bicgstab with eo.";
@@ -116,6 +127,10 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 
         const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
         bicgstab(&solution, qminus, gf, source_even, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        if(parametersInterface.getFermact() == common::action::clover)
+        {
+        	//calculate X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi
+        }
     }
     /**
      * At this point, one has calculated X_odd and Y_odd.
@@ -139,12 +154,31 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         dslash(&tmp_1, gf, solution, ODD, additionalParameters.getKappa());
         M_tm_inverse_sitediagonal_minus(&tmp_2, tmp_1, additionalParameters.getMubar());
         sax(&tmp_1, { -1., 0. }, tmp_2);
+    } else if(parametersInterface.getFermact() == common::action::clover) {
+        dslash(&tmp_1, gf, solution, ODD, additionalParameters.getKappa());
+        sax(&tmp_1, { -1., 0. }, tmp_1);
+        //Wilson + clover
+        //add clover here
+        //calculate -(1+T_ee)^(-1) * D_eo * solution of cg/bicgstab
+        //dslash(&tmp_1, gf, solution, ODD, additionalParameters.getKappa());
+        //dslash(&tmp_1, gf, solution, ODD, additionalParameters.getKappa());
+        //clover_eo_inverse(&tmp2, gf, tmp, EVEN, additionalParameters.getKappa(), additionalParameters.getCsw());
+        //clover_eo_inverse(&tmp2, gf, tmp, EVEN, additionalParameters.getKappa(), additionalParameters.getCsw);
+        //sax(&tmp_1, { -1., 0. }, tmp_1);
+        //sax(&tmp_1, { -1., 0. }, tmp_1);
+
+        //maybe calculate inverse clover matrix 6x6 blocks C, D here? and calculate only here?
     } else {
         throw Print_Error_Message("The selected fermion force has not been implemented.", __FILE__, __LINE__);
     }
     //logger.debug() << "\t\tcalc eo fermion_force F(Y_even, X_odd)...";
     //Calc F(Y_even, X_odd) = F(clmem_phi_inv_eo, clmem_tmp_eo_1)
     fermion_force(force, phi_inv, tmp_1, EVEN, gf, additionalParameters);
+    if(parametersInterface.getFermact() == common::action::clover)
+    {
+    	//call fermion_force clover F(Y_even, X_even)
+    	//fermion_force(force, Y_even, X_even, EVEN, gf, clover_inverse_upper_left C, clover_inverse_lower_right D, additionalParameters.getKappa(), additionalParameters.getCsw());
+    }
 
     //calculate Y_odd
     //therefore, clmem_tmp_eo_1 is used as intermediate state. The result is saved in clmem_phi_inv, since
@@ -157,12 +191,23 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         dslash(&tmp_1, gf, phi_inv, ODD, additionalParameters.getKappa());
         M_tm_inverse_sitediagonal(&tmp_2, tmp_1, additionalParameters.getMubar());
         sax(&tmp_1, { -1., 0. }, tmp_2);
+    } else if(parametersInterface.getFermact() == common::action::clover) {
+    	dslash(&tmp_1, gf, phi_inv, ODD, additionalParameters.getKappa());
+    	sax(&tmp_1, { -1., 0. }, tmp_1);
+        //Wilson + clover
+        //nothing for clover needed because input for odd force is solution of cg/bicgstab
     } else {
         throw Print_Error_Message("The selected fermion force has not been implemented.", __FILE__, __LINE__);
     }
     //logger.debug() << "\t\tcalc eoprec fermion_force F(Y_odd, X_even)...";
     //Calc F(Y_odd, X_even) = F(clmem_tmp_eo_1, clmem_inout_eo)
     fermion_force(force, tmp_1, solution, ODD, gf, additionalParameters);
+    if(parametersInterface.getFermact() == common::action::clover)
+    {
+    	//call fermion_force clover F(Y_odd, X_odd)
+    	//fermion_force(force, Y_odd, X_odd, ODD, gf, clover_inverse_upper_left C, clover_inverse_lower_right D, additionalParameters.getKappa(), additionalParameters.getCsw());
+
+    }
 }
 
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
@@ -680,6 +725,76 @@ void physics::algorithms::fermion_force(const physics::lattices::Gaugemomenta * 
 
     gm->update_halo();
 }
+
+/*void fermion_force(const physics::lattices::Gaugemomenta * gm, const physics::lattices::Spinorfield_eo& Y, const physics::lattices::Spinorfield_eo& X,
+                                   int evenodd, const physics::lattices::Gaugefield& gf, const physics::lattices::Matrix6x6Field& C, const physics::lattices::Matrix6x6Field& D, const physics::AdditionalParameters& additionalParameters)
+{
+    Y.require_halo();
+    X.require_halo();
+
+    auto gm_bufs = gm->get_buffers();
+    auto Y_bufs = Y.get_buffers();
+    auto X_bufs = X.get_buffers();
+    auto gf_bufs = gf.get_buffers();
+    auto C_bufs = C.get_buffers();
+    auto D_bufs = D.get_buffers();
+    size_t num_bufs = gm_bufs.size();
+    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()) {
+        throw Print_Error_Message(std::string(__func__) + " is only implemented for a single device.", __FILE__, __LINE__);
+    }
+
+    for (size_t i = 0; i < num_bufs; ++i) {
+        auto gm_buf = gm_bufs[i];
+        auto Y_buf = Y_bufs[i];
+        auto X_buf = X_bufs[i];
+        auto gf_buf = gf_bufs[i];
+        auto C_bufs = C_bufs[i];
+        auto D_bufs = D_bufs[i];
+        auto code = gm_buf->get_device()->getMolecularDynamicsCode();
+        code->fermion_force_clover1_eo_device(Y_buf, X_buf, gf_buf, gm_buf, evenodd, additionalParameters.getKappa(), additionalParameters.getCsw());
+        code->fermion_force_clover2_eo_device(gf_buf, C_bufs, D_bufs, gm_buf, evenodd, additionalParameters.getKappa(), additionalParameters.getCsw());
+    }
+
+    gm->update_halo();
+}*/
+
+/*void clover_eo_inverse_explizit_upper_left(const physics::lattices::Matrix6x6Field& in, const physics::lattices::Matrix6x6Field * out, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters)
+{
+    auto in_bufs = in.get_buffers();
+    auto out_bufs = out->get_buffers();
+    auto gf_bufs = gf.get_buffers();
+    size_t num_bufs = gm_bufs.size();
+    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()) {
+        throw Print_Error_Message(std::string(__func__) + " is only implemented for a single device.", __FILE__, __LINE__);
+    }
+
+    for (size_t i = 0; i < num_bufs; ++i) {
+        auto in_buf = in_bufs[i];
+        auto out_buf = out_bufs[i];
+        auto gf_buf = gf_bufs[i];
+        auto code = out_bufs->get_device()->getMolecularDynamicsCode();
+        code->clover_eo_inverse_explizit_upper_left_device(in_buf, out_buf, gf_buf, additionalParameters.getKappa(), additionalParameters.getCsw());
+    }
+}
+
+void clover_eo_inverse_explizit_lower_right(const physics::lattices::Matrix6x6Field& in, const physics::lattices::Matrix6x6Field * out, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters)
+{
+    auto in_bufs = in.get_buffers();
+    auto out_bufs = out->get_buffers();
+    auto gf_bufs = gf.get_buffers();
+    size_t num_bufs = gm_bufs.size();
+    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()) {
+        throw Print_Error_Message(std::string(__func__) + " is only implemented for a single device.", __FILE__, __LINE__);
+    }
+
+    for (size_t i = 0; i < num_bufs; ++i) {
+        auto in_buf = in_bufs[i];
+        auto out_buf = out_bufs[i];
+        auto gf_buf = gf_bufs[i];
+        auto code = out_bufs->get_device()->getMolecularDynamicsCode();
+        code->clover_eo_inverse_explizit_lower_right_device(in_buf, out_buf, gf_buf, additionalParameters.getKappa(), additionalParameters.getCsw());
+    }
+}*/
 
 template<class SPINORFIELD> static void calc_detratio_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                                              const SPINORFIELD& phi_mp, const hardware::System& system, physics::InterfacesHandler& interfacesHandler)
