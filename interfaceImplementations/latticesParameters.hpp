@@ -98,6 +98,43 @@ namespace physics {
             private:
                 const meta::Inputparameters * parameters;
         };
+        class Matrix6x6FieldParametersImplementation : public Matrix6x6FieldParametersInterface {
+            public:
+        		Matrix6x6FieldParametersImplementation() = delete;
+        		Matrix6x6FieldParametersImplementation(const meta::Inputparameters * paramsIn)
+                        : parameters(paramsIn)
+                {
+                }
+                virtual ~Matrix6x6FieldParametersImplementation()
+                {
+                }
+                virtual unsigned getNs() const override
+                {
+                    return parameters->get_nspace();
+                }
+                virtual unsigned getNt() const override
+                {
+                    return parameters->get_ntime();
+                }
+                virtual unsigned getPrecision() const override
+                {
+                    return parameters->get_precision();
+                }
+                virtual unsigned getNumberOfElements() const override
+                {
+                    return meta::get_vol4d(*parameters);
+                }
+                virtual double getKappa() const override
+                {
+                    return parameters->get_kappa();
+                }
+                virtual double getCsw() const override
+                {
+                    return parameters->get_csw();
+                }
+            private:
+                const meta::Inputparameters * parameters;
+        };
 
         class GaugemomentaParametersImplementation final : public GaugemomentaParametersInterface {
             public:

@@ -37,6 +37,7 @@ namespace physics {
             InterfacesHandlerImplementation(const meta::Inputparameters& parametersIn)
                 : parameters(parametersIn),
                   gaugefieldParametersInterface{nullptr},
+                  matrix6x6fieldParametersInterface{nullptr},
                   gaugemomentaParametersInterface{nullptr},
                   spinorfieldParametersInterface{nullptr},
                   spinorfieldEoParametersInterface{nullptr},
@@ -157,6 +158,12 @@ namespace physics {
                     gaugefieldParametersInterface = std::unique_ptr<const physics::lattices::GaugefieldParametersImplementation>(new physics::lattices::GaugefieldParametersImplementation{&parameters});
                 return *gaugefieldParametersInterface;
             }
+            const physics::lattices::Matrix6x6FieldParametersInterface& getMatrix6x6FieldParametersInterface() override
+            {
+                if(matrix6x6fieldParametersInterface == nullptr)
+                	matrix6x6fieldParametersInterface = std::unique_ptr<const physics::lattices::Matrix6x6FieldParametersImplementation>(new physics::lattices::Matrix6x6FieldParametersImplementation{&parameters});
+                return *matrix6x6fieldParametersInterface;
+            }
             const physics::lattices::GaugemomentaParametersInterface& getGaugemomentaParametersInterface() override
             {
                 if(gaugemomentaParametersInterface == nullptr)
@@ -241,6 +248,7 @@ namespace physics {
 
             const meta::Inputparameters& parameters;
             std::unique_ptr<const physics::lattices::GaugefieldParametersInterface> gaugefieldParametersInterface;
+            std::unique_ptr<const physics::lattices::Matrix6x6FieldParametersInterface> matrix6x6fieldParametersInterface;
             std::unique_ptr<const physics::lattices::GaugemomentaParametersInterface> gaugemomentaParametersInterface;
             std::unique_ptr<const physics::lattices::SpinorfieldParametersInterface> spinorfieldParametersInterface;
             std::unique_ptr<const physics::lattices::SpinorfieldEoParametersInterface> spinorfieldEoParametersInterface;

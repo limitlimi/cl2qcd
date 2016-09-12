@@ -71,8 +71,6 @@ void physics::lattices::Gaugefield::initializeHotOrCold(bool hot)
 	trajectoryNumberAtInit = 0;
 }
 
-
-
 void physics::lattices::Gaugefield::initializeFromILDGSourcefile(std::string ildgfile)
 {
 	Matrixsu3 * gf_host = ildgIo::readGaugefieldFromSourcefile(ildgfile, latticeObjectParameters, trajectoryNumberAtInit);

@@ -34,6 +34,7 @@ target_link_libraries(gaugefield
 )
 
 add_library(lattices
+	matrix6x6Field.cpp
 	spinorfield.cpp
 	spinorfield_eo.cpp
 	scalar_complex.cpp
