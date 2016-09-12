@@ -666,7 +666,7 @@ void hardware::code::Molecular_Dynamics::fermion_force_clover2_eo_device(const h
 
 }
 
-void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * in, const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const
+void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const
 {
 	using namespace hardware::buffers;
 
@@ -685,25 +685,22 @@ void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_upper_left_d
    	cl_uint num_groups;
    	this->get_work_sizes(clover_eo_inverse_explizit_upper_left, &ls2, &gs2, &num_groups);
    	//set arguments
-   	int clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 0, sizeof(cl_mem), in->get_cl_buffer());
+   	int clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 0, sizeof(cl_mem), out->get_cl_buffer());
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 1, sizeof(cl_mem), out->get_cl_buffer());
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 2, sizeof(cl_mem), gf->get_cl_buffer());
+   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 1, sizeof(cl_mem), gf->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 3, sizeof(hmc_float), &kappa_tmp);
+   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 2, sizeof(hmc_float), &kappa_tmp);
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 4, sizeof(hmc_float), &csw_tmp);
+   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 3, sizeof(hmc_float), &csw_tmp);
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
    	get_device()->enqueue_kernel( clover_eo_inverse_explizit_upper_left, gs2, ls2);
 }
 
-void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * in, const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const
+void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const
 {
 	using namespace hardware::buffers;
 
@@ -722,19 +719,16 @@ void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_lower_right_
    	cl_uint num_groups;
    	this->get_work_sizes(clover_eo_inverse_explizit_lower_right, &ls2, &gs2, &num_groups);
    	//set arguments
-   	int clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 0, sizeof(cl_mem), in->get_cl_buffer());
+   	int clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 0, sizeof(cl_mem), out->get_cl_buffer());
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 1, sizeof(cl_mem), out->get_cl_buffer());
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 2, sizeof(cl_mem), gf->get_cl_buffer());
+   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 1, sizeof(cl_mem), gf->get_cl_buffer());
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 3, sizeof(hmc_float), &kappa_tmp);
+   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 2, sizeof(hmc_float), &kappa_tmp);
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 4, sizeof(hmc_float), &csw_tmp);
+   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 3, sizeof(hmc_float), &csw_tmp);
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
    	get_device()->enqueue_kernel( clover_eo_inverse_explizit_upper_left, gs2, ls2);

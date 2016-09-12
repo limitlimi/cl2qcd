@@ -178,7 +178,7 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
     return out;
 }
 
-void clover_eo_inverse_explizit_upper_left_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+void clover_eo_inverse_explizit_upper_left_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
     Matrix6x6 out_tmp, tmp;
     
@@ -188,7 +188,7 @@ void clover_eo_inverse_explizit_upper_left_for_site(__global const Matrix6x6Stor
     put6x6(out, get_site_idx(pos), out_tmp); //pos??
 }
 
-void clover_eo_inverse_explizit_lower_right_for_site(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
+void clover_eo_inverse_explizit_lower_right_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
     Matrix6x6 out_tmp, tmp;
     

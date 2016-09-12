@@ -65,8 +65,8 @@ public:
 	void fermion_force_eo_device(const hardware::buffers::Spinor * Y, const hardware::buffers::Spinor * X, const hardware::buffers::SU3 *, const hardware::buffers::Gaugemomentum *, int evenodd, hmc_float kappa = ARG_DEF) const;
 	void fermion_force_clover1_eo_device(const hardware::buffers::Spinor * Y, const hardware::buffers::Spinor * X, const hardware::buffers::SU3 * gf, const hardware::buffers::Gaugemomentum * out, int evenodd, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
 	void fermion_force_clover2_eo_device(const hardware::buffers::SU3 * gf, const hardware::buffers::matrix6x6 * C, const hardware::buffers::matrix6x6 * D, const hardware::buffers::Gaugemomentum * out, int evenodd, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
-	void clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * C, const hardware::buffers::matrix6x6 * D, const hardware::buffers::SU3 * gf, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
-	void clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * C, const hardware::buffers::matrix6x6 * D, const hardware::buffers::SU3 * gf, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
+	void clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
+	void clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa = ARG_DEF, hmc_float csw = ARG_DEF) const;
 	void stout_smeared_fermion_force_device(std::vector<const hardware::buffers::SU3 *>& gf_intermediate) const;
 	///////////////////////////////////////////////////
 	//Methods added exclusively for staggered fermions
