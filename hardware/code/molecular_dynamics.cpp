@@ -40,7 +40,7 @@ static bool use_multipass_gauge_force_tlsym(const hardware::Device * device)
 
 void hardware::code::Molecular_Dynamics::fill_kernels()
 {
-	basic_molecular_dynamics_code = get_basic_sources() << "operations_geometry.cl" << "operations_complex.h" << "types_fermions.h" << "types_hmc.h" << "operations_matrix_su3.cl" << "operations_matrix.cl" << "operations_gaugefield.cl" << "operations_su3vec.cl" << "operations_spinor.cl" << "spinorfield.cl" << "operations_gaugemomentum.cl";
+	basic_molecular_dynamics_code = get_basic_sources() << "operations_geometry.cl" << "operations_complex.cl" << "operations_complex.h" << "types_fermions.h" << "types_hmc.h" << "operations_matrix_su3.cl" << "operations_matrix.cl" << "operations_gaugefield.cl" << "operations_su3vec.cl" << "operations_spinor.cl" << "spinorfield.cl" << "operations_gaugemomentum.cl";
 	
 	ClSourcePackage prng_code = get_device()->getPrngCode()->get_sources();
 	
@@ -564,7 +564,7 @@ void hardware::code::Molecular_Dynamics::fermion_force_eo_device(const hardware:
 	}
 }
 
-void hardware::code::Molecular_Dynamics::fermion_force_clover1_eo_device(const hardware::buffers::Spinor * Y, const hardware::buffers::Spinor * X, const hardware::buffers::Spinor * Y1, const hardware::buffers::Spinor * X1, const hardware::buffers::SU3 * gf, const hardware::buffers::Gaugemomentum * out, int evenodd, hmc_float kappa, hmc_float csw) const
+void hardware::code::Molecular_Dynamics::fermion_force_clover1_eo_device(const hardware::buffers::Spinor * Y, const hardware::buffers::Spinor * X, const hardware::buffers::SU3 * gf, const hardware::buffers::Gaugemomentum * out, int evenodd, hmc_float kappa, hmc_float csw) const
 {
     using namespace hardware::buffers;
     //get kappa
@@ -589,25 +589,19 @@ void hardware::code::Molecular_Dynamics::fermion_force_clover1_eo_device(const h
         clerr = clSetKernelArg(kernel, 1, sizeof(cl_mem), X->get_cl_buffer());
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-        clerr = clSetKernelArg(kernel, 2, sizeof(cl_mem), X1->get_cl_buffer());
+        clerr = clSetKernelArg(kernel, 2, sizeof(cl_mem), Y->get_cl_buffer());
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-        clerr = clSetKernelArg(kernel, 3, sizeof(cl_mem), Y->get_cl_buffer());
+        clerr = clSetKernelArg(kernel, 3, sizeof(cl_mem), out->get_cl_buffer());
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-        clerr = clSetKernelArg(kernel, 4, sizeof(cl_mem), Y1->get_cl_buffer());
+        clerr = clSetKernelArg(kernel, 4, sizeof(int), &evenodd);
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-        clerr = clSetKernelArg(kernel, 5, sizeof(cl_mem), out->get_cl_buffer());
+        clerr = clSetKernelArg(kernel, 5, sizeof(hmc_float), &kappa_tmp);
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-        clerr = clSetKernelArg(kernel, 6, sizeof(int), &evenodd);
-        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-        clerr = clSetKernelArg(kernel, 7, sizeof(hmc_float), &kappa_tmp);
-        if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-        clerr = clSetKernelArg(kernel, 8, sizeof(hmc_float), &csw_tmp);
+        clerr = clSetKernelArg(kernel, 6, sizeof(hmc_float), &csw_tmp);
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
         get_device()->enqueue_kernel( kernel , gs2, ls2);
