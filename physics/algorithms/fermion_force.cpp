@@ -37,9 +37,10 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 {
     //for force of clover-improved Wilson-fermions one has two contributions: Wilson + clover
     //input for the clover-force: X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi, X_even/Y_even = -(1+T_ee)^(-1)*M_eo X_odd/Y_odd
-    //Q_hat = c_0_hat * gamma_5 * (1 + T_oo - M_oe*(1+T_ee)^(-1)*M_eo))
+    //Q_hat = c_0_hat * gamma_5 * (1 + T_oo - M_oe*(1+T_ee)^(-1)*M_eo)) ^= fermionmatrix Aee_AND_gamma5_eo
 
     using physics::lattices::Spinorfield_eo;
+    using physics::lattices::Matrix6x6Field;
     using namespace physics::algorithms::solvers;
     using namespace physics::fermionmatrix;
 
@@ -78,9 +79,11 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         qminus(&phi_inv, gf, solution, additionalParameters);
         if(parametersInterface.getFermact() == common::action::clover)
         {
-        	//Q_hat = Aee_AND_gamma5_eo or new one?
-        	//Q_hat^2 new Fermionmatrix??
         	//calculate X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi
+        	Spinorfield_eo X_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+        	Spinorfield_eo Y_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+        	X_odd.zero();
+        	Y_odd.zero();
         }
     } else {
         ///@todo if wanted, solvertimer has to be used here..
@@ -130,6 +133,12 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         if(parametersInterface.getFermact() == common::action::clover)
         {
         	//calculate X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi
+        	Spinorfield_eo X_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+        	Spinorfield_eo Y_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+        	Y_odd.zero();//needed?
+        	const Aee_AND_gamma5_eo aee(system, interfacesHandler.getInterface<physics::fermionmatrix::Aee_AND_gamma5_eo>());
+        	bicgstab(&Y_odd, aee, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        	bicgstab(&X_odd, aee, gf, Y_odd, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
         }
     }
     /**
@@ -160,12 +169,16 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         //Wilson + clover
         //add clover here
         //calculate -(1+T_ee)^(-1) * D_eo * solution of cg/bicgstab
-        //dslash(&tmp_1, gf, solution, ODD, additionalParameters.getKappa());
-        //dslash(&tmp_1, gf, solution, ODD, additionalParameters.getKappa());
-        //clover_eo_inverse(&tmp2, gf, tmp, EVEN, additionalParameters.getKappa(), additionalParameters.getCsw());
-        //clover_eo_inverse(&tmp2, gf, tmp, EVEN, additionalParameters.getKappa(), additionalParameters.getCsw);
-        //sax(&tmp_1, { -1., 0. }, tmp_1);
-        //sax(&tmp_1, { -1., 0. }, tmp_1);
+    	Spinorfield_eo X_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	Spinorfield_eo Y_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	Spinorfield_eo X_even(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	Spinorfield_eo Y_even(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+        dslash(&X_even, gf, X_odd, ODD, additionalParameters.getKappa());
+        dslash(&Y_even, gf, Y_odd, ODD, additionalParameters.getKappa());
+        clover_eo_inverse(&X_even, gf, X_even, EVEN, additionalParameters.getKappa(), additionalParameters.getCsw());
+        clover_eo_inverse(&Y_even, gf, Y_even, EVEN, additionalParameters.getKappa(), additionalParameters.getCsw());
+        sax(&X_even, { -1., 0. }, X_even);
+        sax(&Y_even, { -1., 0. }, Y_even);
 
         //maybe calculate inverse clover matrix 6x6 blocks C, D here? and calculate only here?
     } else {
@@ -174,10 +187,15 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     //logger.debug() << "\t\tcalc eo fermion_force F(Y_even, X_odd)...";
     //Calc F(Y_even, X_odd) = F(clmem_phi_inv_eo, clmem_tmp_eo_1)
     fermion_force(force, phi_inv, tmp_1, EVEN, gf, additionalParameters);
+    Matrix6x6Field * C = gf.clover_eo_inverse_upper_left;
+    Matrix6x6Field * D = gf.clover_eo_inverse_lower_right;
+
     if(parametersInterface.getFermact() == common::action::clover)
     {
     	//call fermion_force clover F(Y_even, X_even)
-    	//fermion_force(force, Y_even, X_even, EVEN, gf, clover_inverse_upper_left C, clover_inverse_lower_right D, additionalParameters.getKappa(), additionalParameters.getCsw());
+    	Spinorfield_eo X_even(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	Spinorfield_eo Y_even(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	fermion_force(force, Y_even, X_even, EVEN, gf, *C, *D, additionalParameters);
     }
 
     //calculate Y_odd
@@ -205,8 +223,9 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     if(parametersInterface.getFermact() == common::action::clover)
     {
     	//call fermion_force clover F(Y_odd, X_odd)
-    	//fermion_force(force, Y_odd, X_odd, ODD, gf, clover_inverse_upper_left C, clover_inverse_lower_right D, additionalParameters.getKappa(), additionalParameters.getCsw());
-
+    	Spinorfield_eo X_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	Spinorfield_eo Y_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+    	fermion_force(force, Y_odd, X_odd, ODD, gf, *C, *D, additionalParameters);
     }
 }
 
@@ -726,7 +745,7 @@ void physics::algorithms::fermion_force(const physics::lattices::Gaugemomenta * 
     gm->update_halo();
 }
 
-void fermion_force(const physics::lattices::Gaugemomenta * gm, const physics::lattices::Spinorfield_eo& Y, const physics::lattices::Spinorfield_eo& X,
+void physics::algorithms::fermion_force(const physics::lattices::Gaugemomenta * gm, const physics::lattices::Spinorfield_eo& Y, const physics::lattices::Spinorfield_eo& X,
                                    int evenodd, const physics::lattices::Gaugefield& gf, const physics::lattices::Matrix6x6Field& C, const physics::lattices::Matrix6x6Field& D, const physics::AdditionalParameters& additionalParameters)
 {
     Y.require_halo();

@@ -129,10 +129,10 @@ namespace physics {
 			const GaugefieldParametersInterface * latticeObjectParameters;
 
 			hardware::lattices::Gaugefield gaugefield;
-
+		public:
 			Matrix6x6Field * clover_eo_inverse_upper_left;
 			Matrix6x6Field * clover_eo_inverse_lower_right;
-
+		private:
 			/**
 			 * Utility functions for construction.
 			 */

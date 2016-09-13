@@ -67,11 +67,6 @@ namespace physics {
                            int evenodd, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters);
         void fermion_force(const physics::lattices::Gaugemomenta * gm, const physics::lattices::Spinorfield_eo& Y, const physics::lattices::Spinorfield_eo& X,
         				   int evenodd, const physics::lattices::Gaugefield& gf, const physics::lattices::Matrix6x6Field& C, const physics::lattices::Matrix6x6Field& D, const physics::AdditionalParameters& additionalParameters);
-
-        //Here the Kernels for the explizit version of the inverted clover fermionmatrix are called
-        //note: the fermionmatrix is blockdiagonal, so one stores 2 6x6 blocks
-        void clover_eo_inverse_explizit_upper_left(const physics::lattices::Matrix6x6Field& in, const physics::lattices::Matrix6x6Field * out, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters);
-        void clover_eo_inverse_explizit_lower_right(const physics::lattices::Matrix6x6Field& in, const physics::lattices::Matrix6x6Field * out, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters);
     }
 }
 

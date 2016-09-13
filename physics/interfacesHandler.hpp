@@ -47,6 +47,7 @@ namespace physics {
     	class QplusQminus;
     	class Aee;
     	class Aee_minus;
+    	class Aee_AND_gamma5_eo;
     	class Qplus_eo;
     	class Qminus_eo;
     	class QplusQminus_eo;
@@ -103,6 +104,10 @@ namespace physics {
     };
     template<>
     struct InterfaceType<physics::fermionmatrix::Aee_minus> {
+            using value = physics::FermionEoParametersInterface;
+    };
+    template<>
+    struct InterfaceType<physics::fermionmatrix::Aee_AND_gamma5_eo> {
             using value = physics::FermionEoParametersInterface;
     };
     template<>
@@ -219,6 +224,10 @@ namespace physics {
         return getFermionEoParametersInterface();
     }
     template<> inline const typename InterfaceType<physics::fermionmatrix::Aee_minus>::value& InterfacesHandler::getInterface<physics::fermionmatrix::Aee_minus>()
+    {
+        return getFermionEoParametersInterface();
+    }
+    template<> inline const typename InterfaceType<physics::fermionmatrix::Aee_AND_gamma5_eo>::value& InterfacesHandler::getInterface<physics::fermionmatrix::Aee_AND_gamma5_eo>()
     {
         return getFermionEoParametersInterface();
     }
