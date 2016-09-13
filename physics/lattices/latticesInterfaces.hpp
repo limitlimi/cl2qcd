@@ -26,26 +26,19 @@
 
 namespace physics {
     namespace lattices {
-    	class Matrix6x6FieldParametersInterface {
-    		public:
-    			virtual ~Matrix6x6FieldParametersInterface() {}
-                virtual unsigned getNs() const = 0;
-                virtual unsigned getNt() const = 0;
-                virtual unsigned getPrecision() const = 0;
-                virtual unsigned getNumberOfElements() const = 0;
-                virtual double getKappa() const = 0;
-                virtual double getCsw() const = 0;
-    	};
 
         class GaugefieldParametersInterface {
             public:
                 virtual ~GaugefieldParametersInterface(){}
+                virtual common::action getFermact() const = 0;
                 virtual unsigned getNs() const = 0;
                 virtual unsigned getNt() const = 0;
                 virtual unsigned getPrecision() const = 0;
                 virtual bool ignoreChecksumErrorsInIO() const = 0;
                 virtual unsigned getNumberOfElements() const = 0;
+                virtual unsigned getNumberOfElementsMatrix6x6Field() const = 0;
                 virtual double getKappa() const = 0;
+                virtual double getCsw() const = 0;
                 virtual double getMu() const = 0;
                 virtual double getBeta() const = 0;
                 virtual common::startcondition getStartcondition() const = 0;

@@ -27,14 +27,35 @@
 #include "../../ildg_io/ildgIo.hpp"
 #include "../../hardware/code/matrix6x6Field.hpp"
 
-physics::lattices::Matrix6x6Field::Matrix6x6Field(const hardware::System& system, const Matrix6x6FieldParametersInterface * parameters, bool upperOrLower)
+physics::lattices::Matrix6x6Field::Matrix6x6Field(const hardware::System& system, const GaugefieldParametersInterface * parameters)
   : system(system), latticeObjectParameters(parameters), matrix6x6Field(system)
 {
 }
 
-void physics::lattices::Matrix6x6Field::set6x6Field(physics::lattices::Gaugefield * gaugefield, bool upperOrLower)
+void physics::lattices::Matrix6x6Field::setField(const physics::lattices::Gaugefield * gaugefield, const bool upperOrLower)
 {
-	//matrix6x6Field.set6x6Field(gaugefield, upperOrLower, latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
+	if(latticeObjectParameters->getFermact() != common::action::clover)
+	{
+		throw Invalid_Parameters("The setField method in matrix6x6Field is not to be used with wilson or tm fermion action!", "clover", latticeObjectParameters->getFermact());
+	}
+	auto gaugefieldBuffers = gaugefield->get_buffers();
+	auto matrix6x6FieldBuffers = this->get_buffers();
+	size_t num_devs = matrix6x6FieldBuffers.size();
+
+	if(num_devs ==1){
+	auto device = matrix6x6FieldBuffers[0]->get_device();
+	upperOrLower ?
+	device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw()) :
+	device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
+	}
+	else {
+		for(size_t i = 0; i < num_devs; ++i) {
+			auto device = matrix6x6FieldBuffers[i]->get_device();
+			upperOrLower ?
+				device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw()) :
+				device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
+		}
+	}
 }
 
 physics::lattices::Matrix6x6Field::~Matrix6x6Field()
@@ -55,7 +76,7 @@ const hardware::System * physics::lattices::Matrix6x6Field::getSystem() const
 	return &system;
 }
 
-const physics::lattices::Matrix6x6FieldParametersInterface * physics::lattices::Matrix6x6Field::getParameters() const
+const physics::lattices::GaugefieldParametersInterface * physics::lattices::Matrix6x6Field::getParameters() const
 {
 	return latticeObjectParameters;
 }

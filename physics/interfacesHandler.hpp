@@ -62,10 +62,6 @@ namespace physics {
             using value = physics::lattices::GaugefieldParametersInterface;
     };
     template<>
-    struct InterfaceType<physics::lattices::Matrix6x6Field> {
-            using value = physics::lattices::Matrix6x6FieldParametersInterface;
-    };
-    template<>
     struct InterfaceType<physics::lattices::Gaugemomenta> {
             using value = physics::lattices::GaugemomentaParametersInterface;
     };
@@ -164,7 +160,6 @@ namespace physics {
 
         private:
             virtual const physics::lattices::GaugefieldParametersInterface& getGaugefieldParametersInterface() = 0;
-            virtual const physics::lattices::Matrix6x6FieldParametersInterface& getMatrix6x6FieldParametersInterface() = 0;
             virtual const physics::lattices::GaugemomentaParametersInterface& getGaugemomentaParametersInterface() = 0;
             virtual const physics::lattices::SpinorfieldParametersInterface& getSpinorfieldParametersInterface() = 0;
             virtual const physics::lattices::SpinorfieldEoParametersInterface& getSpinorfieldEoParametersInterface() = 0;
@@ -182,10 +177,6 @@ namespace physics {
     template<> inline const typename InterfaceType<physics::lattices::Gaugefield>::value& InterfacesHandler::getInterface<physics::lattices::Gaugefield>()
     {
         return getGaugefieldParametersInterface();
-    }
-    template<> inline const typename InterfaceType<physics::lattices::Matrix6x6Field>::value& InterfacesHandler::getInterface<physics::lattices::Matrix6x6Field>()
-    {
-        return getMatrix6x6FieldParametersInterface();
     }
     template<> inline const typename InterfaceType<physics::lattices::Gaugemomenta>::value& InterfacesHandler::getInterface<physics::lattices::Gaugemomenta>()
     {

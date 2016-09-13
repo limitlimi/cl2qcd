@@ -37,6 +37,8 @@
 namespace physics {
 	namespace lattices {
 
+		class Gaugefield;
+
 		/**
 		 * Representation of a Matrix6x6Field.
 		 */
@@ -46,7 +48,7 @@ namespace physics {
 			/**
 			 * Construct a Matrix6x6Field based on the gaugefield configuration
 			 */
-			Matrix6x6Field(const hardware::System&, const Matrix6x6FieldParametersInterface * parameters, bool upperOrLower);
+			Matrix6x6Field(const hardware::System&, const GaugefieldParametersInterface * parameters);
 
 			/**
 			 * Release resources
@@ -60,7 +62,7 @@ namespace physics {
 			Matrix6x6Field(const Matrix6x6Field&) = delete;
 			Matrix6x6Field() = delete;
 
-			void set6x6Field(physics::lattices::Gaugefield * gaugefield, bool upperOrLower);
+			void setField(const physics::lattices::Gaugefield * gaugefield, const bool upperOrLower);
 
 			/**
 			 * Get the buffers containing the gaugefield state on the devices.
@@ -75,11 +77,11 @@ namespace physics {
 
 			std::string getName(int = -1) const noexcept;
 			const hardware::System * getSystem() const;
-			const Matrix6x6FieldParametersInterface * getParameters() const;
+			const GaugefieldParametersInterface * getParameters() const;
 
 		private:
 			hardware::System const& system;
-			const Matrix6x6FieldParametersInterface * latticeObjectParameters;
+			const GaugefieldParametersInterface * latticeObjectParameters;
 			hardware::lattices::Matrix6x6Field matrix6x6Field;
 
 		};

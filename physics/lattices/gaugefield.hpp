@@ -28,7 +28,7 @@
 #include "../prng.hpp"
 #include "latticesInterfaces.hpp"
 #include "../../hardware/lattices/gaugefield.hpp"
-//#include "matrix6x6Field.hpp"
+#include "matrix6x6Field.hpp"
 
 /**
  * This namespace contains the lattices of the various kind,
@@ -36,6 +36,8 @@
  */
 namespace physics {
 	namespace lattices {
+
+		class Matrix6x6Field;
 		
 		/**
 		 * Representation of a gaugefield.
@@ -126,10 +128,10 @@ namespace physics {
 			physics::PRNG const& prng;
 			const GaugefieldParametersInterface * latticeObjectParameters;
 
-			//Matrix6x6Field * clover_eo_inverse_upper_left;
-			//Matrix6x6Field * clover_eo_inverse_lower_right;
-
 			hardware::lattices::Gaugefield gaugefield;
+
+			Matrix6x6Field * clover_eo_inverse_upper_left;
+			Matrix6x6Field * clover_eo_inverse_lower_right;
 
 			/**
 			 * Utility functions for construction.

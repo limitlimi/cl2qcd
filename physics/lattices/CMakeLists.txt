@@ -23,6 +23,7 @@
 
 add_library(gaugefield
 	gaugefield.cpp
+	matrix6x6Field.cpp
 # 	../../hardware/lattices/gaugefield.cpp
 # 	../../hardware/lattices/gaugemomenta.cpp
 # 	../../hardware/lattices/spinorfield.cpp

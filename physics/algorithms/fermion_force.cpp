@@ -726,7 +726,7 @@ void physics::algorithms::fermion_force(const physics::lattices::Gaugemomenta * 
     gm->update_halo();
 }
 
-/*void fermion_force(const physics::lattices::Gaugemomenta * gm, const physics::lattices::Spinorfield_eo& Y, const physics::lattices::Spinorfield_eo& X,
+void fermion_force(const physics::lattices::Gaugemomenta * gm, const physics::lattices::Spinorfield_eo& Y, const physics::lattices::Spinorfield_eo& X,
                                    int evenodd, const physics::lattices::Gaugefield& gf, const physics::lattices::Matrix6x6Field& C, const physics::lattices::Matrix6x6Field& D, const physics::AdditionalParameters& additionalParameters)
 {
     Y.require_halo();
@@ -739,7 +739,7 @@ void physics::algorithms::fermion_force(const physics::lattices::Gaugemomenta * 
     auto C_bufs = C.get_buffers();
     auto D_bufs = D.get_buffers();
     size_t num_bufs = gm_bufs.size();
-    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()) {
+    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()|| num_bufs != C_bufs.size() || num_bufs != D_bufs.size()) {
         throw Print_Error_Message(std::string(__func__) + " is only implemented for a single device.", __FILE__, __LINE__);
     }
 
@@ -748,53 +748,15 @@ void physics::algorithms::fermion_force(const physics::lattices::Gaugemomenta * 
         auto Y_buf = Y_bufs[i];
         auto X_buf = X_bufs[i];
         auto gf_buf = gf_bufs[i];
-        auto C_bufs = C_bufs[i];
-        auto D_bufs = D_bufs[i];
+        auto C_bufs = C.get_buffers()[i];//C_bufs[i]; //TODO check why this would not work!
+        auto D_bufs = D.get_buffers()[i];//D_bufs[i];
         auto code = gm_buf->get_device()->getMolecularDynamicsCode();
         code->fermion_force_clover1_eo_device(Y_buf, X_buf, gf_buf, gm_buf, evenodd, additionalParameters.getKappa(), additionalParameters.getCsw());
         code->fermion_force_clover2_eo_device(gf_buf, C_bufs, D_bufs, gm_buf, evenodd, additionalParameters.getKappa(), additionalParameters.getCsw());
     }
 
     gm->update_halo();
-}*/
-
-/*void clover_eo_inverse_explizit_upper_left(const physics::lattices::Matrix6x6Field& in, const physics::lattices::Matrix6x6Field * out, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters)
-{
-    auto in_bufs = in.get_buffers();
-    auto out_bufs = out->get_buffers();
-    auto gf_bufs = gf.get_buffers();
-    size_t num_bufs = gm_bufs.size();
-    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()) {
-        throw Print_Error_Message(std::string(__func__) + " is only implemented for a single device.", __FILE__, __LINE__);
-    }
-
-    for (size_t i = 0; i < num_bufs; ++i) {
-        auto in_buf = in_bufs[i];
-        auto out_buf = out_bufs[i];
-        auto gf_buf = gf_bufs[i];
-        auto code = out_bufs->get_device()->getMolecularDynamicsCode();
-        code->clover_eo_inverse_explizit_upper_left_device(in_buf, out_buf, gf_buf, additionalParameters.getKappa(), additionalParameters.getCsw());
-    }
 }
-
-void clover_eo_inverse_explizit_lower_right(const physics::lattices::Matrix6x6Field& in, const physics::lattices::Matrix6x6Field * out, const physics::lattices::Gaugefield& gf, const physics::AdditionalParameters& additionalParameters)
-{
-    auto in_bufs = in.get_buffers();
-    auto out_bufs = out->get_buffers();
-    auto gf_bufs = gf.get_buffers();
-    size_t num_bufs = gm_bufs.size();
-    if(num_bufs != Y_bufs.size() || num_bufs != X_bufs.size() || num_bufs != gf_bufs.size()) {
-        throw Print_Error_Message(std::string(__func__) + " is only implemented for a single device.", __FILE__, __LINE__);
-    }
-
-    for (size_t i = 0; i < num_bufs; ++i) {
-        auto in_buf = in_bufs[i];
-        auto out_buf = out_bufs[i];
-        auto gf_buf = gf_bufs[i];
-        auto code = out_bufs->get_device()->getMolecularDynamicsCode();
-        code->clover_eo_inverse_explizit_lower_right_device(in_buf, out_buf, gf_buf, additionalParameters.getKappa(), additionalParameters.getCsw());
-    }
-}*/
 
 template<class SPINORFIELD> static void calc_detratio_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                                              const SPINORFIELD& phi_mp, const hardware::System& system, physics::InterfacesHandler& interfacesHandler)

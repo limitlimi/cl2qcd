@@ -28,14 +28,16 @@
 #include "../../hardware/code/gaugefield.hpp"
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng)
-  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
+  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system), clover_eo_inverse_upper_left(nullptr), clover_eo_inverse_lower_right(nullptr)
 {
 	initializeBasedOnParameters();
-	/*if(action == clover)
+	if(parameters->getFermact() == common::action::clover)
 	{
-		clover_eo_inverse_upper_left.set_field(gaugefield, true);
-		clover_eo_inverse_lower_right.set_field(gaugefield, false);
-	}*/
+		clover_eo_inverse_upper_left = new physics::lattices::Matrix6x6Field(system,parameters);
+		clover_eo_inverse_lower_right = new physics::lattices::Matrix6x6Field(system,parameters);
+		clover_eo_inverse_upper_left->setField(this, true);
+		clover_eo_inverse_lower_right->setField(this, false);
+	}
 }
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng, bool hot)
