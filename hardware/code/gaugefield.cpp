@@ -469,16 +469,13 @@ void hardware::code::Gaugefield::importGaugefield(const hardware::buffers::SU3 *
 	using namespace hardware::buffers;
 
 	logger.trace() << "Import gaugefield to get_device()";
-	logger.debug() << "Import gaugefield to get_device() ...";
 	if(get_device()->get_prefers_soa()) {
 		logger.debug() << "Creating Plain<Matrixsu3> tmp ...";
 		Plain<Matrixsu3> tmp(gaugefield->get_elements(), get_device());
 		logger.debug() << "Loading data to tmp ...";
 		tmp.load(data);
-		logger.debug() << "Converting gaugefield to SOA device ...";
 		convertGaugefieldToSOA_device(gaugefield, &tmp);
 	} else {
-		logger.debug() << "Loading data to gaugefield";
 		gaugefield->load(data);
 	}
 }
@@ -541,7 +538,6 @@ hardware::code::Gaugefield::Gaugefield( const hardware::code::OpenClKernelParame
 	: Opencl_Module(kernelParameters, device),
 	  stout_smear(0), rectangles(0), rectangles_reduction(0)
 {
-	logger.debug() << "Trying to fill gaugefield kernels ...";
 	fill_kernels();
 }
 
