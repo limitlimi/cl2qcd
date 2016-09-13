@@ -33,6 +33,28 @@ hardware::lattices::Matrix6x6Field::~Matrix6x6Field()
     release_buffers(&buffers);
 }
 
+/*void hardware::lattices::Matrix6x6Field::set6x6Field(physics::lattices::Gaugefield * gaugefield, physics::lattices::Matrix6x6Field * matrix6x6Field, bool upperOrLower, double kappa, double csw)
+{
+	auto gaugefieldBuffers = gaugefield->get_buffers();
+	auto matrix6x6FieldBuffers = matrix6x6Field->get_buffers();
+	size_t num_devs = matrix6x6FieldBuffers.size();
+
+	if(num_devs ==1){
+	auto device = matrix6x6FieldBuffers[0]->get_device();
+	upperOrLower ?
+	device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], kappa, csw) :
+	device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], kappa, csw);
+	}
+	else {
+		for(size_t i = 0; i < num_devs; ++i) {
+			auto device = matrix6x6FieldBuffers[i]->get_device();
+			upperOrLower ?
+				device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], kappa, csw) :
+				device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], kappa, csw);
+		}
+	}
+}*/
+
 const std::vector<const hardware::buffers::matrix6x6 *> hardware::lattices::Matrix6x6Field::get_buffers() const noexcept
 {
     return buffers;

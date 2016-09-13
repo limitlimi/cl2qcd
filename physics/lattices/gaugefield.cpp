@@ -28,19 +28,24 @@
 #include "../../hardware/code/gaugefield.hpp"
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng)
-  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)
+  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeBasedOnParameters();
+	/*if(action == clover)
+	{
+		clover_eo_inverse_upper_left.set_field(gaugefield, true);
+		clover_eo_inverse_lower_right.set_field(gaugefield, false);
+	}*/
 }
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng, bool hot)
-  : system(system), prng(prng), latticeObjectParameters(parameters), gaugefield(system)
+  : system(system), prng(prng), latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeHotOrCold(hot);
 }
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng, std::string ildgfile)
-  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)
+  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeFromILDGSourcefile(ildgfile);
 }

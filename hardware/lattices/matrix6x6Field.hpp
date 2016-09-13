@@ -23,6 +23,9 @@
 #include "../system.hpp"
 #include "../buffers/6x6.hpp"
 #include "../buffers/plain.hpp"
+#include "../../physics/lattices/gaugefield.hpp"
+//#include "../../physics/lattices/matrix6x6Field.hpp"
+#include "../code/matrix6x6Field.hpp"
 //#include "prng.hpp"
 
 
@@ -44,6 +47,8 @@ namespace hardware {
             void send_matrix6x6_to_buffers(const Matrix6x6 * const gf_host);
             void fetch_matrix6x6_from_buffers( Matrix6x6 * const gf_host);
             
+            //void set6x6Field(physics::lattices::Gaugefield * gaugefield, physics::lattices::Matrix6x6Field * matrix6x6Field, bool upperOrLower, double kappa, double csw);
+
             void update_halo() const;
 
             

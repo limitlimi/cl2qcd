@@ -30,15 +30,12 @@
 physics::lattices::Matrix6x6Field::Matrix6x6Field(const hardware::System& system, const Matrix6x6FieldParametersInterface * parameters, bool upperOrLower)
   : system(system), latticeObjectParameters(parameters), matrix6x6Field(system)
 {
-	initializeUpperOrLower(upperOrLower);
 }
 
-void physics::lattices::Matrix6x6Field::initializeUpperOrLower(bool upperOrLower)
-{/*
-	upperOrLower ?
-			matrix6x6Field.set_upper_left() :
-			matrix6x6Field.set_lower_right();
-*/}
+void physics::lattices::Matrix6x6Field::set6x6Field(physics::lattices::Gaugefield * gaugefield, bool upperOrLower)
+{
+	//matrix6x6Field.set6x6Field(gaugefield, upperOrLower, latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
+}
 
 physics::lattices::Matrix6x6Field::~Matrix6x6Field()
 {}

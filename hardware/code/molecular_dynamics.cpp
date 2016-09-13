@@ -61,8 +61,6 @@ void hardware::code::Molecular_Dynamics::fill_kernels()
         fermion_force_clover2_eo_1 = createKernel("fermion_force_clover2_eo_1") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
         fermion_force_clover2_eo_2 = createKernel("fermion_force_clover2_eo_2") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
         fermion_force_clover2_eo_3 = createKernel("fermion_force_clover2_eo_3") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "force_fermion_clover2_eo.cl";
-        clover_eo_inverse_explizit_upper_left = createKernel("clover_eo_inverse_explizit_upper_left") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
-        clover_eo_inverse_explizit_lower_right = createKernel("clover_eo_inverse_explizit_lower_right") << basic_molecular_dynamics_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
 	}
 	fermion_force = createKernel("fermion_force") << basic_molecular_dynamics_code << "fermionmatrix.cl" << "force_fermion.cl";
 	md_update_gaugefield = createKernel("md_update_gaugefield") << basic_molecular_dynamics_code << "md_update_gaugefield.cl";
@@ -115,8 +113,6 @@ void hardware::code::Molecular_Dynamics::clear_kernels()
         clerr = clReleaseKernel(fermion_force_clover2_eo_2);
         clerr = clReleaseKernel(fermion_force_clover2_eo_1);
         clerr = clReleaseKernel(fermion_force_clover2_eo_0);
-        clerr = clReleaseKernel(clover_eo_inverse_explizit_upper_left);
-        clerr = clReleaseKernel(clover_eo_inverse_explizit_lower_right);
         if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 	} else {
 		clerr = clReleaseKernel(fermion_force);
@@ -295,8 +291,6 @@ void hardware::code::Molecular_Dynamics::print_profiling(const std::string& file
     Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_1);
     Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_2);
     Opencl_Module::print_profiling(filename, fermion_force_clover2_eo_3);
-    Opencl_Module::print_profiling(filename, clover_eo_inverse_explizit_upper_left);
-    Opencl_Module::print_profiling(filename, clover_eo_inverse_explizit_lower_right);
 }
 
 void hardware::code::Molecular_Dynamics::md_update_gaugefield_device(const hardware::buffers::Gaugemomentum * gm_in, const hardware::buffers::SU3 * gf_out, hmc_float eps) const
@@ -666,73 +660,6 @@ void hardware::code::Molecular_Dynamics::fermion_force_clover2_eo_device(const h
 
 }
 
-void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const
-{
-	using namespace hardware::buffers;
-
-	//get kappa
-	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
-	else kappa_tmp = kappa;
-
-	//get csw
-	hmc_float csw_tmp;
-    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
-    else csw_tmp = csw;
-
-    //query work-sizes for kernel
-   	size_t ls2, gs2;
-   	cl_uint num_groups;
-   	this->get_work_sizes(clover_eo_inverse_explizit_upper_left, &ls2, &gs2, &num_groups);
-   	//set arguments
-   	int clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 0, sizeof(cl_mem), out->get_cl_buffer());
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 1, sizeof(cl_mem), gf->get_cl_buffer());
-    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 2, sizeof(hmc_float), &kappa_tmp);
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_upper_left, 3, sizeof(hmc_float), &csw_tmp);
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	get_device()->enqueue_kernel( clover_eo_inverse_explizit_upper_left, gs2, ls2);
-}
-
-void hardware::code::Molecular_Dynamics::clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const
-{
-	using namespace hardware::buffers;
-
-	//get kappa
-    hmc_float kappa_tmp;
-    if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
-    else kappa_tmp = kappa;
-
-    //get csw
-    hmc_float csw_tmp;
-    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
-    else csw_tmp = csw;
-
-    //query work-sizes for kernel
-   	size_t ls2, gs2;
-   	cl_uint num_groups;
-   	this->get_work_sizes(clover_eo_inverse_explizit_lower_right, &ls2, &gs2, &num_groups);
-   	//set arguments
-   	int clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 0, sizeof(cl_mem), out->get_cl_buffer());
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 1, sizeof(cl_mem), gf->get_cl_buffer());
-    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 2, sizeof(hmc_float), &kappa_tmp);
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 3, sizeof(hmc_float), &csw_tmp);
-   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
-
-   	get_device()->enqueue_kernel( clover_eo_inverse_explizit_upper_left, gs2, ls2);
-}
 
 void hardware::code::Molecular_Dynamics::fermion_staggered_partial_force_device(const hardware::buffers::SU3 * gf, const hardware::buffers::SU3vec * A, const hardware::buffers::SU3vec * B, const hardware::buffers::Gaugemomentum * out, int evenodd) const
 {
@@ -787,7 +714,6 @@ hardware::code::Molecular_Dynamics::Molecular_Dynamics(const hardware::code::Ope
 	  gauge_force_tlsym (0), fermion_force (0), fermion_force_eo_0(0), fermion_force_eo_1(0), fermion_force_eo_2(0), fermion_force_eo_3(0),
 	  fermion_force_clover1_eo_0(0), fermion_force_clover1_eo_1(0), fermion_force_clover1_eo_2(0), fermion_force_clover1_eo_3(0),
 	  fermion_force_clover2_eo_0(0), fermion_force_clover2_eo_1(0), fermion_force_clover2_eo_2(0), fermion_force_clover2_eo_3(0),
-	  clover_eo_inverse_explizit_upper_left(0), clover_eo_inverse_explizit_lower_right(0),
 	  stout_smear_fermion_force(0),
 	  fermion_stagg_partial_force_eo(0),
 	  gauge_force_tlsym_1 (0), gauge_force_tlsym_2 (0), gauge_force_tlsym_3 (0),

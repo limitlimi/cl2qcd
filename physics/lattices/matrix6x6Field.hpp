@@ -28,6 +28,7 @@
 #include "../prng.hpp"
 #include "latticesInterfaces.hpp"
 #include "../../hardware/lattices/matrix6x6Field.hpp"
+#include "gaugefield.hpp"
 
 /**
  * This namespace contains the lattices of the various kind,
@@ -59,6 +60,8 @@ namespace physics {
 			Matrix6x6Field(const Matrix6x6Field&) = delete;
 			Matrix6x6Field() = delete;
 
+			void set6x6Field(physics::lattices::Gaugefield * gaugefield, bool upperOrLower);
+
 			/**
 			 * Get the buffers containing the gaugefield state on the devices.
 			 */
@@ -77,9 +80,7 @@ namespace physics {
 		private:
 			hardware::System const& system;
 			const Matrix6x6FieldParametersInterface * latticeObjectParameters;
-
 			hardware::lattices::Matrix6x6Field matrix6x6Field;
-			void initializeUpperOrLower(bool upperOrLower);
 
 		};
 

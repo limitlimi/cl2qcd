@@ -46,6 +46,12 @@ public:
     
     matrix6x6Field(const hardware::code::OpenClKernelParametersInterface& kernelParameters, const hardware::Device * device);
 
+
+    void clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
+    void clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
+
+
+
     /**
      * Import the matrix6x6Field data into the OpenCL buffer using the device
      * specific storage format.
@@ -66,6 +72,10 @@ public:
      */
     void exportMatrix6x6Field(Matrix6x6 * const dest, const hardware::buffers::matrix6x6 * matrix6x6Field) const;
     
+	/**
+	 * Get the code required to use the matrix6x6Field from kernels.
+	 */
+	ClSourcePackage get_sources() const noexcept;
 protected:
 	/**
 	 * comutes work-sizes for a kernel
@@ -94,6 +104,14 @@ protected:
 	virtual size_t get_read_write_size(const std::string& in) const override;
 
 private:
+	/**
+	 * A set of source files used by all kernels.
+	 */
+	ClSourcePackage basic_opencl_code;
+
+	cl_kernel clover_eo_inverse_explizit_upper_left;
+	cl_kernel clover_eo_inverse_explizit_lower_right;
+
     //cl_kernel convertMatrix6x6FieldToSOA;
     //cl_kernel convertMatrix6x6FieldFromSOA;
     
