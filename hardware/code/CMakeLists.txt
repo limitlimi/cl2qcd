@@ -62,6 +62,7 @@ add_library(kernelTestUtilities
 	testUtilities.cpp
 	kernelTester.cpp
 	GaugefieldTester.cpp
+	Matrix6x6FieldTester.cpp
 	SpinorTester.cpp
 	GaugemomentumTester.cpp
 	SpinorStaggeredTester.cpp
