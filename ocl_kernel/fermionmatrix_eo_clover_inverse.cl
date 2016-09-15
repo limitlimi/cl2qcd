@@ -179,38 +179,37 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
 }
 
 void clover_eo_inverse_explizit_upper_left_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
+{/*
     Matrix6x6 out_tmp, tmp;
     
     tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
     out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
-    
-    put6x6(out, get_site_idx(pos), out_tmp); //pos??
-}
+    put6x6(out, get_site_idx(pos), out_tmp);
+*/}
 
 void clover_eo_inverse_explizit_lower_right_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
+{/*
     Matrix6x6 out_tmp, tmp;
     
     tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
     out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
     
     put6x6(out, get_site_idx(pos), out_tmp);
-}
+*/}
 
-__kernel void clover_eo_inverse_explizit_upper_left(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
+__kernel void clover_eo_inverse_explizit_upper_left(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
 {/*
     PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_st_idx_from_site_idx(id_local);
-        clover_eo_inverse_explizit_upper_left_for_site(in, out, field, kappa_in, csw, pos);
+        clover_eo_inverse_explizit_upper_left_for_site(out, field, kappa_in, csw, pos);
     }
 */}
 
-__kernel void clover_eo_inverse_explizit_lower_right(__global const Matrix6x6StorageType * const restrict in, __global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
+__kernel void clover_eo_inverse_explizit_lower_right(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
 {/*
     PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_st_idx_from_site_idx(id_local);
-        clover_eo_inverse_explizit_lower_right_for_site(in, out, field, kappa_in, csw, pos);
+        clover_eo_inverse_explizit_lower_right_for_site(out, field, kappa_in, csw, pos);
     }
 */}
 
