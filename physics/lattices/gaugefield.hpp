@@ -120,8 +120,8 @@ namespace physics {
 			const hardware::System * getSystem() const;
 			const GaugefieldParametersInterface * getParameters() const;
 			
-			//Matrix6x6 * getMatrix6x6Field();
-			//Matrix6x6 * fillMatrix6x6Field();
+			Matrix6x6Field * get_clover_eo_inverse_upper_left() const;
+			Matrix6x6Field * get_clover_eo_inverse_lower_right() const;
 
 		private:
 			hardware::System const& system;
@@ -129,10 +129,10 @@ namespace physics {
 			const GaugefieldParametersInterface * latticeObjectParameters;
 
 			hardware::lattices::Gaugefield gaugefield;
-		public:
+
 			Matrix6x6Field * clover_eo_inverse_upper_left;
 			Matrix6x6Field * clover_eo_inverse_lower_right;
-		private:
+
 			/**
 			 * Utility functions for construction.
 			 */

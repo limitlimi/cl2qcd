@@ -191,8 +191,8 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     if(parametersInterface.getFermact() == common::action::clover)
     {
     	//initialize inverted clover Matrix ^= two 6x6 blocks
-    	C = gf.clover_eo_inverse_upper_left;
-    	D = gf.clover_eo_inverse_lower_right;
+        C = gf.get_clover_eo_inverse_upper_left();
+        D = gf.get_clover_eo_inverse_lower_right();
     	//call fermion_force clover F(Y_even, X_even)
     	fermion_force(force, Y_even, X_even, EVEN, gf, *C, *D, additionalParameters);
     }

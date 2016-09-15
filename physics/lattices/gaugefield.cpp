@@ -189,3 +189,13 @@ int physics::lattices::Gaugefield::get_trajectoryNumberAtInit() const
 	return trajectoryNumberAtInit;
 }
 
+physics::lattices::Matrix6x6Field * physics::lattices::Gaugefield::get_clover_eo_inverse_upper_left() const
+{
+	return clover_eo_inverse_upper_left;
+}
+
+physics::lattices::Matrix6x6Field * physics::lattices::Gaugefield::get_clover_eo_inverse_lower_right() const
+{
+	return clover_eo_inverse_lower_right;
+}
+
