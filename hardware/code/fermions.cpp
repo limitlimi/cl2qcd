@@ -61,7 +61,7 @@ void hardware::code::Fermions::fill_kernels()
         } else if(kernelParameters->getFermact() == common::action::clover) {
             //create kernels for (1+T), (1+T)^(-1) + sources << ... <<
             clover_eo = createKernel("clover_eo") << sources << "fermionmatrix_eo_clover.cl";
-            clover_eo_inverse = createKernel("clover_eo_inverse") << sources << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
+            clover_eo_inverse = createKernel("clover_eo_inverse") << sources << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl";
         }
 		dslash_eo = createKernel("dslash_eo") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_dslash.cl";
 		_dslash_eo_boundary = createKernel("dslash_eo_boundary") << sources << "fermionmatrix.cl" << "fermionmatrix_eo.cl" << "fermionmatrix_eo_dslash.cl";

@@ -45,15 +45,15 @@ void physics::lattices::Matrix6x6Field::setField(const physics::lattices::Gaugef
 	if(num_devs ==1){
 	auto device = matrix6x6FieldBuffers[0]->get_device();
 	upperOrLower ?
-	device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw()) :
-	device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
+	device->getMatrix6x6FieldCode()->clover_eo_inverse_explicit_upper_left_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw()) :
+	device->getMatrix6x6FieldCode()->clover_eo_inverse_explicit_lower_right_device(matrix6x6FieldBuffers[0], gaugefieldBuffers[0], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
 	}
 	else {
 		for(size_t i = 0; i < num_devs; ++i) {
 			auto device = matrix6x6FieldBuffers[i]->get_device();
 			upperOrLower ?
-				device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw()) :
-				device->getMatrix6x6FieldCode()->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
+				device->getMatrix6x6FieldCode()->clover_eo_inverse_explicit_upper_left_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw()) :
+				device->getMatrix6x6FieldCode()->clover_eo_inverse_explicit_lower_right_device(matrix6x6FieldBuffers[i], gaugefieldBuffers[i], latticeObjectParameters->getKappa(), latticeObjectParameters->getCsw());
 		}
 	}
 }

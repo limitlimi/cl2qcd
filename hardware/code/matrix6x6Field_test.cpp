@@ -24,10 +24,10 @@
 #include "Matrix6x6FieldTester.hpp"
 
 
-struct CloverEvenOddInverseExplizitUpperLeftTester : public Matrix6x6FieldTester
+struct CloverEvenOddInverseExplicitUpperLeftTester : public Matrix6x6FieldTester
 {
-	CloverEvenOddInverseExplizitUpperLeftTester(const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
-		Matrix6x6FieldTester("clover_eo_inverse_explizit_upper_left", parameterCollection, testParams, rV)
+	CloverEvenOddInverseExplicitUpperLeftTester(const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
+		Matrix6x6FieldTester("clover_eo_inverse_explicit_upper_left", parameterCollection, testParams, rV)
 	{
 		GaugefieldCreator gf(testParams.latticeExtents);
 		matrix6x6FieldBuffer = new hardware::buffers::matrix6x6(testParams.latticeExtents, this->device);
@@ -36,17 +36,17 @@ struct CloverEvenOddInverseExplizitUpperLeftTester : public Matrix6x6FieldTester
 		device->getGaugefieldCode()->importGaugefield(gaugefieldBuffer, gf_host);
 		delete[] gf_host;
 
-		code->clover_eo_inverse_explizit_upper_left_device(matrix6x6FieldBuffer, gaugefieldBuffer, parameterCollection.kernelParameters.getKappa(), parameterCollection.kernelParameters.getCsw());
+		code->clover_eo_inverse_explicit_upper_left_device(matrix6x6FieldBuffer, gaugefieldBuffer, parameterCollection.kernelParameters.getKappa(), parameterCollection.kernelParameters.getCsw());
 	}
 protected:
 	const hardware::buffers::matrix6x6 * matrix6x6FieldBuffer;
 	const hardware::buffers::SU3 * gaugefieldBuffer;
 };
 
-struct CloverEvenOddInverseExplizitLowerRightTester : public Matrix6x6FieldTester
+struct CloverEvenOddInverseExplicitLowerRightTester : public Matrix6x6FieldTester
 {
-	CloverEvenOddInverseExplizitLowerRightTester(const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
-		Matrix6x6FieldTester("clover_eo_inverse_explizit_lower_right", parameterCollection, testParams, rV)
+	CloverEvenOddInverseExplicitLowerRightTester(const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
+		Matrix6x6FieldTester("clover_eo_inverse_explicit_lower_right", parameterCollection, testParams, rV)
 	{
 		GaugefieldCreator gf(testParams.latticeExtents);
 		matrix6x6FieldBuffer = new hardware::buffers::matrix6x6(testParams.latticeExtents, this->device);
@@ -55,7 +55,7 @@ struct CloverEvenOddInverseExplizitLowerRightTester : public Matrix6x6FieldTeste
 		device->getGaugefieldCode()->importGaugefield(gaugefieldBuffer, gf_host);
 		delete[] gf_host;
 
-		code->clover_eo_inverse_explizit_lower_right_device(matrix6x6FieldBuffer, gaugefieldBuffer, parameterCollection.kernelParameters.getKappa(), parameterCollection.kernelParameters.getCsw());
+		code->clover_eo_inverse_explicit_lower_right_device(matrix6x6FieldBuffer, gaugefieldBuffer, parameterCollection.kernelParameters.getKappa(), parameterCollection.kernelParameters.getCsw());
 	}
 protected:
 	const hardware::buffers::matrix6x6 * matrix6x6FieldBuffer;
@@ -72,27 +72,27 @@ void performTest(const ReferenceValues refValuesIn, const LatticeExtents lattice
 	TesterClass tester(parameterCollection, parametersForThisTest, refValuesIn);
 }
 
-void testCloverEvenOddInverseExplizitUpperLeft(const ReferenceValues rV, const LatticeExtents lE, const GaugefieldFillType fT)
+void testCloverEvenOddInverseExplicitUpperLeft(const ReferenceValues rV, const LatticeExtents lE, const GaugefieldFillType fT)
 {
-	performTest<CloverEvenOddInverseExplizitUpperLeftTester>(rV, lE, fT);
+	performTest<CloverEvenOddInverseExplicitUpperLeftTester>(rV, lE, fT);
 }
 
-void testCloverEvenOddInverseExplizitLowerRight(const ReferenceValues rV, const LatticeExtents lE, const GaugefieldFillType fT)
+void testCloverEvenOddInverseExplicitLowerRight(const ReferenceValues rV, const LatticeExtents lE, const GaugefieldFillType fT)
 {
-	performTest<CloverEvenOddInverseExplizitLowerRightTester>(rV, lE, fT);
+	performTest<CloverEvenOddInverseExplicitLowerRightTester>(rV, lE, fT);
 }
 
 
-BOOST_AUTO_TEST_SUITE ( CLOVER_EO_INVERSE_EXPLIZIT )
+BOOST_AUTO_TEST_SUITE ( CLOVER_EO_INVERSE_EXPLICIT )
 
-	BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_EXPLIZIT_UPPER_LEFT )
+	BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_EXPLICIT_UPPER_LEFT )
 	{
-		testCloverEvenOddInverseExplizitUpperLeft(ReferenceValues{1234.}, LatticeExtents{ns4, nt4}, GaugefieldFillType::cold );
+		testCloverEvenOddInverseExplicitUpperLeft(ReferenceValues{1234.}, LatticeExtents{ns4, nt4}, GaugefieldFillType::cold );
 	}
 
-	BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_EXPLIZIT_LOWER_RIGHT )
+	BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_EXPLICIT_LOWER_RIGHT )
 	{
-		testCloverEvenOddInverseExplizitLowerRight(ReferenceValues{1234.}, LatticeExtents{ns4, nt4}, GaugefieldFillType::cold );
+		testCloverEvenOddInverseExplicitLowerRight(ReferenceValues{1234.}, LatticeExtents{ns4, nt4}, GaugefieldFillType::cold );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

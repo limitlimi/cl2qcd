@@ -47,8 +47,8 @@ public:
     matrix6x6Field(const hardware::code::OpenClKernelParametersInterface& kernelParameters, const hardware::Device * device);
 
 
-    void clover_eo_inverse_explizit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
-    void clover_eo_inverse_explizit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
+    void clover_eo_inverse_explicit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
+    void clover_eo_inverse_explicit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
 
 
 
@@ -109,8 +109,8 @@ private:
 	 */
 	ClSourcePackage basic_opencl_code;
 
-	cl_kernel clover_eo_inverse_explizit_upper_left;
-	cl_kernel clover_eo_inverse_explizit_lower_right;
+	cl_kernel clover_eo_inverse_explicit_upper_left;
+	cl_kernel clover_eo_inverse_explicit_lower_right;
 
     //cl_kernel convertMatrix6x6FieldToSOA;
     //cl_kernel convertMatrix6x6FieldFromSOA;
