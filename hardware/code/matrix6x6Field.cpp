@@ -33,8 +33,8 @@ void hardware::code::matrix6x6Field::fill_kernels()
 {
 	basic_opencl_code = get_basic_sources() << "operations_geometry.cl" << "operations_complex.cl" << "operations_complex.h" << "types_fermions.h" << "types_hmc.h" << "operations_matrix_su3.cl" << "operations_matrix.cl" << "operations_gaugefield.cl" << "operations_su3vec.cl" << "operations_spinor.cl" << "spinorfield.cl" << "operations_gaugemomentum.cl";
 
-	clover_eo_inverse_explizit_upper_left = createKernel("clover_eo_inverse_explizit_upper_left") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
-	clover_eo_inverse_explizit_lower_right = createKernel("clover_eo_inverse_explizit_lower_right") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
+	clover_eo_inverse_explizit_upper_left = createKernel("clover_eo_inverse_explizit_upper_left") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
+	clover_eo_inverse_explizit_lower_right = createKernel("clover_eo_inverse_explizit_lower_right") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explizit.cl" << "fermionmatrix_eo_clover_inverse.cl";
 }
 
 void hardware::code::matrix6x6Field::clear_kernels()
@@ -100,12 +100,12 @@ void hardware::code::matrix6x6Field::clover_eo_inverse_explizit_lower_right_devi
 	using namespace hardware::buffers;
 
 	//get kappa
-    hmc_float kappa_tmp;
-    if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
-    else kappa_tmp = kappa;
+	hmc_float kappa_tmp;
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
+	else kappa_tmp = kappa;
 
-    //get csw
-    hmc_float csw_tmp;
+	//get csw
+	hmc_float csw_tmp;
     if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
     else csw_tmp = csw;
 
@@ -126,7 +126,7 @@ void hardware::code::matrix6x6Field::clover_eo_inverse_explizit_lower_right_devi
    	clerr = clSetKernelArg(clover_eo_inverse_explizit_lower_right, 3, sizeof(hmc_float), &csw_tmp);
    	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
 
-   	get_device()->enqueue_kernel( clover_eo_inverse_explizit_upper_left, gs2, ls2);
+   	get_device()->enqueue_kernel( clover_eo_inverse_explizit_lower_right, gs2, ls2);
 }
 
 uint64_t hardware::code::matrix6x6Field::get_flop_size(const std::string& in) const

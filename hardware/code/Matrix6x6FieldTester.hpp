@@ -21,16 +21,15 @@
 
 #include "kernelTester.hpp"
 #include "matrix6x6Field.hpp"
+#include "GaugefieldTester.hpp"
 
 int calculateMatrix6x6FieldSize(LatticeExtents latticeExtentsIn) noexcept;
 
-enum Matrix6x6FieldFillType {cold = 1, nonTrivial};
-
 struct Matrix6x6FieldTestParameters : public virtual TestParameters
 {
-	Matrix6x6FieldFillType fillType;
+	GaugefieldFillType fillType;
 
-	Matrix6x6FieldTestParameters(const LatticeExtents latticeExtentsIn, Matrix6x6FieldFillType fillTypeIn):
+	Matrix6x6FieldTestParameters(const LatticeExtents latticeExtentsIn, GaugefieldFillType fillTypeIn):
 		TestParameters(latticeExtentsIn), fillType( fillTypeIn ) {}
 };
 
@@ -42,10 +41,10 @@ protected:
 	const hardware::code::matrix6x6Field * code;
 };
 
-struct Matrix6x6FieldCreator
-{
-	Matrix6x6FieldCreator(const LatticeExtents lE): numberOfElements(calculateMatrix6x6FieldSize(lE)){};
-	const Matrix6x6* createMatrix6x6Field(const Matrix6x6FieldFillType fillTypeIn);
-
-	size_t numberOfElements;
-};
+//struct Matrix6x6FieldCreator
+//{
+//	Matrix6x6FieldCreator(const LatticeExtents lE): numberOfElements(calculateMatrix6x6FieldSize(lE)){};
+//	const Matrix6x6* createMatrix6x6Field(const GaugefieldFillType fillTypeIn);
+//
+//	size_t numberOfElements;
+//};

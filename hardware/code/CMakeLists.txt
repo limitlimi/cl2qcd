@@ -89,6 +89,11 @@ target_link_libraries(hardware_code_spinors_test kernelTestUtilities)
 add_test(hardware_code_spinors_CPU       hardware_code_spinors_test --use_gpu=false)
 add_test(hardware_code_spinors_GPU       hardware_code_spinors_test --use_gpu=true)
 
+add_executable(hardware_code_matrix6x6field_test matrix6x6Field_test.cpp)
+target_link_libraries(hardware_code_matrix6x6field_test kernelTestUtilities)
+add_test(hardware_code_matrix6x6field_CPU       hardware_code_matrix6x6field_test --use_gpu=false)
+add_test(hardware_code_matrix6x6field_GPU       hardware_code_matrix6x6field_test --use_gpu=true)
+
 add_executable(hardware_code_spinors_merged_kernels_test spinors_merged_kernels_test.cpp)
 target_link_libraries(hardware_code_spinors_merged_kernels_test kernelTestUtilities )
 add_test(hardware_code_spinors_merged_kernels_test_CPU       hardware_code_spinors_merged_kernels_test --use_gpu=false --use_rec12=false)
