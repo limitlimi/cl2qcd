@@ -231,6 +231,8 @@ Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3Storage
 {
     Matrix6x6 out = zero_matrix6x6();
     Matrix3x3 EB1, EB2, EB3, E, B, tmp, tmp1;
+    //no bc_tmp needed
+    hmc_float factor = 1./16. * csw;
     //this is used to save the BC-conditions...
     /*hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
         1./16. * csw * TEMPORAL_RE, 1./16. * csw * TEMPORAL_IM
@@ -276,7 +278,7 @@ Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3Storage
     
     //upper-left block = 1 + EB3
     tmp = add_matrix3x3(identity_matrix3x3(), EB3);
-    out = out = put_3x3block_matrix6x6_upperleft(out, tmp);
+    out = put_3x3block_matrix6x6_upperleft(out, tmp);
     
     //upper-right block = EB1 - i * EB2
     tmp = multiply_matrix3x3_by_complex(EB2, hmc_complex_i);
@@ -291,9 +293,9 @@ Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3Storage
     out = put_3x3block_matrix6x6_lowerright(out, tmp);
     
     
-    //Faktor of i and bc_tmp
-    //hmc_complex factor = complexmult(bc_tmp, hmc_complex_i);
-    //out = multiply_matrix6x6_by_complex (out , factor);
+    //Faktor of i and factor
+    hmc_complex factor = complexmult(bc_tmp, hmc_complex_i);
+    out = multiply_matrix6x6_by_real (out , factor);
     return out;
 }
 
@@ -304,6 +306,8 @@ Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3Storag
 {
     Matrix6x6 out = zero_matrix6x6();
     Matrix3x3 EB1, EB2, EB3, E, B, tmp, tmp1;
+    //no bc_tmp needed
+    hmc_float factor = 1./16. * csw;
     //this is used to save the BC-conditions...
     /*hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
         1./16. * csw * TEMPORAL_RE, 1./16. * csw * TEMPORAL_IM
@@ -364,8 +368,8 @@ Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3Storag
     out = put_3x3block_matrix6x6_lowerright(out, tmp);
     
     
-    //Faktor of -i and bc_tmp
+    //Faktor of -i and factor
     //hmc_complex factor = complexmult(bc_tmp, hmc_complex_minusi);
-    //out = multiply_matrix6x6_by_complex (out , factor);
+    out = multiply_matrix6x6_by_real (out , factor);
     return out;
 }
