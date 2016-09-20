@@ -25,7 +25,7 @@
 
 ReferenceValues calculateReferenceValues_CloverEvenOddInverseExplicitUpperLeftTester()
 {
-	return defaultReferenceValues();
+	return ReferenceValues{1536.};
 }
 
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_SUITE ( CLOVER_EO_INVERSE_EXPLICIT )
 
 	BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_EXPLICIT_LOWER_RIGHT )
 	{
-		testCloverEvenOddInverseExplicitLowerRight(LatticeExtents{ns8, nt8}, GaugefieldFillType::nonTrivial, 0.1 );
+		testCloverEvenOddInverseExplicitLowerRight(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, 0.1 );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,3 +1,24 @@
+/*
+ * Copyright 2012, 2013 Lars Zeidlewicz, Christopher Pinke,
+ * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra, 
+ * Max Theilig
+ *
+ * This file is part of CL2QCD.
+ *
+ * CL2QCD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CL2QCD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /* The clover Matrix (1+T) is a complex 12x12 Matrix for every lattice site
    T = c_sw sum_{mu,nu=0}^3 i/4 sigma_{mu,nu} F_{mu,nu} with F = lattice-field-strength-tensor
    because of sigma_{mu,nu} (1 + T) is blockdiagonal and one can store it as two complex 6x6 matrices
@@ -368,6 +389,6 @@ Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3Storag
     //lower-right block = 1 - EB3
     tmp = subtract_matrix3x3(identity_matrix3x3(), EB3);
     out = put_3x3block_matrix6x6_lowerright(out, tmp);
-    
+
     return out;
 }

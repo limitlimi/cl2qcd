@@ -33,8 +33,8 @@ void hardware::code::matrix6x6Field::fill_kernels()
 {
 	basic_opencl_code = get_basic_sources() << "operations_geometry.cl" << "operations_complex.cl" << "operations_complex.h" << "types_fermions.h" << "types_hmc.h" << "operations_matrix_su3.cl" << "operations_matrix.cl" << "operations_gaugefield.cl" << "operations_su3vec.cl" << "operations_spinor.cl" << "spinorfield.cl" << "operations_gaugemomentum.cl";
 
-	clover_eo_inverse_explicit_upper_left = createKernel("clover_eo_inverse_explicit_upper_left") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl";
-	clover_eo_inverse_explicit_lower_right = createKernel("clover_eo_inverse_explicit_lower_right") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl";
+	clover_eo_inverse_explicit_upper_left = createKernel("clover_eo_inverse_explicit_upper_left") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl" << "fermionmatrix_eo_clover_explizit_inverse.cl";
+	clover_eo_inverse_explicit_lower_right = createKernel("clover_eo_inverse_explicit_lower_right") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl" << "fermionmatrix_eo_clover_explizit_inverse.cl";
 }
 
 void hardware::code::matrix6x6Field::clear_kernels()

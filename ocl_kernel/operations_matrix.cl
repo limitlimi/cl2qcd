@@ -1,6 +1,7 @@
 /*
  * Copyright 2012, 2013 Lars Zeidlewicz, Christopher Pinke,
- * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra
+ * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra, 
+ * Max Theilig
  *
  * This file is part of CL2QCD.
  *
@@ -17,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /** @file
  * Device code implementing 3x3 matrices
  */

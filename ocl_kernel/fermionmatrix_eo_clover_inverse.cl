@@ -1,3 +1,24 @@
+/*
+ * Copyright 2012, 2013 Lars Zeidlewicz, Christopher Pinke,
+ * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra, 
+ * Max Theilig
+ *
+ * This file is part of CL2QCD.
+ *
+ * CL2QCD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CL2QCD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /* This function performs the inversion a complex 6x6 matrix
    via Householder-Triangularization(see OpenQCD documentation "Implementation of the Dirac Operator" section 5
  */
@@ -56,23 +77,25 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
     T[5][3].re = a.e53.re; T[5][3].im = a.e53.im;
     T[5][4].re = a.e54.re; T[5][4].im = a.e54.im;
     T[5][5].re = a.e55.re; T[5][5].im = a.e55.im;
-    
+
     //build R_1,...,R_n-1,T via vectors u_k
     hmc_complex u[6];
     hmc_complex N1[6][6];
     hmc_complex R[6-1][6][6] = {0.};
     
-    for(unsigned int k=0; k<(cols-1); ++k){
+    for(int k=0; k<(cols-1); ++k){
         //build u_k and norm^2 of u_k
-        hmc_float norm_u_squared = 0;
-        for(unsigned int l=0; l<rows; ++l){ //vector u according to Lüscher-OpenQCD doc
+        hmc_float norm_u_squared = 0.;
+        for(int l=0; l<rows; ++l){ //vector u according to Lüscher-OpenQCD doc
             if(l<k){u[l] = hmc_complex_zero;}
             else if(l==k){hmc_float r = 0.0;
                 for(unsigned int j=k; j<rows; ++j){r = r + complex_abs_value(T[j][k]) * complex_abs_value(T[j][k]);}
                 if(T[l][k].re == 0 && T[l][k].im == 0){u[l].re = - sqrt(r);} // 0/abs(0)!=1
                 else{u[l] = complex_add(T[k][k], complex_mult(complex_divid(T[k][k], convert_float_to_complex(complex_abs_value(T[k][k]))), convertfloattocomplex(sqrt(r))));}}
             else{u[l] = T[l][k];}
+            //printf("(%f,%f)", u[l]);
             norm_u_squared = norm_u_squared + complex_abs_value(u[l]) * complex_abs_value(u[l]);}
+
     // build up R_k by u_k und perform R_k * R_k-1*...*R_1*T
     for(unsigned int m=0; m<rows; ++m){
         for(unsigned int n=0; n<cols; ++n){
@@ -82,13 +105,12 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
         for(unsigned int n=0; n<cols; ++n){
             N1[m][n] = hmc_complex_zero;
             for(unsigned int l=0; l<rows; ++l){
-                N1[m][n] = complex_add(N1[m][n], complex_add(R[k][m][l], T[l][n]));
+                N1[m][n] = complex_add(N1[m][n], complex_mult(R[k][m][l], T[l][n]));
             }}}
     for(unsigned int m=0; m<rows; ++m){
         for(unsigned int n=0; n<cols; ++n){
             T[m][n] = N1[m][n];}}
     }//end for loop over k-->now we have R_n-1,...,R_1,T=upper triangular
-
 
     //inversion of T=S^(-1) according to OpenQCD doc equation (5.8)ff.
     //note: inverse of upper triangular matrix is upper triangular aswell
@@ -101,9 +123,8 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
             hmc_complex r = hmc_complex_zero;
             for(int j=i+1; j<=k; j=j+1){
                 r = complex_add(r, complex_mult(T[i][j], S[j][k]));}
-            S[i][k] = complexmult(hmc_complex_minusone, complex_mult(S[i][i], r));}
+            S[i][k] = complex_mult(hmc_complex_minusone, complex_mult(S[i][i], r));}
     }
-
 
     //R_prod = R_n-1,...,R_1
     hmc_complex R_prod[6][6] = {0.};
@@ -116,7 +137,7 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
             for(unsigned int n=0; n<cols; ++n){
                 N1[m][n] = hmc_complex_zero;
                 for(unsigned int l=0; l<rows; ++l){
-                    N1[m][n] = complex_add(N1[m][n], complex_add(R[k][m][l], R_prod[l][n]));}}}
+                    N1[m][n] = complex_add(N1[m][n], complex_mult(R[k][m][l], R_prod[l][n]));}}}
         for(unsigned int m=0; m<rows; ++m){
             for(unsigned int n=0; n<cols; ++n){
                 R_prod[m][n] = N1[m][n];}}
@@ -175,45 +196,9 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
     out.e53.re = r[5][3].re; out.e53.im = r[5][3].im;
     out.e54.re = r[5][4].re; out.e54.im = r[5][4].im;
     out.e55.re = r[5][5].re; out.e55.im = r[5][5].im;
+	
     return out;
 }
-
-void clover_eo_inverse_explicit_upper_left_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
-    Matrix6x6 out_tmp, tmp;
-    
-    tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
-    out_tmp = inverse_6x6_via_Householder_triangularization(tmp);    
-
-    put6x6(out, get_site_idx(pos), out_tmp);
-}
-
-void clover_eo_inverse_explicit_lower_right_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{
-    Matrix6x6 out_tmp, tmp;
-    
-    tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
-    out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
-    
-    put6x6(out, get_site_idx(pos), out_tmp);
-}
-
-__kernel void clover_eo_inverse_explicit_upper_left(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{
-    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
-        st_idx pos = get_st_idx_from_site_idx(id_local);
-        clover_eo_inverse_explicit_upper_left_for_site(out, field, kappa_in, csw, pos);
-    }
-}
-
-__kernel void clover_eo_inverse_explicit_lower_right(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{
-    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
-        st_idx pos = get_st_idx_from_site_idx(id_local);
-        clover_eo_inverse_explicit_lower_right_for_site(out, field, kappa_in, csw, pos);
-    }
-}
-
 
 //clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
 void clover_eo_inverse_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
