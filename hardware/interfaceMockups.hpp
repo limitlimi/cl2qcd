@@ -539,6 +539,14 @@ namespace hardware
                 fermact = common::action::clover;
                 //todo: kappa and mu should be set to 0 or so as they should not be used in the test
             }
+            OpenClKernelParametersMockupForCloverEvenOdd(int nsIn, int ntIn, const double cswIn) :
+            OpenClKernelParametersMockupForSpinorTests(nsIn, ntIn, true), fermact(common::action::clover)
+                , csw(cswIn), kappa(0.1)
+            {
+                //NOTE: for the moment, these member are set here in order to overwrite the settings from the parent class, but this should be done nicer!
+                fermact = common::action::clover;
+                //todo: kappa and mu should be set to 0 or so as they should not be used in the test
+            }
             virtual common::action  getFermact() const override
             {
                 return fermact;

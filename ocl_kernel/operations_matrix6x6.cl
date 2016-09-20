@@ -1,4 +1,43 @@
+/*
+ * Copyright 2012, 2013 Lars Zeidlewicz, Christopher Pinke,
+ * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra,
+ * Max Theilig
+ *
+ * This file is part of CL2QCD.
+ *
+ * CL2QCD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CL2QCD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
+/** @file
+ * Device code implementing 3x3 matrices
+ */
+
+//operations_matrix6x6.cl
+
+//#ifdef ENABLE_PRINTF
+void print_matrix6x6(Matrix6x6 in)
+{
+	printf("(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n",
+	       in.e00.re, in.e00.im, in.e01.re, in.e01.im, in.e02.re, in.e02.im, in.e03.re, in.e03.im, in.e04.re, in.e04.im, in.e05.re, in.e05.im,
+	       in.e10.re, in.e10.im, in.e11.re, in.e11.im, in.e12.re, in.e12.im, in.e13.re, in.e13.im, in.e14.re, in.e14.im, in.e15.re, in.e15.im,
+	       in.e20.re, in.e20.im, in.e21.re, in.e21.im, in.e22.re, in.e22.im, in.e23.re, in.e23.im, in.e24.re, in.e24.im, in.e25.re, in.e25.im,
+	       in.e30.re, in.e30.im, in.e31.re, in.e31.im, in.e32.re, in.e32.im, in.e33.re, in.e33.im, in.e34.re, in.e34.im, in.e35.re, in.e35.im,
+	       in.e40.re, in.e40.im, in.e41.re, in.e41.im, in.e42.re, in.e42.im, in.e43.re, in.e43.im, in.e44.re, in.e44.im, in.e45.re, in.e45.im,
+	       in.e50.re, in.e50.im, in.e51.re, in.e51.im, in.e52.re, in.e52.im, in.e53.re, in.e53.im, in.e54.re, in.e54.im, in.e55.re, in.e55.im);
+	printf("\n");
+}
+//#endif
 
 inline Matrix6x6 get6x6(__global const Matrix6x6StorageType * const restrict in, const uint idx)
 {

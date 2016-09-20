@@ -27,10 +27,11 @@ int calculateMatrix6x6FieldSize(LatticeExtents latticeExtentsIn) noexcept;
 
 struct Matrix6x6FieldTestParameters : public virtual TestParameters
 {
-	GaugefieldFillType fillType;
+	const GaugefieldFillType fillType;
+	const hmc_float csw;
 
-	Matrix6x6FieldTestParameters(const LatticeExtents latticeExtentsIn, GaugefieldFillType fillTypeIn):
-		TestParameters(latticeExtentsIn), fillType( fillTypeIn ) {}
+	Matrix6x6FieldTestParameters(const LatticeExtents latticeExtentsIn, const GaugefieldFillType fillTypeIn, const hmc_float cswIn):
+		TestParameters(latticeExtentsIn), fillType( fillTypeIn ), csw(cswIn){}
 };
 
 hmc_float count_matrix6x6Field(Matrix6x6 * in, int size)
