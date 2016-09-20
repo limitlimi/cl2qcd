@@ -69,8 +69,8 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
             if(l<k){u[l] = hmc_complex_zero;}
             else if(l==k){hmc_float r = 0.0;
                 for(unsigned int j=k; j<rows; ++j){r = r + complex_abs_value(T[j][k]) * complex_abs_value(T[j][k]);}
-                if(T[l][k].re ==0 && T[l][k].im == 0){u[l].re = - sqrt(r);} // 0/abs(0)!=1
-                else{u[l] = complex_sub(T[k][k], complex_mult(complex_divid(T[k][k], convert_float_to_complex(complex_abs_value(T[k][k]))), convertfloattocomplex(sqrt(r))));}}
+                if(T[l][k].re == 0 && T[l][k].im == 0){u[l].re = - sqrt(r);} // 0/abs(0)!=1
+                else{u[l] = complex_add(T[k][k], complex_mult(complex_divid(T[k][k], convert_float_to_complex(complex_abs_value(T[k][k]))), convertfloattocomplex(sqrt(r))));}}
             else{u[l] = T[l][k];}
             norm_u_squared = norm_u_squared + complex_abs_value(u[l]) * complex_abs_value(u[l]);}
     // build up R_k by u_k und perform R_k * R_k-1*...*R_1*T
@@ -179,39 +179,40 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
 }
 
 void clover_eo_inverse_explicit_upper_left_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{/*
+{
     Matrix6x6 out_tmp, tmp;
     
     tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
-    out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
+    out_tmp = inverse_6x6_via_Householder_triangularization(tmp);    
+
     put6x6(out, get_site_idx(pos), out_tmp);
-*/}
+}
 
 void clover_eo_inverse_explicit_lower_right_for_site(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
-{/*
+{
     Matrix6x6 out_tmp, tmp;
     
     tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
     out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
     
     put6x6(out, get_site_idx(pos), out_tmp);
-*/}
+}
 
 __kernel void clover_eo_inverse_explicit_upper_left(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{/*
+{
     PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_st_idx_from_site_idx(id_local);
         clover_eo_inverse_explicit_upper_left_for_site(out, field, kappa_in, csw, pos);
     }
-*/}
+}
 
 __kernel void clover_eo_inverse_explicit_lower_right(__global Matrix6x6StorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw)
-{/*
+{
     PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_st_idx_from_site_idx(id_local);
         clover_eo_inverse_explicit_lower_right_for_site(out, field, kappa_in, csw, pos);
     }
-*/}
+}
 
 
 //clover Matrix (1+T)={{B_plus,0},{0,B_minus}} is blockdiagonal, therefore (1+T)^(-1)={{A_plus,0},{0,A_minus}} also
@@ -247,9 +248,9 @@ void clover_eo_inverse_for_site(__global const spinorStorageType * const restric
 }
 
 __kernel void clover_eo_inverse(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, const int evenodd, hmc_float kappa_in, hmc_float csw)
-{/*
-    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
+{
+    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {//EOPREC_SPINORFIELDSIZE_LOCAL) {
         st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
         clover_eo_inverse_for_site(in, out, field, kappa_in, csw, pos);
     }
-*/}
+}

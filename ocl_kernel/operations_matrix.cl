@@ -38,20 +38,58 @@ void print_matrix3x3(Matrix3x3 in)
 
 inline Matrix3x3 zero_matrix3x3 ()
 {
-	return (Matrix3x3) {
-		{0., 0.}, {0., 0.}, {0., 0.},
-		{0., 0.}, {0., 0.}, {0., 0.},
-		{0., 0.}, {0., 0.}, {0., 0.}
-	};
+	Matrix3x3 out;
+
+	out.e00.re = 0.;
+	out.e00.im = 0.;
+	out.e01.re = 0.;
+	out.e01.im = 0.;
+	out.e02.re = 0.;
+	out.e02.im = 0.;
+
+	out.e10.re = 0.;
+	out.e10.im = 0.;
+	out.e11.re = 0.;
+	out.e11.im = 0.;
+	out.e12.re = 0.;
+	out.e12.im = 0.;
+
+	out.e20.re = 0.;
+	out.e20.im = 0.;
+	out.e21.re = 0.;
+	out.e21.im = 0.;
+	out.e22.re = 0.;
+	out.e22.im = 0.;
+
+	return out;
 }
 
 inline Matrix3x3 identity_matrix3x3 ()
 {
-	return (Matrix3x3) {
-		{1., 0.}, {0., 0.}, {0., 0.},
-		{0., 0.}, {1., 0.}, {0., 0.},
-		{0., 0.}, {0., 0.}, {1., 0.}
-	};
+	Matrix3x3 out;
+
+	out.e00.re = 1.;
+	out.e00.im = 0.;
+	out.e01.re = 0.;
+	out.e01.im = 0.;
+	out.e02.re = 0.;
+	out.e02.im = 0.;
+
+	out.e10.re = 0.;
+	out.e10.im = 0.;
+	out.e11.re = 1.;
+	out.e11.im = 0.;
+	out.e12.re = 0.;
+	out.e12.im = 0.;
+
+	out.e20.re = 0.;
+	out.e20.im = 0.;
+	out.e21.re = 0.;
+	out.e21.im = 0.;
+	out.e22.re = 1.;
+	out.e22.im = 0.;
+
+	return out;
 }
 
 inline Matrix3x3 multiply_matrix3x3_by_real (const Matrix3x3 in, const hmc_float factor)

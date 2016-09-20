@@ -116,11 +116,11 @@
 }*/
 
 
-Matrix6x6FieldTester::Matrix6x6FieldTester(std::string kernelName, const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
-KernelTester(kernelName, parameterCollection.hardwareParameters, parameterCollection.kernelParameters, testParams, rV)
-{
-	code = device->getMatrix6x6FieldCode();
-}
+//Matrix6x6FieldTester::Matrix6x6FieldTester(std::string kernelName, const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
+//KernelTester(kernelName, parameterCollection.hardwareParameters, parameterCollection.kernelParameters, testParams, rV)
+//{
+//	code = device->getMatrix6x6FieldCode();
+//}
 
 int calculateMatrix6x6FieldSize(const LatticeExtents latticeExtentsIn) noexcept
 {
