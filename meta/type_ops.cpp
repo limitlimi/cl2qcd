@@ -48,6 +48,51 @@ template<> void fill(Matrixsu3* array, size_t num_elems, int seed)
 	}
 }
 
+template<> void fill(Matrix6x6* array, size_t num_elems, int seed)
+{
+	srand48(seed);
+	for(size_t i = 0; i < num_elems; i++) {
+		array[i] = {
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() },
+			{ drand48(), drand48() }
+		};
+	}
+}
+
 template<> void fill(spinor* array, size_t num_elems, int seed)
 {
 	srand48(seed);

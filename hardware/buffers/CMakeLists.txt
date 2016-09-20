@@ -46,6 +46,7 @@ target_link_libraries(buffers
 add_unit_test_withLibraries(hardware::buffers::Buffer buffer_test buffers crypto)
 add_unit_test_withLibraries(hardware::buffers::PRNGBuffer prng_buffer_test buffers crypto)
 add_unit_test_withLibraries(hardware::buffers::SU3 su3_test buffers crypto)
+add_unit_test_withLibraries(hardware::buffers::6x6 6x6_test buffers crypto)
 add_unit_test_withLibraries(hardware::buffers::Plain plain_test buffers crypto)
 add_unit_test_withLibraries(hardware::buffers::Spinor spinor_test buffers crypto)
 add_unit_test_withLibraries(hardware::buffers::Gaugemomentum gaugemomentum_test buffers crypto)

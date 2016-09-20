@@ -73,6 +73,38 @@ inline std::ostream& operator<<(std::ostream& os, const Matrixsu3& data)
 	                 << data.e20 << ',' << data.e21 << ',' << data.e22 << '}';
 }
 
+inline bool operator==(const Matrix6x6& left, const Matrix6x6& right)
+{
+	return (
+			left.e00 == right.e00 && left.e01 == right.e01 && left.e02 == right.e02 && left.e03 == right.e03 && left.e04 == right.e04 && left.e05 == right.e05
+		 && left.e10 == right.e10 && left.e11 == right.e11 && left.e12 == right.e12 && left.e13 == right.e13 && left.e14 == right.e14 && left.e15 == right.e15
+		 && left.e20 == right.e20 && left.e21 == right.e21 && left.e22 == right.e22 && left.e23 == right.e23 && left.e24 == right.e24 && left.e25 == right.e25
+		 && left.e30 == right.e30 && left.e31 == right.e31 && left.e32 == right.e32 && left.e33 == right.e33 && left.e34 == right.e34 && left.e35 == right.e35
+		 && left.e40 == right.e40 && left.e41 == right.e41 && left.e42 == right.e42 && left.e43 == right.e43 && left.e44 == right.e44 && left.e45 == right.e45
+		 && left.e50 == right.e50 && left.e51 == right.e51 && left.e52 == right.e52 && left.e53 == right.e53 && left.e54 == right.e54 && left.e55 == right.e55
+	);
+}
+inline bool operator!=(const Matrix6x6& left, const Matrix6x6& right)
+{
+	return (
+			left.e00 != right.e00 || left.e01 != right.e01 || left.e02 != right.e02 || left.e03 != right.e03 || left.e04 != right.e04 || left.e05 != right.e05
+		 || left.e10 != right.e10 || left.e11 != right.e11 || left.e12 != right.e12 || left.e13 != right.e13 || left.e14 != right.e14 || left.e15 != right.e15
+		 || left.e20 != right.e20 || left.e21 != right.e21 || left.e22 != right.e22 || left.e23 != right.e23 || left.e24 != right.e24 || left.e25 != right.e25
+		 || left.e30 != right.e30 || left.e31 != right.e31 || left.e32 != right.e32 || left.e33 != right.e33 || left.e34 != right.e34 || left.e35 != right.e35
+		 || left.e40 != right.e40 || left.e41 != right.e41 || left.e42 != right.e42 || left.e43 != right.e43 || left.e44 != right.e44 || left.e45 != right.e45
+		 || left.e50 != right.e50 || left.e51 != right.e51 || left.e52 != right.e52 || left.e53 != right.e53 || left.e54 != right.e54 || left.e55 != right.e55
+	);
+}
+inline std::ostream& operator<<(std::ostream& os, const Matrix6x6& data)
+{
+	return os << '{' << data.e00 << ',' << data.e01 << ',' << data.e02 << ';' << data.e03 << ',' << data.e04 << ',' << data.e05 << ';'
+	                 << data.e10 << ',' << data.e11 << ',' << data.e12 << ';' << data.e13 << ',' << data.e14 << ',' << data.e15 << ';'
+	                 << data.e20 << ',' << data.e21 << ',' << data.e22 << ';' << data.e23 << ',' << data.e24 << ',' << data.e25 << ';'
+	                 << data.e30 << ',' << data.e31 << ',' << data.e32 << ';' << data.e33 << ',' << data.e34 << ',' << data.e35 << ';'
+	                 << data.e40 << ',' << data.e41 << ',' << data.e42 << ';' << data.e43 << ',' << data.e44 << ',' << data.e45 << ';'
+	                 << data.e50 << ',' << data.e51 << ',' << data.e52 << ';' << data.e53 << ',' << data.e54 << ',' << data.e55 << '}';
+}
+
 inline bool operator==(const su3vec& left, const su3vec& right)
 {
 	return (
@@ -132,6 +164,7 @@ template<typename T> inline void fill(T* array, size_t num_elems, int seed = 0)
 }
 template<> void fill(hmc_complex* array, size_t num_elems, int seed);
 template<> void fill(Matrixsu3* array, size_t num_elems, int seed);
+template<> void fill(Matrix6x6* array, size_t num_elems, int seed);
 template<> void fill(spinor* array, size_t num_elems, int seed);
 template<> void fill(su3vec* array, size_t num_elems, int seed);
 template<> void fill(ae* array, size_t num_elems, int seed);
