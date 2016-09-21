@@ -25,6 +25,8 @@
 
 int calculateMatrix6x6FieldSize(LatticeExtents latticeExtentsIn) noexcept;
 
+enum Matrix6x6FieldFillType {unity = 1, toBeAdded};
+
 struct Matrix6x6FieldTestParameters : public virtual TestParameters
 {
 	const GaugefieldFillType fillType;
@@ -34,50 +36,7 @@ struct Matrix6x6FieldTestParameters : public virtual TestParameters
 		TestParameters(latticeExtentsIn), fillType( fillTypeIn ), csw(cswIn){}
 };
 
-hmc_float count_matrix6x6Field(Matrix6x6 * in, int size)
-{
-	hmc_float sum = 0.;
-	for(int i = 0; i < size; i++)
-	{
-		sum += in[i].e00.re + in[i].e00.im +
-				in[i].e01.re + in[i].e01.im +
-				in[i].e02.re + in[i].e02.im +
-				in[i].e03.re + in[i].e03.im +
-				in[i].e04.re + in[i].e04.im +
-				in[i].e05.re + in[i].e05.im +
-				in[i].e10.re + in[i].e10.im +
-				in[i].e11.re + in[i].e11.im +
-				in[i].e12.re + in[i].e12.im +
-				in[i].e13.re + in[i].e13.im +
-				in[i].e14.re + in[i].e14.im +
-				in[i].e15.re + in[i].e15.im +
-				in[i].e20.re + in[i].e20.im +
-				in[i].e21.re + in[i].e21.im +
-				in[i].e22.re + in[i].e22.im +
-				in[i].e23.re + in[i].e23.im +
-				in[i].e24.re + in[i].e24.im +
-				in[i].e25.re + in[i].e25.im +
-				in[i].e30.re + in[i].e30.im +
-				in[i].e31.re + in[i].e31.im +
-				in[i].e32.re + in[i].e32.im +
-				in[i].e33.re + in[i].e33.im +
-				in[i].e34.re + in[i].e34.im +
-				in[i].e35.re + in[i].e35.im +
-				in[i].e40.re + in[i].e40.im +
-				in[i].e41.re + in[i].e41.im +
-				in[i].e42.re + in[i].e42.im +
-				in[i].e43.re + in[i].e43.im +
-				in[i].e44.re + in[i].e44.im +
-				in[i].e45.re + in[i].e45.im +
-				in[i].e50.re + in[i].e50.im +
-				in[i].e51.re + in[i].e51.im +
-				in[i].e52.re + in[i].e52.im +
-				in[i].e53.re + in[i].e53.im +
-				in[i].e54.re + in[i].e54.im +
-				in[i].e55.re + in[i].e55.im;
-	}
-	return sum;
-}
+hmc_float count_matrix6x6Field(Matrix6x6 * in, int size);
 
 struct Matrix6x6FieldTester : public KernelTester
 {
@@ -116,10 +75,10 @@ struct Matrix6x6FieldTesterWithSumAsKernelResult : public Matrix6x6FieldTester
 	}
 };
 
-//struct Matrix6x6FieldCreator
-//{
-//	Matrix6x6FieldCreator(const LatticeExtents lE): numberOfElements(calculateMatrix6x6FieldSize(lE)){};
-//	const Matrix6x6* createMatrix6x6Field(const GaugefieldFillType fillTypeIn);
-//
-//	size_t numberOfElements;
-//};
+struct Matrix6x6FieldCreator
+{
+	Matrix6x6FieldCreator(const LatticeExtents lE): numberOfElements(calculateMatrix6x6FieldSize(lE)){};
+	const Matrix6x6* createMatrix6x6Field(const Matrix6x6FieldFillType fillTypeIn);
+
+	size_t numberOfElements;
+};
