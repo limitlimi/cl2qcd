@@ -531,8 +531,8 @@ namespace hardware
         class OpenClKernelParametersMockupForCloverEvenOdd : public OpenClKernelParametersMockupForSpinorTests
         {
         public:
-            OpenClKernelParametersMockupForCloverEvenOdd(int nsIn, int ntIn, const bool needEvenOddIn, const double kappaIn, const double cswIn) :
-            OpenClKernelParametersMockupForSpinorTests(nsIn, ntIn, needEvenOddIn), fermact(common::action::clover)
+            OpenClKernelParametersMockupForCloverEvenOdd(int nsIn, int ntIn, const double kappaIn, const double cswIn) :
+            OpenClKernelParametersMockupForSpinorTests(nsIn, ntIn, true), fermact(common::action::clover)
                 , csw(cswIn), kappa(kappaIn)
             {
                 //NOTE: for the moment, these member are set here in order to overwrite the settings from the parent class, but this should be done nicer!

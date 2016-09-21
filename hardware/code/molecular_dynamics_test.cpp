@@ -637,7 +637,7 @@ void callTest(const LatticeExtents lE, GaugefieldFillType gfFillType, GaugeMomen
 {
 	CloverEvenOddMolecularDynamicsTestParameters parametersForThisTest(lE, gfFillType, gmFillType, sfFillType, mat6x6FillType, cloverParameters, evenOrOdd);
 	hardware::HardwareParametersMockup hardwareParameters(lE, true);
-	hardware::code::OpenClKernelParametersMockupForMolecularDynamicsStaggered kernelParameters(lE);
+	hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, cloverParameters.kappa, cloverParameters.csw);
 	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
 	TesterClass(parameterCollection, parametersForThisTest);
 }
