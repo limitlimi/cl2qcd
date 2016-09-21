@@ -144,8 +144,8 @@ BOOST_AUTO_TEST_CASE(fermion_force_clover_eo)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4", "--fermact=clover"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--fermact=clover", "--csw=0.5"};
+		meta::Inputparameters params(4, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -165,9 +165,9 @@ BOOST_AUTO_TEST_CASE(fermion_force_clover_eo)
 		convert_to_eoprec(&sf1, &sf2, src);
 		gm.zero();
 
-		physics::algorithms::fermion_force(&gm, sf1, sf2, EVEN, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
+		physics::algorithms::fermion_force(&gm, sf1, sf2, EVEN, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false,true));
 		BOOST_CHECK_CLOSE(squarenorm(gm), 1294.880037707632, 0.01);
-		physics::algorithms::fermion_force(&gm, sf1, sf2, ODD, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
+		physics::algorithms::fermion_force(&gm, sf1, sf2, ODD, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false,true));
 		BOOST_CHECK_CLOSE(squarenorm(gm), 3659.59932413153, 0.01);
 	}
 }

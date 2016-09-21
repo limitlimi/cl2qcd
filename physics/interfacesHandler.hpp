@@ -138,7 +138,7 @@ namespace physics {
             virtual ~InterfacesHandler() {};
             //The following templates are not defined in order to prevent non specialized template instatiation!
             template<class OBJECT> const typename InterfaceType<OBJECT>::value& getInterface();
-            template<class OBJECT> const physics::AdditionalParameters& getAdditionalParameters(bool withMassPreconditioning = false);
+            template<class OBJECT> const physics::AdditionalParameters& getAdditionalParameters(bool withMassPreconditioning = false, bool clover = false);
 
             //TODO: For the moment there is no object responsible to calculate observables, so we leave the following getters out of the above template
             //      Think about to create objects in physics::observables and move these getters in the template above.
@@ -177,6 +177,7 @@ namespace physics {
             virtual const physics::FermionStaggeredEoParametersInterface& getFermionStaggeredEoParametersInterface() = 0;
             virtual const physics::AdditionalParameters& getWilsonAdditionalParameters(bool) = 0;
             virtual const physics::AdditionalParameters& getStaggeredAdditionalParameters() = 0;
+            virtual const physics::AdditionalParameters& getCloverAdditionalParameters() = 0;
     };
 
     template<> inline const typename InterfaceType<physics::lattices::Gaugefield>::value& InterfacesHandler::getInterface<physics::lattices::Gaugefield>()
@@ -252,19 +253,26 @@ namespace physics {
         return getFermionStaggeredEoParametersInterface();
     }
 
-    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Spinorfield>(bool withMassPreconditioning)
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Spinorfield>(bool withMassPreconditioning, bool)
     {
         return getWilsonAdditionalParameters(withMassPreconditioning);
     }
-    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Spinorfield_eo>(bool withMassPreconditioning)
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Spinorfield_eo>(bool withMassPreconditioning, bool clover)
     {
-        return getWilsonAdditionalParameters(withMassPreconditioning);
+    	if (clover)
+    	{
+    		return getCloverAdditionalParameters();
+    	}
+    	else
+    	{
+    		return getWilsonAdditionalParameters(withMassPreconditioning);
+    	}
     }
-    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Staggeredfield_eo>(bool)
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Staggeredfield_eo>(bool, bool)
     {
         return getStaggeredAdditionalParameters();
     }
-    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Rooted_Staggeredfield_eo>(bool)
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::Rooted_Staggeredfield_eo>(bool, bool)
     {
         return getStaggeredAdditionalParameters();
     }

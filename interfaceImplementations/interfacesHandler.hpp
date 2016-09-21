@@ -63,7 +63,8 @@ namespace physics {
                   sourcesParametersInterface{nullptr},
                   wilsonAdditionalParameters{nullptr},
                   wilsonAdditionalParametersMp{nullptr},
-                  staggeredAdditionalParameters{nullptr} {}
+                  staggeredAdditionalParameters{nullptr},
+                  cloverAdditionalParameters{nullptr} {}
             ~InterfacesHandlerImplementation() {}
             const physics::observables::GaugeObservablesParametersInterface& getGaugeObservablesParametersInterface() override
             {
@@ -238,6 +239,13 @@ namespace physics {
                 return *staggeredAdditionalParameters;
             }
 
+            virtual const physics::AdditionalParameters& getCloverAdditionalParameters() override
+            {
+                if(cloverAdditionalParameters == nullptr)
+                    cloverAdditionalParameters = std::unique_ptr<const physics::CloverAdditionalParameters>(new physics::CloverAdditionalParameters{parameters});
+                return *cloverAdditionalParameters;
+            }
+
 
             const meta::Inputparameters& parameters;
             std::unique_ptr<const physics::lattices::GaugefieldParametersInterface> gaugefieldParametersInterface;
@@ -268,6 +276,7 @@ namespace physics {
             std::unique_ptr<const physics::AdditionalParameters> wilsonAdditionalParameters;
             std::unique_ptr<const physics::AdditionalParameters> wilsonAdditionalParametersMp;
             std::unique_ptr<const physics::AdditionalParameters> staggeredAdditionalParameters;
+            std::unique_ptr<const physics::AdditionalParameters> cloverAdditionalParameters;
 
     };
 

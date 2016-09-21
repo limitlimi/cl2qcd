@@ -78,6 +78,29 @@ namespace physics{
             const meta::Inputparameters& parameters;
     };
 
+    class CloverAdditionalParameters final : public AdditionalParameters {
+        public:
+    	    CloverAdditionalParameters() = delete;
+    	    CloverAdditionalParameters(const meta::Inputparameters& paramsIn)
+            : parameters(paramsIn)
+            {
+            }
+            virtual ~CloverAdditionalParameters()
+            {
+            }
+            hmc_float getKappa() const override
+            {
+                return parameters.get_kappa();
+            }
+            hmc_float getCsw() const override
+            {
+                return parameters.get_csw();
+            }
+
+        private:
+            const meta::Inputparameters& parameters;
+    };
+
 
     class FermionParametersImplementation final : public FermionParametersInterface,
                                                   private lattices::SpinorfieldParametersImplementation,

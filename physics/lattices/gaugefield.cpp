@@ -44,12 +44,27 @@ physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const 
   : system(system), prng(prng), latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeHotOrCold(hot);
+	if(parameters->getFermact() == common::action::clover)
+	{
+		clover_eo_inverse_upper_left = new physics::lattices::Matrix6x6Field(system,parameters);
+		clover_eo_inverse_lower_right = new physics::lattices::Matrix6x6Field(system,parameters);
+		clover_eo_inverse_upper_left->setField(this, true);
+		clover_eo_inverse_lower_right->setField(this, false);
+	}
 }
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng, std::string ildgfile)
   : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeFromILDGSourcefile(ildgfile);
+	if(parameters->getFermact() == common::action::clover)
+	{
+		logger.fatal() << "allocating clover_eo_inverse_*";
+		clover_eo_inverse_upper_left = new physics::lattices::Matrix6x6Field(system,parameters);
+		clover_eo_inverse_lower_right = new physics::lattices::Matrix6x6Field(system,parameters);
+		clover_eo_inverse_upper_left->setField(this, true);
+		clover_eo_inverse_lower_right->setField(this, false);
+	}
 }
 
 void physics::lattices::Gaugefield::initializeBasedOnParameters()
@@ -88,7 +103,14 @@ void physics::lattices::Gaugefield::initializeFromILDGSourcefile(std::string ild
 }
 
 physics::lattices::Gaugefield::~Gaugefield()
-{}
+{
+	if(clover_eo_inverse_upper_left){
+		delete clover_eo_inverse_upper_left;
+	}
+	if(clover_eo_inverse_lower_right){
+		delete clover_eo_inverse_lower_right;
+	}
+}
 
 std::string physics::lattices::getConfigurationName( std::string prefix, std::string postfix, int numberOfDigitsInName, int number)
 {
