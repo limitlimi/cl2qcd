@@ -234,7 +234,7 @@ void clover_eo_inverse_for_site(__global const spinorStorageType * const restric
 
 __kernel void clover_eo_inverse(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, const int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    PARALLEL_FOR(id_local, SPINORFIELDSIZE_LOCAL) {//EOPREC_SPINORFIELDSIZE_LOCAL) {
+    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
         st_idx pos = (evenodd == EVEN) ? get_even_st_idx_local(id_local) : get_odd_st_idx_local(id_local);
         clover_eo_inverse_for_site(in, out, field, kappa_in, csw, pos);
     }
