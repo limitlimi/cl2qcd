@@ -356,11 +356,6 @@ struct MolecularDynamicsTester : public GaugemomentumTester
 		{
 			GaugefieldCreator gf(tP.latticeExtents);
 			GaugemomentumCreator gm(tP.latticeExtents);
-			Matrix6x6FieldCreator matrix6x6(tP.latticeExtents);
-			matrix6x6FieldBuffer = new hardware::buffers::matrix6x6(tP.latticeExtents, this->device);
-			const Matrix6x6 * matrix6x6_host = matrix6x6.createMatrix6x6Field(tP.matrix6x6FieldFillType);
-			device->getMatrix6x6FieldCode()->importMatrix6x6Field(matrix6x6FieldBuffer, matrix6x6_host);
-			delete [] matrix6x6_host;
 			gaugefieldBuffer = new hardware::buffers::SU3( calculateGaugefieldSize(tP.latticeExtents), this->device);
 			const Matrixsu3 * gf_host = gf.createGaugefield(tP.gaugeFillType);
 	        device->getGaugefieldCode()->importGaugefield(gaugefieldBuffer, gf_host);
@@ -376,7 +371,6 @@ protected:
 	const hardware::code::Gaugefield * gaugefieldCode{nullptr};
 	const hardware::buffers::SU3 * gaugefieldBuffer;
 	const hardware::buffers::Gaugemomentum * gaugemomentumBuffer;
-	const hardware::buffers::matrix6x6 * matrix6x6FieldBuffer;
 };
 
 struct GaugefieldUpdateTester : public MolecularDynamicsTester
@@ -467,6 +461,12 @@ struct FFermionClover2EvenOddTester : public MolecularDynamicsTester
 	FFermionClover2EvenOddTester(const ParameterCollection pC, const CloverEvenOddMolecularDynamicsTestParameters tP) :
 		MolecularDynamicsTester("f_fermion_clover2_eo", pC, calculateReferenceValues_FFermionClover2EvenOdd(), tP)
 	{
+		Matrix6x6FieldCreator matrix6x6(tP.latticeExtents);
+		const hardware::buffers::matrix6x6 * matrix6x6FieldBuffer = new hardware::buffers::matrix6x6(tP.latticeExtents, this->device);
+		const Matrix6x6 * matrix6x6_host = matrix6x6.createMatrix6x6Field(tP.matrix6x6FieldFillType);
+		device->getMatrix6x6FieldCode()->importMatrix6x6Field(matrix6x6FieldBuffer, matrix6x6_host);
+		delete [] matrix6x6_host;
+
 		molecularDynamicsCode->fermion_force_clover2_eo_device(gaugefieldBuffer, matrix6x6FieldBuffer, matrix6x6FieldBuffer, gaugemomentumBuffer, tP.evenOrOdd, tP.cloverParameters.kappa, tP.cloverParameters.csw);
 		MolecularDynamicsTester::calcSquarenormAndStoreAsKernelResult(gaugemomentumBuffer);
 	}
