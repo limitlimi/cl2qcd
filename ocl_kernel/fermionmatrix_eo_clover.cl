@@ -229,12 +229,23 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     return out;
 }
 
+spinor field_strength_tensor_times_spinor(spinor in, __global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, const dir_idx dir1, const dir_idx dir2)
+{
+    spinor out = set_spinor_zero();
+
+    out.e0 = field_strength_tensor_times_su3vec(in.e0, field, idx_arg, dir1, dir2);
+    out.e1 = field_strength_tensor_times_su3vec(in.e1, field, idx_arg, dir1, dir2);
+    out.e2 = field_strength_tensor_times_su3vec(in.e2, field, idx_arg, dir1, dir2);
+    out.e3 = field_strength_tensor_times_su3vec(in.e3, field, idx_arg, dir1, dir2);
+
+    return out;
+}
+
 spinor clover_eoprec_unified_local(__global const spinorStorageType * const restrict in, __global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, const dir_idx dir, hmc_float kappa_in, hmc_float csw)
 {
     dir_idx dir2;
     
-    spinor out_tmp, phi, tmp1, psi;
-    su3vec tmp;
+    spinor out_tmp, phi, tmp, psi;
     site_idx pos_eo;
     
     out_tmp = set_spinor_zero();
@@ -252,85 +263,35 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
     
     if(dir == TDIR) {
         /////////////////////////////////
-        // nu = 0
-        dir2 = TDIR;
-        /////////////////////////////////
-        //Calculate (1+sigma_00) * phi
-        psi = phi;
-        //calculate (1+field-strength-tensor) * su3vec
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        out_tmp.e0 = su3vec_acc(psi.e0, tmp);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        out_tmp.e1 = su3vec_acc(psi.e1, tmp);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        out_tmp.e2 = su3vec_acc(psi.e2, tmp);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        out_tmp.e3 = su3vec_acc(psi.e3, tmp);
-        
-        /////////////////////////////////
         // nu = 1
         dir2 = XDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_01) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate (1+field-strength-tensor) * su3vec
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_01 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         /////////////////////////////////
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_02) * phi
-        //with 1+sigma_02:
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate (1+field-strength-tensor) * su3vec
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_02 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         
         /////////////////////////////////
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate 1+sigma_03 * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate (1+field-strength-tensor) * su3vec
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_03 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
     }
     if(dir == XDIR) {
@@ -338,262 +299,97 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         // nu = 0
         dir2 = TDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_10) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
-        /////////////////////////////////
-        // nu = 1
-        dir2 = XDIR;
-        /////////////////////////////////
-        //Calculate (1+sigma_11) * phi
-        psi = phi;
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
+        //Calculate sigma_10 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         /////////////////////////////////
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
         //Calculate sigma_12 * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         /////////////////////////////////
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_13) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_13 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
     }
     if(dir == YDIR) {
         /////////////////////////////////
         // nu = 0
         dir2 = TDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_20) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_20 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         
         /////////////////////////////////
         // nu = 1
         dir2 = XDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_21) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
-        
-        /////////////////////////////////
-        // nu = 2
-        dir2 = YDIR;
-        /////////////////////////////////
-        //Calculate (1+sigma_22) * phi
-        psi = phi;
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
-        
+        //Calculate sigma_21 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
+
         /////////////////////////////////
         // nu = 3
         dir2 = ZDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_23) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_23 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
     }
     if(dir == ZDIR) {
         /////////////////////////////////
         // nu = 0
         dir2 = TDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_30) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
+        //Calculate sigma_30 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         /////////////////////////////////
         // nu = 1
         dir2 = XDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_31) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
+        //Calculate sigma_31 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);
         
         
         /////////////////////////////////
         // nu = 2
         dir2 = YDIR;
         /////////////////////////////////
-        //Calculate (1+sigma_32) * phi
-        tmp1 = sigma_mu_nu_times_spinor(phi, dir, dir2);
-        psi = spinor_acc(phi, tmp1);
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
-        
-        /////////////////////////////////
-        // nu = 3
-        dir2 = ZDIR;
-        /////////////////////////////////
-        //Calculate (1+sigma_33) * phi
-        psi = phi;
-        //calculate field-strength-tensor * spinor
-        tmp = field_strength_tensor_times_su3vec(psi.e0, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e0, tmp);
-        out_tmp.e0 = su3vec_acc(tmp, out_tmp.e0);
-        tmp = field_strength_tensor_times_su3vec(psi.e1, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e1, tmp);
-        out_tmp.e1 = su3vec_acc(tmp, out_tmp.e1);
-        tmp = field_strength_tensor_times_su3vec(psi.e2, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e2, tmp);
-        out_tmp.e2 = su3vec_acc(tmp, out_tmp.e2);
-        tmp = field_strength_tensor_times_su3vec(psi.e3, field, idx_arg, dir, dir2);
-        tmp = su3vec_acc(psi.e3, tmp);
-        out_tmp.e3 = su3vec_acc(tmp, out_tmp.e3);
-        
+        //Calculate sigma_32 * phi
+        psi = sigma_mu_nu_times_spinor(phi, dir, dir2);
+        //calculate field-strength-tensor * psi
+	tmp = field_strength_tensor_times_spinor(psi, field, idx_arg, dir, dir2);
+        out_tmp = spinor_acc(out_tmp, tmp);  
     }
+
     out_tmp = spinor_times_complex(out_tmp, bc_tmp);
     out_tmp = spinor_times_complex(out_tmp, hmc_complex_i);
     return out_tmp;
@@ -602,7 +398,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
 
 void clover_eo_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
-    spinor out_tmp = set_spinor_zero();
+    spinor out_tmp = set_spinor_cold(); //note: clover = 1 + T
     spinor out_tmp2;
     
     out_tmp2 = clover_eoprec_unified_local(in, field, pos, TDIR, kappa_in, csw);
