@@ -348,3 +348,113 @@ BOOST_AUTO_TEST_CASE(dslash)
 	}
 
 }
+
+BOOST_AUTO_TEST_CASE(clover_eo)
+{
+
+	{
+		using namespace physics::lattices;
+		const char * _params[] = {"foo", "--ntime=16", "--fermact=clover"};
+		meta::Inputparameters params(3, _params);
+	    hardware::HardwareParametersImplementation hP(&params);
+	    hardware::code::OpenClKernelParametersImplementation kP(params);
+	    hardware::System system(hP, kP);
+        physics::InterfacesHandlerImplementation interfacesHandler{params};
+		physics::PrngParametersImplementation prngParameters{params};
+		physics::PRNG prng{system, &prngParameters};
+
+		Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, false);
+		Spinorfield src(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+		pseudo_randomize<Spinorfield, spinor>(&src, 13);
+		convert_to_eoprec(&sf1, &sf2, src);
+
+		physics::fermionmatrix::clover_eo(&sf2, gf, sf1, EVEN, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf2), 3311.2698428285048, 0.01);
+		physics::fermionmatrix::clover_eo(&sf1, gf, sf2, ODD, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf1), 3146.1039504225546, 0.01);
+	}
+
+	{
+		using namespace physics::lattices;
+		const char * _params[] = {"foo", "--ntime=4", "--fermact=clover"};
+		meta::Inputparameters params(3, _params);
+	    hardware::HardwareParametersImplementation hP(&params);
+	    hardware::code::OpenClKernelParametersImplementation kP(params);
+	    hardware::System system(hP, kP);
+        physics::InterfacesHandlerImplementation interfacesHandler{params};
+		physics::PrngParametersImplementation prngParameters{params};
+		physics::PRNG prng{system, &prngParameters};
+
+		Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+		Spinorfield src(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+		pseudo_randomize<Spinorfield, spinor>(&src, 28);
+		convert_to_eoprec(&sf1, &sf2, src);
+
+		physics::fermionmatrix::clover_eo(&sf2, gf, sf1, EVEN, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf2), 251.84231257415126, 0.01);
+		physics::fermionmatrix::clover_eo(&sf1, gf, sf2, ODD, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf1), 75.926255640020059, 0.01);
+	}
+
+}
+
+BOOST_AUTO_TEST_CASE(clover_eo_inverse)
+{
+
+	{
+		using namespace physics::lattices;
+		const char * _params[] = {"foo", "--ntime=16", "--fermact=clover"};
+		meta::Inputparameters params(3, _params);
+	    hardware::HardwareParametersImplementation hP(&params);
+	    hardware::code::OpenClKernelParametersImplementation kP(params);
+	    hardware::System system(hP, kP);
+        physics::InterfacesHandlerImplementation interfacesHandler{params};
+		physics::PrngParametersImplementation prngParameters{params};
+		physics::PRNG prng{system, &prngParameters};
+
+		Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, false);
+		Spinorfield src(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+		pseudo_randomize<Spinorfield, spinor>(&src, 13);
+		convert_to_eoprec(&sf1, &sf2, src);
+
+		physics::fermionmatrix::clover_eo_inverse(&sf2, gf, sf1, EVEN, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf2), 3311.2698428285048, 0.01);
+		physics::fermionmatrix::clover_eo_inverse(&sf1, gf, sf2, ODD, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf1), 3146.1039504225546, 0.01);
+	}
+
+	{
+		using namespace physics::lattices;
+		const char * _params[] = {"foo", "--ntime=4", "--fermact=clover"};
+		meta::Inputparameters params(3, _params);
+	    hardware::HardwareParametersImplementation hP(&params);
+	    hardware::code::OpenClKernelParametersImplementation kP(params);
+	    hardware::System system(hP, kP);
+        physics::InterfacesHandlerImplementation interfacesHandler{params};
+		physics::PrngParametersImplementation prngParameters{params};
+		physics::PRNG prng{system, &prngParameters};
+
+		Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+		Spinorfield src(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+		Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+		pseudo_randomize<Spinorfield, spinor>(&src, 28);
+		convert_to_eoprec(&sf1, &sf2, src);
+
+		physics::fermionmatrix::clover_eo_inverse(&sf2, gf, sf1, EVEN, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf2), 251.84231257415126, 0.01);
+		physics::fermionmatrix::clover_eo_inverse(&sf1, gf, sf2, ODD, params.get_kappa(), params.get_csw());
+		BOOST_CHECK_CLOSE(squarenorm(sf1), 75.926255640020059, 0.01);
+	}
+
+}

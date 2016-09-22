@@ -41,7 +41,7 @@ physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const 
 }
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng, bool hot)
-  : system(system), prng(prng), latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
+  : system(system), prng(prng), latticeObjectParameters(parameters), gaugefield(system), clover_eo_inverse_upper_left(nullptr), clover_eo_inverse_lower_right(nullptr)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeHotOrCold(hot);
 	if(parameters->getFermact() == common::action::clover)
@@ -54,12 +54,11 @@ physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const 
 }
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng, std::string ildgfile)
-  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
+  : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system), clover_eo_inverse_upper_left(nullptr), clover_eo_inverse_lower_right(nullptr)//, clover_eo_inverse_upper_left(system, parameters, true), clover_eo_inverse_lower_right(system, parameters, false)
 {
 	initializeFromILDGSourcefile(ildgfile);
 	if(parameters->getFermact() == common::action::clover)
 	{
-		logger.fatal() << "allocating clover_eo_inverse_*";
 		clover_eo_inverse_upper_left = new physics::lattices::Matrix6x6Field(system,parameters);
 		clover_eo_inverse_lower_right = new physics::lattices::Matrix6x6Field(system,parameters);
 		clover_eo_inverse_upper_left->setField(this, true);

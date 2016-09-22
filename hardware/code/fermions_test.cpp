@@ -411,7 +411,7 @@ void testCloverEvenOdd(const LatticeExtents latticeExtentsIn, const SpinorFillTy
 {
     CloverEvenOddTestParameters parametersForThisTest(latticeExtentsIn, spinorFillTypeIn, gaugefieldFillTypeIn, cloverParametersIn);
     hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true);
-    hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true, parametersForThisTest.cloverParameters.kappa, parametersForThisTest.cloverParameters.csw);
+    hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, parametersForThisTest.cloverParameters.kappa, parametersForThisTest.cloverParameters.csw);
     ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
     CloverEvenOddTester tester(parameterCollection, parametersForThisTest, evenOrOddIn);
 }
@@ -421,7 +421,7 @@ void testCloverInverseEvenOdd(const LatticeExtents latticeExtentsIn, const Spino
 {
     CloverEvenOddTestParameters parametersForThisTest(latticeExtentsIn, spinorFillTypeIn, gaugefieldFillTypeIn, cloverParametersIn);
     hardware::HardwareParametersMockup hardwareParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true);
-    hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, true, parametersForThisTest.cloverParameters.kappa, parametersForThisTest.cloverParameters.csw);
+    hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.SpinorTestParameters::ns, parametersForThisTest.SpinorTestParameters::nt, parametersForThisTest.cloverParameters.kappa, parametersForThisTest.cloverParameters.csw);
     ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
     CloverInverseEvenOddTester tester(parameterCollection, parametersForThisTest, evenOrOddIn);
 }
