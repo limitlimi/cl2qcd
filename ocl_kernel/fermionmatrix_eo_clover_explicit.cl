@@ -72,8 +72,8 @@ Matrix3x3 field_strength_tensor(__global Matrixsu3StorageType  const * const res
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
     tmp = multiply_matrixsu3_dagger(tmp, U);
     //////////////////////
-    // U_nu(x_nu)^dagger
-    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    // U_nu(x-mu)^dagger
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir1);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
     tmp = multiply_matrixsu3_dagger(tmp, U);
     //////////////////////
@@ -95,20 +95,20 @@ Matrix3x3 field_strength_tensor(__global Matrixsu3StorageType  const * const res
     //////////////////////
     // U_nu(x-mu-nu)^dagger
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
     tmp = multiply_matrixsu3_dagger(tmp, U);
     //////////////////////
     // U_mu(x-mu-nu)
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    tmp = multiply_matrixsu3(U, tmp);
+    tmp = multiply_matrixsu3(tmp, U);
     //////////////////////
     // U_nu(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    tmp = multiply_matrixsu3(U, tmp);
+    tmp = multiply_matrixsu3(tmp, U);
     /////////////////////
     out = add_matrix3x3(out, matrix_su3to3x3(tmp));
     
@@ -199,13 +199,13 @@ Matrix3x3 field_strength_tensor(__global Matrixsu3StorageType  const * const res
     /////////////////////////
     // U_mu(x-nu-mu)^dagger
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
     tmp = multiply_matrixsu3_dagger(tmp, U);
     /////////////////////////
     // U_nu(x-nu-mu)
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
     tmp = multiply_matrixsu3(tmp, U);
     ////////////////////////
@@ -241,7 +241,7 @@ Matrix3x3 field_strength_tensor(__global Matrixsu3StorageType  const * const res
     tmp = multiply_matrixsu3(tmp, U);
     /////////////////////
     out = subtract_matrix3x3(out, matrix_su3to3x3(tmp));
-    
+
     return out;
 }
 
@@ -337,7 +337,7 @@ Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3Storag
     };*/
     
     //the matrix consits out of 4 3x3 blocks which are calculated now(cf. equation 4.1 in openQCD documentation)
-    
+
     //E1 = 8 * F_01
     tmp = field_strength_tensor(field, idx_arg, 0, 1);
     E = multiply_matrix3x3_by_real(tmp, 8.);

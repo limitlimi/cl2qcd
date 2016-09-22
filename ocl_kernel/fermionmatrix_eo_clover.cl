@@ -56,7 +56,7 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     psi1 = su3matrix_times_su3vec(U, psi1);
     
     //////////////////////
-    // 2.term = U_nu(x) * U_mu(x+nu-mu)^dagger * U_nu(x-nu)^dagger * U_mu(x-mu)
+    // 2.term = U_nu(x) * U_mu(x+nu-mu)^dagger * U_nu(x-mu)^dagger * U_mu(x-mu)
     su3vec psi2 = in;
     //////////////////////
     // U_mu(x-mu)
@@ -64,8 +64,8 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
     psi2 = su3matrix_times_su3vec(U, psi2);
     //////////////////////
-    // U_nu(x_nu)^dagger
-    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
+    // U_nu(x_mu)^dagger
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir1);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
     psi2 = su3matrix_dagger_times_su3vec(U, psi2);
     //////////////////////
@@ -90,13 +90,13 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     //////////////////////
     // U_mu(x-mu-nu)
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
     psi3 = su3matrix_times_su3vec(U, psi3);
     //////////////////////
     // U_nu(x-mu-nu)^dagger
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
     psi3 = su3matrix_dagger_times_su3vec(U, psi3);
     //////////////////////
@@ -180,12 +180,12 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     psi7 = su3matrix_times_su3vec(U, psi7);
     // U_nu(x-nu-mu)
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
     psi7 = su3matrix_times_su3vec(U, psi7);
     // U_mu(x-nu-mu)^dagger
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir1); // x-mu
-    idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
+    idx_neigh = get_lower_neighbor_from_st_idx(idx_neigh1, dir2); // (x-mu)-nu
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
     psi7 = su3matrix_dagger_times_su3vec(U, psi7);
     // U_nu(x-nu)^dagger
