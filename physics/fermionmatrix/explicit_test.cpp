@@ -409,8 +409,9 @@ BOOST_AUTO_TEST_CASE(clover_eo_inverse)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=16", "--fermact=clover"};
-		meta::Inputparameters params(3, _params);
+		const char * _params[] = {"foo", "--ntime=16", "--fermact=clover", "--csw=0.1"};
+		meta::Inputparameters params(4, _params);
+		logger.fatal() << params.get_kappa()<< " " <<params.get_csw();
 	    hardware::HardwareParametersImplementation hP(&params);
 	    hardware::code::OpenClKernelParametersImplementation kP(params);
 	    hardware::System system(hP, kP);
@@ -434,8 +435,8 @@ BOOST_AUTO_TEST_CASE(clover_eo_inverse)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4", "--fermact=clover"};
-		meta::Inputparameters params(3, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--fermact=clover", "--csw=0.1"};
+		meta::Inputparameters params(4, _params);
 	    hardware::HardwareParametersImplementation hP(&params);
 	    hardware::code::OpenClKernelParametersImplementation kP(params);
 	    hardware::System system(hP, kP);

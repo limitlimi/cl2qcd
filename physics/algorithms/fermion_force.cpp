@@ -56,6 +56,10 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 	Spinorfield_eo Y_even(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
     Matrix6x6Field * C;
     Matrix6x6Field * D;
+
+	const common::action action = common::action::wilson;
+	const common::action * useWilsonAction = &action;
+
     if(parametersInterface.getSolver() == common::cg) {
         /**
          * The first inversion calculates
@@ -73,21 +77,36 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
          */
         solution.cold();
 
-        const QplusQminus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
-        cg(&solution, fm, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        if (parametersInterface.getFermact() == common::action::clover)
+        {
+        	const QplusQminus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>(), useWilsonAction);
+            cg(&solution, fm, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        }
+        else
+        {
+        	const QplusQminus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
+            cg(&solution, fm, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        }
 
         /**
          * Y_even is now just
          *  Y_even = (Qminus_eo) X_even = (Qminus_eo) (Qplusminus_eo)^-1 psi =
          *    = (Qplus_eo)^-1 ps"\tinv. field before inversion i
          */
-        const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
-        qminus(&phi_inv, gf, solution, additionalParameters);
+
+        if (parametersInterface.getFermact() == common::action::clover)
+        {
+            const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>(), useWilsonAction);
+            qminus(&phi_inv, gf, solution, additionalParameters);
+        }
+        else
+        {
+            const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
+            qminus(&phi_inv, gf, solution, additionalParameters);
+        }
         if(parametersInterface.getFermact() == common::action::clover)
         {
         	//calculate X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi
-//        	Spinorfield_eo X_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
-//        	Spinorfield_eo Y_odd(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
         	X_odd.zero();
         	Y_odd.zero();
         }
@@ -112,8 +131,16 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         solution.zero();
         solution.gamma5();
 
-        const Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
-        bicgstab(&solution, qplus, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        if (parametersInterface.getFermact() == common::action::clover)
+        {
+            const Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>(), useWilsonAction);
+            bicgstab(&solution, qplus, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        }
+        else
+        {
+            const Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
+            bicgstab(&solution, qplus, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        }
 
         copyData(&phi_inv, solution);
 
@@ -134,15 +161,24 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         //this sets clmem_inout cold as trial-solution
         solution.cold();
 
-        const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
-        bicgstab(&solution, qminus, gf, source_even, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        if (parametersInterface.getFermact() == common::action::clover)
+        {
+            const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>(), useWilsonAction);
+            bicgstab(&solution, qminus, gf, source_even, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        }
+        else
+        {
+            const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
+            bicgstab(&solution, qminus, gf, source_even, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        }
         if(parametersInterface.getFermact() == common::action::clover)
         {
         	//calculate X_odd = Q_hat^(-2)*phi, Y_odd = Q_hat^(-1)*phi
         	Y_odd.zero();//needed?
-        	const Aee_AND_gamma5_eo aee(system, interfacesHandler.getInterface<physics::fermionmatrix::Aee_AND_gamma5_eo>());
-        	bicgstab(&Y_odd, aee, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
-        	bicgstab(&X_odd, aee, gf, Y_odd, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        	X_odd.zero();//needed?
+        	const Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
+        	bicgstab(&Y_odd, qplus, gf, phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+        	bicgstab(&X_odd, qplus, gf, Y_odd, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
         }
     }
     /**
