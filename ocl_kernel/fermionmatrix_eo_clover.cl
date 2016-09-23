@@ -215,15 +215,15 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     
     
     //add psi1,...,psi8 and multiply by factor 1/8
-    hmc_float factor = 1/8;
+    hmc_float factor = 1./8;
     out = psi1;
     out = su3vec_acc(out, psi2);
     out = su3vec_acc(out, psi3);
     out = su3vec_acc(out, psi4);
-    out = su3vec_acc(out, psi5);
-    out = su3vec_acc(out, psi6);
-    out = su3vec_acc(out, psi7);
-    out = su3vec_acc(out, psi8);
+    out = su3vec_dim(out, psi5);
+    out = su3vec_dim(out, psi6);
+    out = su3vec_dim(out, psi7);
+    out = su3vec_dim(out, psi8);
     out = su3vec_times_real(out, factor);
     
     return out;
@@ -231,6 +231,7 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
 
 spinor field_strength_tensor_times_spinor(spinor in, __global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, const dir_idx dir1, const dir_idx dir2)
 {
+
     spinor out = set_spinor_zero();
 
     out.e0 = field_strength_tensor_times_su3vec(in.e0, field, idx_arg, dir1, dir2);
