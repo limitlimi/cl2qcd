@@ -1,6 +1,6 @@
 /*
- * Copyright 2012, 2013, 2014, 2015 Christopher Pinke, Matthias Bach,
- *         Francesca Cuteri
+ * Copyright 2012, 2013, 2014, 2015, 2016 Christopher Pinke, Matthias Bach,
+ *         Francesca Cuteri, Christopher Czaban
  *
  * This file is part of CL2QCD.
  *

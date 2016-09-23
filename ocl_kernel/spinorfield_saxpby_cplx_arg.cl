@@ -29,7 +29,7 @@
 
 
 
-__kernel void saxpby_cplx_arg(__global const spinorStorageType * const x, __global const spinorStorageType * const y, const hmc_float alpha_re, const hmc_float alpha_im, const hmc_float beta_re, const hmc_float beta_im, __global spinorStorageType * const out)
+__kernel void saxpby_cplx_arg(__global const spinor * const x, __global const spinor * const y, const hmc_float alpha_re, const hmc_float alpha_im, const hmc_float beta_re, const hmc_float beta_im, __global spinor * const out)
 {
 
 	const int id = get_global_id(0);
