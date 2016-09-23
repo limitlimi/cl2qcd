@@ -65,6 +65,27 @@ const ReferenceValues calculateReferenceValues_scalarProduct(const int latticeVo
 	return defaultReferenceValues();
 }
 
+const ReferenceValues calculateReferenceValues_scalarProductReal(const int latticeVolume, const SpinorFillTypes fillTypesIn)
+{
+	if(fillTypesIn.at(0) == SpinorFillType::one and fillTypesIn.at(1) == SpinorFillType::one)
+	{
+		return ReferenceValues{latticeVolume * 12., 0.};
+	}
+	else if( fillTypesIn.at(0) == SpinorFillType::one and fillTypesIn.at(1) == SpinorFillType::ascendingComplex )
+	{
+		return ReferenceValues{latticeVolume * sumOfIntegers(1,23,2), 0.};
+	}
+	else if( fillTypesIn.at(0) == SpinorFillType::ascendingComplex and fillTypesIn.at(1) == SpinorFillType::one )
+	{
+		return ReferenceValues{latticeVolume * sumOfIntegers(1,23,2), .0};
+	}
+	else if ( fillTypesIn.at(0) == SpinorFillType::ascendingComplex and fillTypesIn.at(1) == SpinorFillType::ascendingComplex  )
+	{
+		return ReferenceValues{latticeVolume * sumOfIntegersSquared(24), 0.};
+	}
+	return defaultReferenceValues();
+}
+
 const ReferenceValues calculateReferenceValues_cold(const bool isEvenOdd)
 {
 	return (isEvenOdd) ? ReferenceValues{0.5} : ReferenceValues{1.};
@@ -410,7 +431,7 @@ struct ScalarProductTester: public NonEvenOddLinearCombinationTester
 struct ScalarProductRealTester: public NonEvenOddLinearCombinationTester
 {
 	ScalarProductRealTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
-		NonEvenOddLinearCombinationTester("scalar_product_real_part", parameterCollection, testParameters, calculateReferenceValues_scalarProduct(calculateSpinorfieldSize(testParameters.latticeExtents), testParameters.fillTypes))
+		NonEvenOddLinearCombinationTester("scalar_product_real_part", parameterCollection, testParameters, calculateReferenceValues_scalarProductReal(calculateSpinorfieldSize(testParameters.latticeExtents), testParameters.fillTypes))
 	{
 		hardware::buffers::Plain<hmc_float> sqnorm(1, device);
 		code->set_float_to_scalar_product_real_device(spinorfields.at(0), spinorfields.at(1), &sqnorm);
