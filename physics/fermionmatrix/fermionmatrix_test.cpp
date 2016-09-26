@@ -40,7 +40,7 @@ test_fermionmatrix(const hmc_float refs[4], const int seed);
 
 template<class FERMIONMATRIX>
 typename boost::enable_if<boost::is_base_of<physics::fermionmatrix::Fermionmatrix_eo, FERMIONMATRIX>, void>::type
-test_fermionmatrix(const hmc_float refs[4], const int seed);
+test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = false);
 
 BOOST_AUTO_TEST_CASE(M)
 {
@@ -89,14 +89,54 @@ BOOST_AUTO_TEST_CASE(QplusQminus_eo)
 	test_fermionmatrix<physics::fermionmatrix::QplusQminus_eo>(refs, 9);
 }
 
+//BOOST_AUTO_TEST_CASE(Aee_clover)
+//{
+//	const hmc_float refs[4] = {1111.6772283004893, 1290.5580533222192, 1114.183875802898, 1304.0219632505139};
+//	test_fermionmatrix<physics::fermionmatrix::Aee>(refs, 10, clover);
+//}
+//BOOST_AUTO_TEST_CASE(Aee_minus_clover)
+//{
+//	const hmc_float refs[4] = {1115.2304524177298, 1291.4471557813199, 1125.22036086961, 1315.8354179702137};
+//	test_fermionmatrix<physics::fermionmatrix::Aee_minus>(refs, 11, clover);
+//}
+//BOOST_AUTO_TEST_CASE(Qplus_eo_clover)
+//{
+//	const hmc_float refs[4] = {1120.7679957612427, 1303.6316057267845, 1095.6614513886482, 1285.3471211115243};
+//	test_fermionmatrix<physics::fermionmatrix::Qplus_eo>(refs, 12, clover);
+//}
+//BOOST_AUTO_TEST_CASE(Qminus_eo_clover)
+//{
+//	const hmc_float refs[4] = {1100.7016006189097, 1282.8216593368254, 1111.2138438131915, 1309.970927161924};
+//	test_fermionmatrix<physics::fermionmatrix::Qminus_eo>(refs, 13, clover);
+//}
+//BOOST_AUTO_TEST_CASE(QplusQminus_eo_clover)
+//{
+//	const hmc_float refs[4] = {1286.5408969350369, 1931.6496938488942, 1350.5870046327818, 2182.2775949059878};
+//	test_fermionmatrix<physics::fermionmatrix::QplusQminus_eo>(refs, 14, clover);
+//}
+
+
 template<class FERMIONMATRIX>
 typename boost::enable_if<boost::is_base_of<physics::fermionmatrix::Fermionmatrix_eo, FERMIONMATRIX>, void>::type
-test_fermionmatrix(const hmc_float refs[4], const int seed)
+test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = false)
 {
 	{
 		using namespace physics::lattices;
+//		int numberOfParameters;
+//		const char * _params[] = {0};
+//		if(clover) {
+//			_params = {"foo", "--ntime=16", "--fermact=clover", "--csw=0.1"};
+//			numberOfParameters = 4;
+//		}
+//		else {
+//			_params = {"foo", "--ntime=16"};
+//			numberOfParameters = 2;
+//		}
+//		meta::Inputparameters params(numberOfParameters, _params);
+
 		const char * _params[] = {"foo", "--ntime=16"};
 		meta::Inputparameters params(2, _params);
+
 		GaugefieldParametersImplementation gaugefieldParameters( &params );
 	    hardware::HardwareParametersImplementation hP(&params);
 	    hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -122,8 +162,21 @@ test_fermionmatrix(const hmc_float refs[4], const int seed)
 
 	{
 		using namespace physics::lattices;
+//		int numberOfParameters;
+//		const char * _params[] = {0};
+//		if(clover) {
+//			_params = {"foo", "--ntime=4", "--fermact=clover", "--csw=0.1"};
+//			numberOfParameters = 4;
+//		}
+//		else {
+//			_params = {"foo", "--ntime=4"};
+//			numberOfParameters = 2;
+//		}
+//		meta::Inputparameters params(numberOfParameters, _params);
+
 		const char * _params[] = {"foo", "--ntime=4"};
 		meta::Inputparameters params(2, _params);
+
 		GaugefieldParametersImplementation gaugefieldParameters( &params );
 	    hardware::HardwareParametersImplementation hP(&params);
 	    hardware::code::OpenClKernelParametersImplementation kP(params);
