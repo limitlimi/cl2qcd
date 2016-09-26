@@ -58,6 +58,7 @@ target_link_libraries(lattices
 # Definition of tests
 #
 add_unit_test_withLibraries(physics::lattices::Gaugefield gaugefield_test gaugefield meta hardware gaugeObservables prng ildg_io host_functionality)
+add_unit_test_withLibraries(physics::lattices::Matrix6x6Field matrix6x6Field_test gaugefield meta hardware gaugeObservables prng ildg_io host_functionality)
 add_unit_test_withLibraries(physics::lattices::Spinorfield spinorfield_test lattices)
 add_unit_test_withLibraries(physics::lattices::Spinorfield_eo spinorfield_eo_test lattices)
 add_unit_test_withLibraries(physics::lattices::Scalar<hmc_complex> scalar_complex_test lattices)
