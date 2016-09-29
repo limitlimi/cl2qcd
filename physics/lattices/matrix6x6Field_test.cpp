@@ -62,15 +62,22 @@ BOOST_AUTO_TEST_CASE(set_field)
 
 		// init gaugefield hot
 		Gaugefield gf2(system, &parametersTmp, prng, true);
+
 		mat2.setField(&gf2, true);
+		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat2), 12345., 0.1);
+
 		mat3.setField(&gf2, false);
+		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat3), 12345., 0.1);
 
 
 		// init gaugefield cold
 		Gaugefield gf3(system, &parametersTmp, prng, false);
-		mat4.setField(&gf3, true);
-		mat5.setField(&gf3, false);
 
+		mat4.setField(&gf3, true);
+		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat4), 3072., 0.1);
+
+		mat5.setField(&gf3, false);
+		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat5), 3072., 0.1);
 	}
 
 	{
@@ -90,8 +97,11 @@ BOOST_AUTO_TEST_CASE(set_field)
 
 		// init gaugefield from file
 		Gaugefield gf(system, &parametersTmp, prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
-		mat.setField(&gf, true);
-		mat1.setField(&gf, false);
 
+		mat.setField(&gf, true);
+		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat), 12345., 0.1);
+
+		mat1.setField(&gf, false);
+		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat1), 12345., 0.1);
 	}
 }
