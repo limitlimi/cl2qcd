@@ -8,6 +8,9 @@ cold3x3mat::usage =
 nonTrivial3x3mat::usage =
 	"nonTrivialSU3mat gives a non-trivially filled 3-by-3 matrix"
 
+ascending3x3mat::usage =
+	"ascending3x3mat gives a 3-by-3 matrix filled with ascending complex numbers"
+
 stapleSum::usage = 
 	"stapleSum[s] takes an SU(3) matrix as argument and compute the sum of staples."
 
@@ -36,6 +39,11 @@ nonTrivial3x3mat:=
    I*.321726, -.449002 + I*(-.258088)}, {0.0000000000000000111022 + 
    I*.651751, .0271563 + I*(-.733219), -.0271563 + I*.190094}}},
 	nonTrivialSU3mat
+	]
+
+ascending3x3mat:=
+	Module[ {ascending3x3mat={{1 + I*2, 3 + I*4, 5 + I*6}, {7 + I*8, 9 + I*10, 11 + I*12}, {13 + I*14, 15 + I*16, 17 + I*18}}},
+	ascending3x3mat
 	]
 
 stapleSum[u_]:=
