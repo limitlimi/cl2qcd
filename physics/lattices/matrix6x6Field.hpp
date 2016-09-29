@@ -1,5 +1,5 @@
 /** @file
- * Declaration of the physics::lattices::Gaugefield class
+ * Declaration of the physics::lattices::Matrix6x6Field class
  *
  * Copyright 2012, 2013, 2015 Lars Zeidlewicz, Christopher Pinke,
  * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra
@@ -65,7 +65,7 @@ namespace physics {
 			void setField(const physics::lattices::Gaugefield * gaugefield, const bool upperOrLower);
 
 			/**
-			 * Get the buffers containing the gaugefield state on the devices.
+			 * Get the buffers containing the matrix6x6Field state on the devices.
 			 */
 			const std::vector<const hardware::buffers::matrix6x6 *> get_buffers() const noexcept;
 
@@ -75,7 +75,6 @@ namespace physics {
 			 */
 			void update_halo() const;
 
-			std::string getName(int = -1) const noexcept;
 			const hardware::System * getSystem() const;
 			const GaugefieldParametersInterface * getParameters() const;
 
@@ -84,9 +83,10 @@ namespace physics {
 			const GaugefieldParametersInterface * latticeObjectParameters;
 			hardware::lattices::Matrix6x6Field matrix6x6Field;
 
+			friend hmc_float count_Matrix6x6Field(const Matrix6x6Field&);
 		};
 
-		//std::string getConfigurationName( std::string prefix, std::string postfix, int numberOfDigitsInName, int number = -1);
+		hmc_float count_Matrix6x6Field(const Matrix6x6Field& field);
 	}
 }
 

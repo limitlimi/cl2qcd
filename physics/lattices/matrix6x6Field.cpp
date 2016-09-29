@@ -1,5 +1,5 @@
 /** @file
- * Implementation of the physics::lattices::Gaugefield class
+ * Implementation of the physics::lattices::Matrix6x6Field class
  * Copyright 2012, 2013 Lars Zeidlewicz, Christopher Pinke,
  *
  * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra
@@ -22,10 +22,10 @@
 
 #include "matrix6x6Field.hpp"
 #include "../../host_functionality/logger.hpp"
-//#include "../../host_functionality/host_operations_gaugefield.h"
 #include "../../hardware/device.hpp"
 #include "../../ildg_io/ildgIo.hpp"
 #include "../../hardware/code/matrix6x6Field.hpp"
+#include "../../hardware/code/Matrix6x6FieldTester.cpp"
 
 physics::lattices::Matrix6x6Field::Matrix6x6Field(const hardware::System& system, const GaugefieldParametersInterface * parameters)
   : system(system), latticeObjectParameters(parameters), matrix6x6Field(system)
@@ -64,6 +64,21 @@ physics::lattices::Matrix6x6Field::~Matrix6x6Field()
 const std::vector<const hardware::buffers::matrix6x6 *> physics::lattices::Matrix6x6Field::get_buffers() const noexcept
 {
 	return matrix6x6Field.get_buffers();
+}
+
+hmc_float physics::lattices::count_Matrix6x6Field(const Matrix6x6Field& field)
+{
+	hmc_float res = 0;
+	auto field_buffers = field.get_buffers();
+	size_t num_buffers = field_buffers.size();
+
+	for(size_t i = 0; i < num_buffers; ++i) {
+		auto field_buf = field_buffers[i];;
+		Matrix6x6 * matrix6x6_in = new Matrix6x6[field_buf->get_elements()];
+		field_buf->dump(matrix6x6_in);
+		res += count_matrix6x6Field(matrix6x6_in, field_buf->get_elements());
+	}
+	return res;
 }
 
 void physics::lattices::Matrix6x6Field::update_halo() const
