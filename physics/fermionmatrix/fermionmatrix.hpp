@@ -181,24 +181,26 @@ private:
 	const common::action * actAsGivenFermact;
 };
 class Aee_AND_gamma5_eo final : public Fermionmatrix_eo {
+friend class Qplus_eo;
 public:
-	Aee_AND_gamma5_eo(const hardware::System& system, const FermionEoParametersInterface& fermionEoParametersInterface, const common::action * actAsGivenFermact = NULL)
-        : Fermionmatrix_eo(false, system, fermionEoParametersInterface),
-          tmp(system, fermionEoParametersInterface), tmp2(system, fermionEoParametersInterface), actAsGivenFermact(actAsGivenFermact) {};
 	void operator()(const physics::lattices::Spinorfield_eo * out, const physics::lattices::Gaugefield& gf,
 	                const physics::lattices::Spinorfield_eo& in, const physics::AdditionalParameters& additionalParameters) const override;
 	cl_ulong get_flops() const override;
 	cl_ulong get_read_write_size() const override;
 private:
+	Aee_AND_gamma5_eo(const hardware::System& system, const FermionEoParametersInterface& fermionEoParametersInterface, const common::action * actAsGivenFermact = NULL)
+        : Fermionmatrix_eo(false, system, fermionEoParametersInterface),
+          tmp(system, fermionEoParametersInterface), tmp2(system, fermionEoParametersInterface), actAsGivenFermact(actAsGivenFermact) {};
 	physics::lattices::Spinorfield_eo tmp;
 	physics::lattices::Spinorfield_eo tmp2;
 	const common::action * actAsGivenFermact;
 };
 class Aee_minus final : public Fermionmatrix_eo {
+friend class Qminus_eo;
 public:
 	Aee_minus(const hardware::System& system, const FermionEoParametersInterface& fermionEoParametersInterface, const common::action * actAsGivenFermact = NULL)
-        : Fermionmatrix_eo(false, system, fermionEoParametersInterface),
-          tmp(system, fermionEoParametersInterface), tmp2(system, fermionEoParametersInterface), actAsGivenFermact(actAsGivenFermact) {};
+    	: Fermionmatrix_eo(false, system, fermionEoParametersInterface),
+		  tmp(system, fermionEoParametersInterface), tmp2(system, fermionEoParametersInterface), actAsGivenFermact(actAsGivenFermact) {};
 	void operator() (const physics::lattices::Spinorfield_eo * out, const physics::lattices::Gaugefield& gf,
 	                 const physics::lattices::Spinorfield_eo& in, const physics::AdditionalParameters& additionalParameters) const override;
 	cl_ulong get_flops() const override;
@@ -209,15 +211,16 @@ private:
 	const common::action * actAsGivenFermact;
 };
 class Aee_minus_AND_gamma5_eo final : public Fermionmatrix_eo {
+friend class Qminus_eo;
 public:
-	Aee_minus_AND_gamma5_eo(const hardware::System& system, const FermionEoParametersInterface& fermionEoParametersInterface, const common::action * actAsGivenFermact = NULL)
-        : Fermionmatrix_eo(false, system, fermionEoParametersInterface),
-          tmp(system, fermionEoParametersInterface), tmp2(system, fermionEoParametersInterface), actAsGivenFermact(actAsGivenFermact) {};
 	void operator()(const physics::lattices::Spinorfield_eo * out, const physics::lattices::Gaugefield& gf,
 	                const physics::lattices::Spinorfield_eo& in, const physics::AdditionalParameters& additionalParameters) const override;
 	cl_ulong get_flops() const override;
 	cl_ulong get_read_write_size() const override;
 private:
+	Aee_minus_AND_gamma5_eo(const hardware::System& system, const FermionEoParametersInterface& fermionEoParametersInterface, const common::action * actAsGivenFermact = NULL)
+        : Fermionmatrix_eo(false, system, fermionEoParametersInterface),
+          tmp(system, fermionEoParametersInterface), tmp2(system, fermionEoParametersInterface), actAsGivenFermact(actAsGivenFermact) {};
 	physics::lattices::Spinorfield_eo tmp;
 	physics::lattices::Spinorfield_eo tmp2;
 	const common::action * actAsGivenFermact;
