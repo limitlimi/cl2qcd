@@ -74,6 +74,33 @@ Matrixsu3 nonTrivialSu3Matrix()
 	return out;
 }
 
+Matrixsu3 ascending3x3Matrix()
+{
+	Matrixsu3 out;
+	out.e00.re = 1.;
+	out.e00.im = 2.;
+	out.e01.re = 3.;
+	out.e01.im = 4.;
+	out.e02.re = 5.;
+	out.e02.im = 6.;
+
+	out.e10.re = 7.;
+	out.e10.im = 8.;
+	out.e11.re = 9.;
+	out.e11.im = 10.;
+	out.e12.re = 11.;
+	out.e12.im = 12.;
+
+	out.e20.re = 13.;
+	out.e20.im = 14.;
+	out.e21.re = 15.;
+	out.e21.im = 16.;
+	out.e22.re = 17.;
+	out.e22.im = 18.;
+
+	return out;
+}
+
 GaugefieldTester::GaugefieldTester(std::string kernelName, const ParameterCollection & parameterCollection, const GaugefieldTestParameters testParams, const ReferenceValues rV):
 	KernelTester(kernelName, parameterCollection.hardwareParameters, parameterCollection.kernelParameters, testParams, rV)
 {
@@ -88,19 +115,50 @@ int calculateGaugefieldSize(const LatticeExtents latticeExtentsIn) noexcept
 const Matrixsu3* GaugefieldCreator::createGaugefield(const GaugefieldFillType fillTypeIn)
 {
 	Matrixsu3 * tmp = new Matrixsu3[numberOfElements];
-	for(size_t i = 0; i < (size_t)numberOfElements; ++i)
+	if (fillTypeIn == GaugefieldFillType::cold || fillTypeIn == GaugefieldFillType::nonTrivial)
 	{
-		switch (fillTypeIn)
+		for(size_t i = 0; i < (size_t)numberOfElements; ++i)
 		{
-		case GaugefieldFillType::cold:
-			tmp[i] = unit_matrixsu3();
-			break;
-		case GaugefieldFillType::nonTrivial:
-			tmp[i] = nonTrivialSu3Matrix();
-			break;
-		default:
-			BOOST_ERROR("No valid GaugefieldFillType specified");
+			switch (fillTypeIn)
+			{
+			case GaugefieldFillType::cold:
+				tmp[i] = unit_matrixsu3();
+				break;
+			case GaugefieldFillType::nonTrivial:
+				tmp[i] = nonTrivialSu3Matrix();
+				break;
+			default:
+				BOOST_ERROR("No valid GaugefieldFillType specified");
+			}
 		}
 	}
+	else if (fillTypeIn == GaugefieldFillType::nonTrivialInTDir)
+	{
+		for(size_t i = 0; i < (size_t)numberOfElements/4; ++i)
+		{
+			for (size_t j = 0; j < 4; ++j)
+			{
+				switch (j)
+				{
+				case TDIR:
+					tmp[4 * i + j] = nonTrivialSu3Matrix();
+					break;
+				case XDIR:
+					tmp[4 * i + j] = unit_matrixsu3();
+					break;
+				case YDIR:
+					tmp[4 * i + j] = unit_matrixsu3();
+					break;
+				case ZDIR:
+					tmp[4 * i + j] = unit_matrixsu3();
+					break;
+				default:
+					BOOST_ERROR("No valid GaugefieldFillType specified");
+				}
+
+			}
+		}
+	}
+	else throw std::invalid_argument("Unknown GaugefieldFillType");
 	return tmp;
 }

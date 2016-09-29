@@ -24,7 +24,7 @@
 
 int calculateGaugefieldSize(LatticeExtents latticeExtentsIn) noexcept;
 
-enum GaugefieldFillType {cold = 1, nonTrivial};
+enum GaugefieldFillType {cold = 1, nonTrivial, nonTrivialInTDir};
 
 struct GaugefieldTestParameters : public virtual TestParameters
 {
