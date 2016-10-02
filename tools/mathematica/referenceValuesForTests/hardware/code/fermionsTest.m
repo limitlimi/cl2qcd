@@ -4,6 +4,11 @@ SetOptions[SelectedNotebook[], PrintPrecision -> 16]
 
 (*Get the needed packages for these tests*)
 Get[FileNameJoin[{ParentDirectory[ParentDirectory[ParentDirectory[NotebookDirectory[]]]], "packages/wilsonDiracOperator.m"}], Path -> {NotebookDirectory[]}]
+Get[FileNameJoin[{ParentDirectory[ParentDirectory[ParentDirectory[NotebookDirectory[]]]], "packages/cloverFermionmatrix.m"}], Path -> {NotebookDirectory[]}]
+
+
+countSf[Clover[1.,0.1,spinorAscendingComplex,ascending3x3mat,nonTrivial3x3mat]]
+countSf[CloverInverse[1.,0.1,spinorAscendingComplex,ascending3x3mat,nonTrivial3x3mat]]
 
 
 (*Tests for MWilson checking the squarenorm of the resulting spinor*)
