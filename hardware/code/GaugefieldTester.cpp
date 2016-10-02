@@ -132,7 +132,7 @@ const Matrixsu3* GaugefieldCreator::createGaugefield(const GaugefieldFillType fi
 			}
 		}
 	}
-	else if (fillTypeIn == GaugefieldFillType::nonTrivialInTDir)
+	else if (fillTypeIn == GaugefieldFillType::ascendingInTDirNonTrivialInSpatial)
 	{
 		for(size_t i = 0; i < (size_t)numberOfElements/4; ++i)
 		{
@@ -141,16 +141,16 @@ const Matrixsu3* GaugefieldCreator::createGaugefield(const GaugefieldFillType fi
 				switch (j)
 				{
 				case TDIR:
-					tmp[4 * i + j] = nonTrivialSu3Matrix();
+					tmp[4 * i + j] = ascending3x3Matrix();
 					break;
 				case XDIR:
-					tmp[4 * i + j] = unit_matrixsu3();
+					tmp[4 * i + j] = nonTrivialSu3Matrix();
 					break;
 				case YDIR:
-					tmp[4 * i + j] = unit_matrixsu3();
+					tmp[4 * i + j] = nonTrivialSu3Matrix();
 					break;
 				case ZDIR:
-					tmp[4 * i + j] = unit_matrixsu3();
+					tmp[4 * i + j] = nonTrivialSu3Matrix();
 					break;
 				default:
 					BOOST_ERROR("No valid GaugefieldFillType specified");

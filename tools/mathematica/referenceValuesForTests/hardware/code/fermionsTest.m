@@ -7,8 +7,8 @@ Get[FileNameJoin[{ParentDirectory[ParentDirectory[ParentDirectory[NotebookDirect
 Get[FileNameJoin[{ParentDirectory[ParentDirectory[ParentDirectory[NotebookDirectory[]]]], "packages/cloverFermionmatrix.m"}], Path -> {NotebookDirectory[]}]
 
 
-countSf[Clover[1.,0.1,spinorAscendingComplex,ascending3x3mat,nonTrivial3x3mat]]
-countSf[CloverInverse[1.,0.1,spinorAscendingComplex,ascending3x3mat,nonTrivial3x3mat]]
+countSf[Clover[nonTrivialRealPar,nonTrivialRealPar,spinorAscendingComplex,ascending3x3mat,nonTrivial3x3mat]]
+countSf[CloverInverse[nonTrivialRealPar,nonTrivialRealPar,spinorAscendingComplex,ascending3x3mat,nonTrivial3x3mat]]
 
 
 (*Tests for MWilson checking the squarenorm of the resulting spinor*)

@@ -118,8 +118,19 @@ const ReferenceValues calculateReferenceValuesDslashEvenOdd(LatticeExtents latti
 	return defaultReferenceValues();
 }
 
-const ReferenceValues calculateReferenceValuesCloverEvenOdd()
+const ReferenceValues calculateReferenceValuesCloverEvenOdd(const int latticeVolumeIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypeIn, const CloverParameters paramsIn)
 {
+	if(paramsIn.kappa == nonTrivialParameter and paramsIn.csw == nonTrivialParameter and spinorFillTypeIn == SpinorFillType::ascendingComplex and gaugefieldFillTypeIn == GaugefieldFillType::ascendingInTDirNonTrivialInSpatial) {
+		return ReferenceValues{ latticeVolumeIn * -510.2207165035948 };
+	}
+    return defaultReferenceValues();
+}
+
+const ReferenceValues calculateReferenceValuesCloverEvenOddInverse(const int latticeVolumeIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypeIn, const CloverParameters paramsIn)
+{
+	if(paramsIn.kappa == nonTrivialParameter and paramsIn.csw == nonTrivialParameter and spinorFillTypeIn == SpinorFillType::ascendingComplex and gaugefieldFillTypeIn == GaugefieldFillType::ascendingInTDirNonTrivialInSpatial) {
+		return ReferenceValues{ latticeVolumeIn * -5.871315843633591 };
+	}
     return defaultReferenceValues();
 }
 
@@ -266,7 +277,7 @@ struct MTmInverseSitediagonalMinusTester: public FermionmatrixTesterWithSumAsKer
 struct CloverEvenOddTester: public FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>
 {
     CloverEvenOddTester(const ParameterCollection parameterCollection, const CloverTestParameters & tP, const bool evenOrOddIn):
-        FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>("clover_eo", parameterCollection, tP, calculateReferenceValuesCloverEvenOdd())
+        FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>("clover_eo", parameterCollection, tP, calculateReferenceValuesCloverEvenOdd(calculateEvenOddSpinorfieldSize(tP.SpinorTestParameters::latticeExtents), tP.fillTypes.at(0), tP.fillType, tP.massParameters))
         {
             evenOrOddIn ?
                 code->clover_eo_device(in, out, gaugefieldBuffer, EVEN, tP.massParameters.kappa, tP.massParameters.csw) :
@@ -277,7 +288,7 @@ struct CloverEvenOddTester: public FermionmatrixTesterWithSumAsKernelResult<Even
 struct CloverInverseEvenOddTester : public FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>
 {
     CloverInverseEvenOddTester(const ParameterCollection parameterCollection, const CloverTestParameters & tP, const bool evenOrOddIn):
-        FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>("clover_eo", parameterCollection, tP, calculateReferenceValuesCloverEvenOdd())
+        FermionmatrixTesterWithSumAsKernelResult<EvenOddFermionmatrixTester>("clover_eo", parameterCollection, tP, calculateReferenceValuesCloverEvenOddInverse(calculateEvenOddSpinorfieldSize(tP.SpinorTestParameters::latticeExtents), tP.fillTypes.at(0), tP.fillType, tP.massParameters))
     {
         evenOrOddIn ?
             code->clover_eo_inverse_device(in, out, gaugefieldBuffer, EVEN, tP.massParameters.kappa, tP.massParameters.csw) :
@@ -569,26 +580,26 @@ BOOST_AUTO_TEST_SUITE(CLOVER_EO)
 
     BOOST_AUTO_TEST_CASE( CLOVER_EO_1)
     {
-        testCloverEvenOdd(LatticeExtents{ns4, nt4}, SpinorFillType::ascendingComplex, GaugefieldFillType::nonTrivial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+        testCloverEvenOdd(LatticeExtents{ns4, nt4}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
     }
 
     BOOST_AUTO_TEST_CASE( CLOVER_EO_2)
     {
-    	testCloverEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::nonTrivial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+    	testCloverEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(CLOVER_INVERSE_EO)
+BOOST_AUTO_TEST_SUITE(CLOVER_EO_INVERSE)
 
-    BOOST_AUTO_TEST_CASE( CLOVER_INVERSE_EO_1)
+    BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_1)
     {
-        testCloverInverseEvenOdd(LatticeExtents{ns4, nt4}, SpinorFillType::ascendingComplex, GaugefieldFillType::nonTrivial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+        testCloverInverseEvenOdd(LatticeExtents{ns4, nt4}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
     }
 
-    BOOST_AUTO_TEST_CASE( CLOVER_INVERSE_EO_2)
+    BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_2)
     {
-        testCloverInverseEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::nonTrivial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+        testCloverInverseEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
