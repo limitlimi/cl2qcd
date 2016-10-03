@@ -24,7 +24,7 @@ void clover_eo_inverse_explicit_upper_left_for_site(__global Matrix6x6StorageTyp
 {
     Matrix6x6 out_tmp, tmp;
     
-    tmp = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
+    tmp = clover_eoprec_unified_local_upper_left_block(field, pos, kappa_in, csw);
     out_tmp = inverse_6x6_via_Householder_triangularization(tmp);    
 
     put6x6(out, get_site_idx(pos), out_tmp);
@@ -34,7 +34,7 @@ void clover_eo_inverse_explicit_lower_right_for_site(__global Matrix6x6StorageTy
 {
     Matrix6x6 out_tmp, tmp;
     
-    tmp = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    tmp = clover_eoprec_unified_local_lower_right_block(field, pos, kappa_in, csw);
     out_tmp = inverse_6x6_via_Householder_triangularization(tmp);
     
     put6x6(out, get_site_idx(pos), out_tmp);

@@ -21,18 +21,21 @@ Needs["cloverPackage`"]
 Needs["PauliMatricesTensorColorIdentity`"]
 
 Clover[k_, csw_, s_, u_, v_] :=
-	Module[{clover = ArrayFlatten[{{UpperLeftBlock[csw,u,v],0},{0,LowerRightBlock[csw,u,v]}}].s},
+	Module[{clover = ArrayFlatten[{{UpperLeftBlock[k,csw,u,v],0},{0,LowerRightBlock[k,csw,u,v]}}].s},
 	clover
 	]
 
 CloverInverse[k_, csw_, s_, u_, v_] :=
-	Module[{cloverInv = ArrayFlatten[{{Inverse[UpperLeftBlock[csw,u,v], Method -> "CofactorExpansion"],0},{0,Inverse[LowerRightBlock[csw,u,v], Method -> "CofactorExpansion"]}}].s},
+	Module[{cloverInv = ArrayFlatten[{{Inverse[UpperLeftBlock[k,csw,u,v], Method -> "CofactorExpansion"],0},{0,Inverse[LowerRightBlock[k,csw,u,v], Method -> "CofactorExpansion"]}}].s},
 	cloverInv
 	]
 
 End[]
 
 EndPackage[]
+
+
+
 
 
 

@@ -121,7 +121,7 @@ const ReferenceValues calculateReferenceValuesDslashEvenOdd(LatticeExtents latti
 const ReferenceValues calculateReferenceValuesCloverEvenOdd(const int latticeVolumeIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypeIn, const CloverParameters paramsIn)
 {
 	if(paramsIn.kappa == nonTrivialParameter and paramsIn.csw == nonTrivialParameter and spinorFillTypeIn == SpinorFillType::ascendingComplex and gaugefieldFillTypeIn == GaugefieldFillType::ascendingInTDirNonTrivialInSpatial) {
-		return ReferenceValues{ latticeVolumeIn * -510.2207165035948 };
+		return ReferenceValues{ latticeVolumeIn * 315.3100064714855 };
 	}
     return defaultReferenceValues();
 }
@@ -129,7 +129,7 @@ const ReferenceValues calculateReferenceValuesCloverEvenOdd(const int latticeVol
 const ReferenceValues calculateReferenceValuesCloverEvenOddInverse(const int latticeVolumeIn, const SpinorFillType spinorFillTypeIn, const GaugefieldFillType gaugefieldFillTypeIn, const CloverParameters paramsIn)
 {
 	if(paramsIn.kappa == nonTrivialParameter and paramsIn.csw == nonTrivialParameter and spinorFillTypeIn == SpinorFillType::ascendingComplex and gaugefieldFillTypeIn == GaugefieldFillType::ascendingInTDirNonTrivialInSpatial) {
-		return ReferenceValues{ latticeVolumeIn * -5.871315843633591 };
+		return ReferenceValues{ latticeVolumeIn * -132.3444717877111 };
 	}
     return defaultReferenceValues();
 }

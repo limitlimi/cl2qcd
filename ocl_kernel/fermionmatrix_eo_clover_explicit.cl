@@ -241,19 +241,20 @@ Matrix3x3 field_strength_tensor(__global Matrixsu3StorageType  const * const res
     tmp = multiply_matrixsu3(tmp, U);
     /////////////////////
     out = subtract_matrix3x3(out, matrix_su3to3x3(tmp));
-
+	
+	out = multiply_matrix3x3_by_real(out, 1./8.);
     return out;
 }
 
 /*the upper-left block is given by c_sw * i/16 * sum{k=1}^3 sigma_k (E_k - B_k)
   with sigma_k Pauli matrices, E_k = 8 * F_{0,k}, B_k = sum_{j,l=1}^3 4 * epsilon_{k,l,j} F_{l,j}
  */
-Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, hmc_float csw)
+Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, hmc_float kappa_in, hmc_float csw)
 {
     Matrix6x6 out = zero_matrix6x6();
     Matrix3x3 EB1, EB2, EB3, E, B, tmp, tmp1;
     //no bc_tmp needed
-    hmc_complex factor = {0., 1./16. * csw};
+    hmc_complex factor = {0., 1./8. * kappa_in * csw};
     //this is used to save the BC-conditions...
     /*hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
         1./16. * csw * TEMPORAL_RE, 1./16. * csw * TEMPORAL_IM
@@ -322,12 +323,12 @@ Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3Storage
 /*the lower-right block is given by c_sw * i/16 * sum{k=1}^3 (-)sigma_k (E_k + B_k)
  with sigma_k Pauli matrices, E_k = 8 * F_{0,k}, B_k = sum_{j,l=1}^3 4 * epsilon_{k,l,j} F_{l,j}
  */
-Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, hmc_float csw)
+Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3StorageType  const * const restrict field, const st_idx idx_arg, hmc_float kappa_in, hmc_float csw)
 {
     Matrix6x6 out = zero_matrix6x6();
     Matrix3x3 EB1, EB2, EB3, E, B, tmp, tmp1;
     //no bc_tmp needed
-    hmc_complex factor = {0., 1./16. * csw};
+    hmc_complex factor = {0., - 1./8. * kappa_in * csw};
     //this is used to save the BC-conditions...
     /*hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
         1./16. * csw * TEMPORAL_RE, 1./16. * csw * TEMPORAL_IM

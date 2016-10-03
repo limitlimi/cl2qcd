@@ -213,8 +213,8 @@ void clover_eo_inverse_for_site(__global const spinorStorageType * const restric
     tmp2.e1 = phi.e3;
     
     //get 6x6 blocks
-    Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, csw);
-    Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, csw);
+    Matrix6x6 B_plus = clover_eoprec_unified_local_upper_left_block(field, pos, kappa_in, csw);
+    Matrix6x6 B_minus = clover_eoprec_unified_local_lower_right_block(field, pos, kappa_in, csw);
     
     //inversion of 6x6 blocks
     Matrix6x6 A_plus = inverse_6x6_via_Householder_triangularization(B_plus);
@@ -222,13 +222,13 @@ void clover_eo_inverse_for_site(__global const spinorStorageType * const restric
     
     //Inverse * spinor
     tmp1 = matrix6x6_times_halfspinor(A_plus, tmp1);
-    tmp2 = matrix6x6_times_halfspinor(A_minus, tmp1);
+    tmp2 = matrix6x6_times_halfspinor(A_minus, tmp2);
     
     out_tmp.e0 = tmp1.e0;
     out_tmp.e1 = tmp1.e1;
     out_tmp.e2 = tmp2.e0;
     out_tmp.e3 = tmp2.e1;
-    
+    print_spinor(out_tmp);
     putSpinor_eo(out, get_eo_site_idx_from_st_idx(pos), out_tmp);
 }
 

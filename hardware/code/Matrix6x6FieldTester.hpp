@@ -30,10 +30,11 @@ enum Matrix6x6FieldFillType {unity = 1, toBeAdded};
 struct Matrix6x6FieldTestParameters : public virtual TestParameters
 {
 	const GaugefieldFillType fillType;
+	const hmc_float kappa;
 	const hmc_float csw;
 
-	Matrix6x6FieldTestParameters(const LatticeExtents latticeExtentsIn, const GaugefieldFillType fillTypeIn, const hmc_float cswIn):
-		TestParameters(latticeExtentsIn), fillType( fillTypeIn ), csw(cswIn){}
+	Matrix6x6FieldTestParameters(const LatticeExtents latticeExtentsIn, const GaugefieldFillType fillTypeIn, const hmc_float kappaIn, const hmc_float cswIn):
+		TestParameters(latticeExtentsIn), fillType( fillTypeIn ), kappa(kappaIn), csw(cswIn){}
 };
 
 hmc_float count_matrix6x6Field(Matrix6x6 * in, int size);

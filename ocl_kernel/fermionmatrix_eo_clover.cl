@@ -215,7 +215,7 @@ su3vec field_strength_tensor_times_su3vec(su3vec in, __global Matrixsu3StorageTy
     
     
     //add psi1,...,psi8 and multiply by factor 1/8
-    hmc_float factor = 1./8;
+    hmc_float factor = 1./8.;
     out = psi1;
     out = su3vec_acc(out, psi2);
     out = su3vec_acc(out, psi3);
@@ -255,10 +255,10 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
     
     //this is used to save the BC-conditions...
     hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
-        1./4. * csw * kappa_in * TEMPORAL_RE, 1./4. * csw * kappa_in * TEMPORAL_IM
+        1./2. * csw * kappa_in * TEMPORAL_RE, 1./2. * csw * kappa_in * TEMPORAL_IM
     } :
     (hmc_complex) {
-        1./4. * csw * kappa_in * SPATIAL_RE, 1./4. * csw * kappa_in * SPATIAL_IM
+        1./2. * csw * kappa_in * SPATIAL_RE, 1./2. * csw * kappa_in * SPATIAL_IM
     };
 
     
@@ -399,7 +399,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
 
 void clover_eo_for_site(__global const spinorStorageType * const restrict in, __global spinorStorageType * const restrict out, __global const Matrixsu3StorageType * const restrict field, hmc_float kappa_in, hmc_float csw, st_idx const pos)
 {
-    spinor out_tmp = set_spinor_cold(); //note: clover = 1 + T
+    spinor out_tmp = getSpinor_eo(in, get_eo_site_idx_from_st_idx(pos)); //note: clover = 1 + T
     spinor out_tmp2;
     
     out_tmp2 = clover_eoprec_unified_local(in, field, pos, TDIR, kappa_in, csw);
