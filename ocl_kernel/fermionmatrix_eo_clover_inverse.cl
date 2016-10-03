@@ -228,7 +228,7 @@ void clover_eo_inverse_for_site(__global const spinorStorageType * const restric
     out_tmp.e1 = tmp1.e1;
     out_tmp.e2 = tmp2.e0;
     out_tmp.e3 = tmp2.e1;
-    print_spinor(out_tmp);
+
     putSpinor_eo(out, get_eo_site_idx_from_st_idx(pos), out_tmp);
 }
 
