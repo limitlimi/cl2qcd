@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_SUITE(CLOVER_EO)
 
     BOOST_AUTO_TEST_CASE( CLOVER_EO_2)
     {
-    	testCloverEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+    	testCloverEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, false);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -599,7 +599,7 @@ BOOST_AUTO_TEST_SUITE(CLOVER_EO_INVERSE)
 
     BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_2)
     {
-        testCloverInverseEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, true);
+        testCloverInverseEvenOdd(LatticeExtents{ns4, nt8}, SpinorFillType::ascendingComplex, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, CloverParameters{nonTrivialParameter, nonTrivialParameter}, false);
     }
 
 BOOST_AUTO_TEST_SUITE_END()
