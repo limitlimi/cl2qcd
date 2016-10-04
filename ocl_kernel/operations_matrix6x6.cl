@@ -25,7 +25,7 @@
 
 //operations_matrix6x6.cl
 
-//#ifdef ENABLE_PRINTF
+#ifdef ENABLE_PRINTF
 void print_matrix6x6(Matrix6x6 in)
 {
 	printf("(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n(%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f) (%f,%f)\n",
@@ -37,7 +37,7 @@ void print_matrix6x6(Matrix6x6 in)
 	       in.e50.re, in.e50.im, in.e51.re, in.e51.im, in.e52.re, in.e52.im, in.e53.re, in.e53.im, in.e54.re, in.e54.im, in.e55.re, in.e55.im);
 	printf("\n");
 }
-//#endif
+#endif
 
 inline Matrix6x6 get6x6(__global const Matrix6x6StorageType * const restrict in, const uint idx)
 {

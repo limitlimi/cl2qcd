@@ -252,14 +252,9 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
     out_tmp = set_spinor_zero();
     pos_eo = get_eo_site_idx_from_st_idx(idx_arg);
     phi = getSpinor_eo(in, pos_eo);
-    
-    //this is used to save the BC-conditions...
-    hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
-        1./2. * csw * kappa_in * TEMPORAL_RE, 1./2. * csw * kappa_in * TEMPORAL_IM
-    } :
-    (hmc_complex) {
-        1./2. * csw * kappa_in * SPATIAL_RE, 1./2. * csw * kappa_in * SPATIAL_IM
-    };
+
+    //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
+    hmc_float factor = 0.5 * csw * kappa_in;
 
     
     if(dir == TDIR) {
@@ -391,7 +386,7 @@ spinor clover_eoprec_unified_local(__global const spinorStorageType * const rest
         out_tmp = spinor_acc(out_tmp, tmp);  
     }
 
-    out_tmp = spinor_times_complex(out_tmp, bc_tmp);
+    out_tmp = real_multiply_spinor(out_tmp, factor);
     out_tmp = spinor_times_complex(out_tmp, hmc_complex_i);
     return out_tmp;
 }

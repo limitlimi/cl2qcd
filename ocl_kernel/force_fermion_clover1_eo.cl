@@ -1,4 +1,24 @@
 /*
+ * Copyright 2012, 2013 Lars Zeidlewicz, Christopher Pinke,
+ * Matthias Bach, Christian Schäfer, Stefano Lottini, Alessandro Sciarra
+ *
+ * This file is part of CL2QCD.
+ *
+ * CL2QCD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CL2QCD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  calculate the even-odd-preconditioned force of the clover term with eoprec spinorfields (cf. paper of Jansen, Liu: Implementation of Symanzik's improvement program for simulations of dynamical wilson fermions in lattice QCD, URL:http://arxiv.org/abs/hep-lat/9603008)
 */
 
@@ -37,29 +57,11 @@ Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict fiel
     // U_nu(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-    U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-    hmc_complex cpi_tmp = {COSCPI, SINCPI};
-    U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     // U_mu(x+nu)^dagger
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // square(x+nu)
@@ -69,15 +71,6 @@ Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict fiel
     
     // U_nu(x)^dagger
     U = getSU3(field, get_link_idx(dir2, idx_arg));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     return out;
 }
@@ -93,29 +86,11 @@ Matrixsu3 diagram1a_down(__global const Matrixsu3StorageType * const restrict fi
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
     idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_mu(x-nu)^dagger
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // square(x-nu)
@@ -126,15 +101,6 @@ Matrixsu3 diagram1a_down(__global const Matrixsu3StorageType * const restrict fi
     // U_nu(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     out = multiply_matrixsu3_by_real (out, -1.);
@@ -152,42 +118,15 @@ Matrixsu3 diagram1b_up(__global const Matrixsu3StorageType * const restrict fiel
     // U_nu(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     // U_mu(x+nu)^dagger
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_nu(x)^dagger
     U = getSU3(field, get_link_idx(dir2, idx_arg));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // square(x)
@@ -207,43 +146,16 @@ Matrixsu3 diagram1b_down(__global const Matrixsu3StorageType * const restrict fi
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
     idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_mu(x-nu)^dagger
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_nu(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     // square(x)
@@ -270,42 +182,15 @@ Matrixsu3 diagram1c_up(__global const Matrixsu3StorageType * const restrict fiel
     // U_nu(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     // U_mu(x+nu)^dagger
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_nu(x)^dagger
     U = getSU3(field, get_link_idx(dir2, idx_arg));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     return out;
 }
@@ -326,43 +211,16 @@ Matrixsu3 diagram1c_down(__global const Matrixsu3StorageType * const restrict fi
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
     idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_mu(x-nu)^dagger
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_nu(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     out = multiply_matrixsu3_by_real (out, -1.);
@@ -381,15 +239,6 @@ Matrixsu3 diagram1d_up(__global const Matrixsu3StorageType * const restrict fiel
     // U_nu(x+mu)
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir1);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
 
     // square(x+mu+nu)
@@ -401,28 +250,10 @@ Matrixsu3 diagram1d_up(__global const Matrixsu3StorageType * const restrict fiel
     // U_mu(x+nu)^dagger
     idx_neigh = get_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // U_nu(x)^dagger
     U = getSU3(field, get_link_idx(dir2, idx_arg));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     return out;
 }
@@ -438,15 +269,6 @@ Matrixsu3 diagram1d_down(__global const Matrixsu3StorageType * const restrict fi
     idx_neigh1 = get_lower_neighbor_from_st_idx(idx_arg, dir2); // x-nu
     idx_neigh = get_neighbor_from_st_idx(idx_neigh1, dir1); // (x-nu)+mu
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
     
     // square(x-nu+mu)
@@ -458,28 +280,11 @@ Matrixsu3 diagram1d_down(__global const Matrixsu3StorageType * const restrict fi
     // U_mu(x-nu)^dagger
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir1, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3_dagger(out, U);
 
     // U_nu(x-nu)
     idx_neigh = get_lower_neighbor_from_st_idx(idx_arg, dir2);
     U = getSU3(field, get_link_idx(dir2, idx_neigh));
-    if(dir1 == 0){
-#ifdef _CP_REAL_
-        U = multiply_matrixsu3_by_real (U, EXPCPR);
-#endif
-#ifdef _CP_IMAG_
-        hmc_complex cpi_tmp = {COSCPI, SINCPI};
-        U = multiply_matrixsu3_by_complex (U, cpi_tmp );
-#endif
-    }
     out = multiply_matrixsu3(out, U);
     
     out = multiply_matrixsu3_by_real (out, -1.);
@@ -512,11 +317,9 @@ Matrix3x3 add_up_diagrams(__global const Matrixsu3StorageType * const restrict f
     return out;
 }
 
-//spinorfield input X1/Y1 ^= X_even/Y_even = -(1+T_ee)^(-1) M_eo X_o/Y_o
+
 __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
@@ -524,8 +327,7 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
 
         Matrix3x3 v1, v2;
         ae out_tmp;
-        //this is used to save the BC-conditions...
-        hmc_complex bc_tmp;
+        //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
         int n = pos.space;
@@ -540,9 +342,7 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-        bc_tmp.re = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_RE;
-        bc_tmp.im = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_IM;
-        
+	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         v1 = zero_matrix3x3();
         //add up diagrams for all nu unequal mu
@@ -564,7 +364,7 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        v1 = multiply_matrix3x3_by_real(v1, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
@@ -573,8 +373,6 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
 
 __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
@@ -582,8 +380,7 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
 
         Matrix3x3 v1, v2;
         ae out_tmp;
-        //this is used to save the BC-conditions...
-        hmc_complex bc_tmp;
+        //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
         int n = pos.space;
@@ -598,8 +395,7 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-        bc_tmp.re = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_RE;
-        bc_tmp.im = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_IM;
+	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -622,7 +418,7 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        v1 = multiply_matrix3x3_by_real(v1, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
@@ -630,8 +426,6 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
 
 __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
@@ -639,8 +433,7 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
 
         Matrix3x3 v1, v2;
         ae out_tmp;
-        //this is used to save the BC-conditions...
-        hmc_complex bc_tmp;
+        //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
         int n = pos.space;
@@ -655,8 +448,7 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-        bc_tmp.re = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_RE;
-        bc_tmp.im = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_IM;
+	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -679,7 +471,7 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        v1 = multiply_matrix3x3_by_real(v1, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
@@ -687,8 +479,6 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
 
 __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
@@ -696,8 +486,7 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
 
         Matrix3x3 v1, v2;
         ae out_tmp;
-        //this is used to save the BC-conditions...
-        hmc_complex bc_tmp;
+        //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
         int n = pos.space;
@@ -712,8 +501,7 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-        bc_tmp.re = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_RE;
-        bc_tmp.im = 2./8. * kappa_in * c_0_hat * csw * TEMPORAL_IM;
+	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -736,7 +524,7 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2,evenodd);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_complex(v1, bc_tmp);
+        v1 = multiply_matrix3x3_by_real(v1, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }

@@ -29,12 +29,6 @@ Matrix6x6 inverse_6x6_via_Householder_triangularization(Matrix6x6 a)
     //map Matrix6x6 struct to C array6x6
     const int rows = 6; const int cols = 6;
     hmc_complex T[6][6];
-    /*T = {{a.e00.re + I * a.e00.im, a.e01.re + I * a.e01.im, a.e02.re + I * a.e02.im, a.e03.re + I * a.e03.im, a.e04.re + I * a.e04.im, a.e05.re + I * a.e05.im},
-        {a.e10.re + I * a.e10.im, a.e11.re + I * a.e11.im, a.e12.re + I * a.e12.im, a.e13.re + I * a.e13.im, a.e14.re + I * a.e14.im, a.e15.re + I * a.e05.im},
-        {a.e20.re + I * a.e20.im, a.e21.re + I * a.e21.im, a.e22.re + I * a.e22.im, a.e23.re + I * a.e23.im, a.e24.re + I * a.e24.im, a.e25.re + I * a.e25.im},
-        {a.e30.re + I * a.e30.im, a.e31.re + I * a.e31.im, a.e32.re + I * a.e32.im, a.e33.re + I * a.e33.im, a.e34.re + I * a.e34.im, a.e35.re + I * a.e35.im},
-        {a.e40.re + I * a.e40.im, a.e41.re + I * a.e41.im, a.e42.re + I * a.e42.im, a.e43.re + I * a.e43.im, a.e44.re + I * a.e44.im, a.e45.re + I * a.e45.im},
-        {a.e50.re + I * a.e50.im, a.e51.re + I * a.e51.im, a.e52.re + I * a.e52.im, a.e53.re + I * a.e53.im, a.e54.re + I * a.e54.im, a.e55.re + I * a.e55.im}};*/
     //0.row
     T[0][0].re = a.e00.re; T[0][0].im = a.e00.im;
     T[0][1].re = a.e01.re; T[0][1].im = a.e01.im;

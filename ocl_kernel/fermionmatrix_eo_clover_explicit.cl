@@ -253,15 +253,8 @@ Matrix6x6 clover_eoprec_unified_local_upper_left_block(__global Matrixsu3Storage
 {
     Matrix6x6 out = zero_matrix6x6();
     Matrix3x3 EB1, EB2, EB3, E, B, tmp, tmp1;
-    //no bc_tmp needed
-    hmc_complex factor = {0., 1./8. * kappa_in * csw};
-    //this is used to save the BC-conditions...
-    /*hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
-        1./16. * csw * TEMPORAL_RE, 1./16. * csw * TEMPORAL_IM
-    } :
-    (hmc_complex) {
-        1./16. * csw * SPATIAL_RE, 1./16. * csw * SPATIAL_IM
-    };*/
+    //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
+    hmc_complex factor = {0., 0.125 * kappa_in * csw};
     
     //the matrix consits out of 4 3x3 blocks which are calculated now
     
@@ -327,15 +320,8 @@ Matrix6x6 clover_eoprec_unified_local_lower_right_block(__global Matrixsu3Storag
 {
     Matrix6x6 out = zero_matrix6x6();
     Matrix3x3 EB1, EB2, EB3, E, B, tmp, tmp1;
-    //no bc_tmp needed
-    hmc_complex factor = {0., - 1./8. * kappa_in * csw};
-    //this is used to save the BC-conditions...
-    /*hmc_complex bc_tmp = (dir == TDIR) ? (hmc_complex) {
-        1./16. * csw * TEMPORAL_RE, 1./16. * csw * TEMPORAL_IM
-    } :
-    (hmc_complex) {
-        1./16. * csw * SPATIAL_RE, 1./16. * csw * SPATIAL_IM
-    };*/
+    //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
+    hmc_complex factor = {0., - 0.125 * kappa_in * csw};
     
     //the matrix consits out of 4 3x3 blocks which are calculated now(cf. equation 4.1 in openQCD documentation)
 
