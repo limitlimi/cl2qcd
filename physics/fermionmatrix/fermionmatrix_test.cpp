@@ -89,31 +89,16 @@ BOOST_AUTO_TEST_CASE(QplusQminus_eo)
 	test_fermionmatrix<physics::fermionmatrix::QplusQminus_eo>(refs, 9);
 }
 
-//BOOST_AUTO_TEST_CASE(Aee_clover)
-//{
-//	const hmc_float refs[4] = {1111.6772283004893, 1290.5580533222192, 1114.183875802898, 1304.0219632505139};
-//	test_fermionmatrix<physics::fermionmatrix::Aee>(refs, 10, clover);
-//}
-//BOOST_AUTO_TEST_CASE(Aee_minus_clover)
-//{
-//	const hmc_float refs[4] = {1115.2304524177298, 1291.4471557813199, 1125.22036086961, 1315.8354179702137};
-//	test_fermionmatrix<physics::fermionmatrix::Aee_minus>(refs, 11, clover);
-//}
-//BOOST_AUTO_TEST_CASE(Qplus_eo_clover)
-//{
-//	const hmc_float refs[4] = {1120.7679957612427, 1303.6316057267845, 1095.6614513886482, 1285.3471211115243};
-//	test_fermionmatrix<physics::fermionmatrix::Qplus_eo>(refs, 12, clover);
-//}
-//BOOST_AUTO_TEST_CASE(Qminus_eo_clover)
-//{
-//	const hmc_float refs[4] = {1100.7016006189097, 1282.8216593368254, 1111.2138438131915, 1309.970927161924};
-//	test_fermionmatrix<physics::fermionmatrix::Qminus_eo>(refs, 13, clover);
-//}
-//BOOST_AUTO_TEST_CASE(QplusQminus_eo_clover)
-//{
-//	const hmc_float refs[4] = {1286.5408969350369, 1931.6496938488942, 1350.5870046327818, 2182.2775949059878};
-//	test_fermionmatrix<physics::fermionmatrix::QplusQminus_eo>(refs, 14, clover);
-//}
+BOOST_AUTO_TEST_CASE(Aee_clover)
+{
+	const hmc_float refs[4] = {1111.6772283004893, 1290.5580533222192, 1114.183875802898, 1304.0219632505139};
+	test_fermionmatrix<physics::fermionmatrix::Aee>(refs, 10, true);
+}
+BOOST_AUTO_TEST_CASE(Qplus_eo_clover)
+{
+	const hmc_float refs[4] = {1120.7679957612427, 1303.6316057267845, 1095.6614513886482, 1285.3471211115243};
+	test_fermionmatrix<physics::fermionmatrix::Qplus_eo>(refs, 11, true);
+}
 
 
 template<class FERMIONMATRIX>
@@ -122,20 +107,14 @@ test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = 
 {
 	{
 		using namespace physics::lattices;
-//		int numberOfParameters;
-//		const char * _params[] = {0};
-//		if(clover) {
-//			_params = {"foo", "--ntime=16", "--fermact=clover", "--csw=0.1"};
-//			numberOfParameters = 4;
-//		}
-//		else {
-//			_params = {"foo", "--ntime=16"};
-//			numberOfParameters = 2;
-//		}
-//		meta::Inputparameters params(numberOfParameters, _params);
 
-		const char * _params[] = {"foo", "--ntime=16"};
-		meta::Inputparameters params(2, _params);
+		std::vector<const char*> options(1, "foo");
+		options.push_back("--ntime=16");
+		if(clover) {
+			options.push_back("--fermact=clover");
+			options.push_back("--csw=0.1");
+		}
+		meta::Inputparameters params(options.size(), &(options[0]));
 
 		GaugefieldParametersImplementation gaugefieldParameters( &params );
 	    hardware::HardwareParametersImplementation hP(&params);
@@ -153,29 +132,32 @@ test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = 
 
 		pseudo_randomize<Spinorfield, spinor>(&src, seed);
 		convert_to_eoprec(&sf1, &sf2, src);
-
-		matrix(&sf2, gf, sf1, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
-		BOOST_CHECK_CLOSE(squarenorm(sf2), refs[0], 0.01);
-		matrix(&sf1, gf, sf2, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
-		BOOST_CHECK_CLOSE(squarenorm(sf1), refs[1], 0.01);
+		if(clover) {
+			const physics::AdditionalParameters & additionalParametersClover = interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false, true);
+			matrix(&sf2, gf, sf1, additionalParametersClover);
+			BOOST_CHECK_CLOSE(squarenorm(sf2), refs[0], 0.01);
+			matrix(&sf1, gf, sf2, additionalParametersClover);
+			BOOST_CHECK_CLOSE(squarenorm(sf1), refs[1], 0.01);
+		}
+		else {
+			const physics::AdditionalParameters & additionalParametersWilson = interfacesHandler.getAdditionalParameters<Spinorfield_eo>();
+			matrix(&sf2, gf, sf1, additionalParametersWilson);
+			BOOST_CHECK_CLOSE(squarenorm(sf2), refs[0], 0.01);
+			matrix(&sf1, gf, sf2, additionalParametersWilson);
+			BOOST_CHECK_CLOSE(squarenorm(sf1), refs[1], 0.01);
+		}
 	}
 
 	{
 		using namespace physics::lattices;
-//		int numberOfParameters;
-//		const char * _params[] = {0};
-//		if(clover) {
-//			_params = {"foo", "--ntime=4", "--fermact=clover", "--csw=0.1"};
-//			numberOfParameters = 4;
-//		}
-//		else {
-//			_params = {"foo", "--ntime=4"};
-//			numberOfParameters = 2;
-//		}
-//		meta::Inputparameters params(numberOfParameters, _params);
 
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		std::vector<const char*> options(1, "foo");
+		options.push_back("--ntime=4");
+		if(clover) {
+			options.push_back("--fermact=clover");
+			options.push_back("--csw=0.1");
+		}
+		meta::Inputparameters params(options.size(), &(options[0]));
 
 		GaugefieldParametersImplementation gaugefieldParameters( &params );
 	    hardware::HardwareParametersImplementation hP(&params);
@@ -194,9 +176,9 @@ test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = 
 		pseudo_randomize<Spinorfield, spinor>(&src, seed);
 		convert_to_eoprec(&sf1, &sf2, src);
 
-		matrix(&sf2, gf, sf1, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
+		matrix(&sf2, gf, sf1, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false, true));
 		BOOST_CHECK_CLOSE(squarenorm(sf2), refs[2], 0.01);
-		matrix(&sf1, gf, sf2, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
+		matrix(&sf1, gf, sf2, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false, true));
 		BOOST_CHECK_CLOSE(squarenorm(sf1), refs[3], 0.01);
 	}
 }
