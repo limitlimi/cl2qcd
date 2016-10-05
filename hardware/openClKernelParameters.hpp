@@ -69,6 +69,7 @@ namespace hardware {
 			virtual uint32_t getHostSeed() const = 0;
 			virtual double getMu() const = 0;
 			virtual double getApproxLower() const = 0;
+			virtual bool getUseOnlyClover() const = 0;
 		};
 	}
 }

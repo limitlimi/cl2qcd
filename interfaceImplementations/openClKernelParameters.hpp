@@ -191,6 +191,10 @@ namespace hardware {
 			{
 				return fullParameters->get_approx_lower();
 			}
+			virtual bool getUseOnlyClover() const override
+			{
+				return fullParameters->get_use_only_clover();
+			}
 		private:
 			const meta::Inputparameters * fullParameters;
 		};

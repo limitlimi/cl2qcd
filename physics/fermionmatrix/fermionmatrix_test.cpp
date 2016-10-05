@@ -133,7 +133,7 @@ test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = 
 		pseudo_randomize<Spinorfield, spinor>(&src, seed);
 		convert_to_eoprec(&sf1, &sf2, src);
 		if(clover) {
-			const physics::AdditionalParameters & additionalParametersClover = interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false, true);
+			const physics::AdditionalParameters & additionalParametersClover = interfacesHandler.getAdditionalParameters<Spinorfield_eo>();
 			matrix(&sf2, gf, sf1, additionalParametersClover);
 			BOOST_CHECK_CLOSE(squarenorm(sf2), refs[0], 0.01);
 			matrix(&sf1, gf, sf2, additionalParametersClover);
@@ -176,9 +176,9 @@ test_fermionmatrix(const hmc_float refs[4], const int seed, const bool clover = 
 		pseudo_randomize<Spinorfield, spinor>(&src, seed);
 		convert_to_eoprec(&sf1, &sf2, src);
 
-		matrix(&sf2, gf, sf1, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false, true));
+		matrix(&sf2, gf, sf1, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(sf2), refs[2], 0.01);
-		matrix(&sf1, gf, sf2, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false, true));
+		matrix(&sf1, gf, sf2, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(sf1), refs[3], 0.01);
 	}
 }

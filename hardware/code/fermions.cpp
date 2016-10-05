@@ -38,7 +38,6 @@ void hardware::code::Fermions::fill_kernels()
 	}
 
 	logger.debug() << "Creating Fermions kernels...";
-	
 	if(kernelParameters->getFermact() == common::action::wilson) {
 		M_wilson = createKernel("M_wilson") << sources << "fermionmatrix.cl" << "fermionmatrix_m.cl";
 	} else if(kernelParameters->getFermact() == common::action::twistedmass) {
@@ -426,8 +425,10 @@ void hardware::code::Fermions::dslash_eo_device(const hardware::buffers::Spinor 
 {
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
+	if(kernelParameters->getUseOnlyClover()) kappa_tmp = 0.;
+	else if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
+
 
 	cl_int eo = evenodd;
 	//query work-sizes for kernel

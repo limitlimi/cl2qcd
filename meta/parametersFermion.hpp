@@ -44,6 +44,7 @@ public:
 	bool get_use_eo() const noexcept;
 	bool get_use_merge_kernels_fermion() const noexcept;
 	bool get_use_merge_kernels_spinor() const noexcept;
+	bool get_use_only_clover() const noexcept;
 
 private:
 	po::options_description options;
@@ -64,6 +65,7 @@ private:
 	bool use_eo;
 	bool use_merge_kernels_fermion;
 	bool use_merge_kernels_spinor;
+	bool use_only_clover;
 
 protected:
 	ParametersFermion();

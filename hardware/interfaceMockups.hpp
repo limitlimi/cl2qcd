@@ -373,6 +373,10 @@ namespace hardware
 			{
 				return 1.e-5;
 			}
+			virtual bool getUseOnlyClover() const override
+			{
+				return false;
+			}
 		protected:
 			int ns, nt, rhoIter;
 			double rho;

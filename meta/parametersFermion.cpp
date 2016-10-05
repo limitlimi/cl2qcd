@@ -96,6 +96,11 @@ bool meta::ParametersFermion::get_use_merge_kernels_spinor() const noexcept
 	return use_merge_kernels_spinor;
 }
 
+bool meta::ParametersFermion::get_use_only_clover() const noexcept
+{
+	return use_only_clover;
+}
+
 meta::ParametersFermion::ParametersFermion()
 	: options("Fermion options")
 {
@@ -118,7 +123,8 @@ meta::ParametersFermion::ParametersFermion()
 	("use_chem_pot_im", po::value<bool>(&use_chem_pot_im)->default_value(false))
 	("use_eo", po::value<bool>(&use_eo)->default_value(true))
 	("use_merge_kernels_spinor", po::value<bool>(&use_merge_kernels_spinor)->default_value(false), "Use kernel merging for spinor kernels")
-	("use_merge_kernels_fermion", po::value<bool>(&use_merge_kernels_fermion)->default_value(false), "Use kernel merging for fermion kernels");
+	("use_merge_kernels_fermion", po::value<bool>(&use_merge_kernels_fermion)->default_value(false), "Use kernel merging for fermion kernels")
+	("use_only_clover", po::value<bool>(&use_only_clover)->default_value(false), "Use only clover term");
 }
 
 meta::ParametersFermion::~ParametersFermion() = default;

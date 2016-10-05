@@ -481,7 +481,8 @@ void hardware::code::Molecular_Dynamics::fermion_force_eo_device(const hardware:
 
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
+	if(kernelParameters->getUseOnlyClover()) kappa_tmp = 0.;
+	else if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
 	if(logger.beDebug()) {

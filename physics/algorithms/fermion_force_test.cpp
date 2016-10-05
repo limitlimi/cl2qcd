@@ -165,9 +165,9 @@ BOOST_AUTO_TEST_CASE(fermion_force_clover_eo)
 		convert_to_eoprec(&sf1, &sf2, src);
 		gm.zero();
 
-		physics::algorithms::fermion_force(&gm, sf1, sf2, EVEN, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false,true));
+		physics::algorithms::fermion_force(&gm, sf1, sf2, EVEN, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(gm), 1294.880037707632, 0.01);
-		physics::algorithms::fermion_force(&gm, sf1, sf2, ODD, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false,true));
+		physics::algorithms::fermion_force(&gm, sf1, sf2, ODD, gf, *C, *D, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(gm), 3659.59932413153, 0.01);
 	}
 }
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(calc_fermion_forces_clover_eo)
 		convert_to_eoprec(&sf1, &sf2, src);
 		gm.zero();
 
-		physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>(false,true));
+		physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(gm), 12345, 0.01);
 	}
 }

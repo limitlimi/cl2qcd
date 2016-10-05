@@ -33,6 +33,7 @@
 namespace physics{
 
     class WilsonAdditionalParameters final : public AdditionalParameters {
+    	//note: also implementation for additional parameter for clover csw
         public:
             WilsonAdditionalParameters() = delete;
             WilsonAdditionalParameters(const meta::Inputparameters& paramsIn, const bool withMassPreconditioning)
@@ -49,6 +50,10 @@ namespace physics{
             hmc_float getMubar() const override
             {
                 return withMassPreconditioning ? meta::get_mubar_mp(parameters) : meta::get_mubar(parameters);
+            }
+            hmc_float getCsw() const override
+            {
+                return parameters.get_csw();
             }
 
         private:
@@ -72,29 +77,6 @@ namespace physics{
             bool getConservative() const override
             {
                 return parameters.get_conservative();
-            }
-
-        private:
-            const meta::Inputparameters& parameters;
-    };
-
-    class CloverAdditionalParameters final : public AdditionalParameters {
-        public:
-    	    CloverAdditionalParameters() = delete;
-    	    CloverAdditionalParameters(const meta::Inputparameters& paramsIn)
-            : parameters(paramsIn)
-            {
-            }
-            virtual ~CloverAdditionalParameters()
-            {
-            }
-            hmc_float getKappa() const override
-            {
-                return parameters.get_kappa();
-            }
-            hmc_float getCsw() const override
-            {
-                return parameters.get_csw();
             }
 
         private:
