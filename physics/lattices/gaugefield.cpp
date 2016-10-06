@@ -26,6 +26,7 @@
 #include "../../hardware/device.hpp"
 #include "../../ildg_io/ildgIo.hpp"
 #include "../../hardware/code/gaugefield.hpp"
+#include "../utilities.hpp"
 
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng)
   : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system), clover_eo_inverse_upper_left(nullptr), clover_eo_inverse_lower_right(nullptr)
@@ -111,27 +112,9 @@ physics::lattices::Gaugefield::~Gaugefield()
 	}
 }
 
-std::string physics::lattices::getConfigurationName( std::string prefix, std::string postfix, int numberOfDigitsInName, int number)
-{
-	std::stringstream middle;
-	if (number == -1)
-	{
-		middle << "save";
-	}
-	else
-	{
-		middle.fill('0');
-		middle.width(numberOfDigitsInName);
-		middle << std::right << number;
-	}
-	std::stringstream outfilename;
-	outfilename << prefix << middle << postfix;
-	return outfilename.str();
-}
-
 std::string physics::lattices::Gaugefield::getName(int number) const noexcept
 {
-	return getConfigurationName( latticeObjectParameters->getNamePrefix(), latticeObjectParameters->getNamePostfix(), latticeObjectParameters->getNumberOfDigitsInName(), number);
+	return physics::buildCheckpointName( latticeObjectParameters->getNamePrefix(), latticeObjectParameters->getNamePostfix(), latticeObjectParameters->getNumberOfDigitsInName(), number);
 }
 
 void physics::lattices::Gaugefield::save(int number)

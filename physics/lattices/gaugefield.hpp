@@ -143,7 +143,6 @@ namespace physics {
 			int trajectoryNumberAtInit;
 		};
 
-		std::string getConfigurationName( std::string prefix, std::string postfix, int numberOfDigitsInName, int number = -1);
 	}
 }
 
