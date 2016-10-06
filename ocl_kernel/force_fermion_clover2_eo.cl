@@ -19,10 +19,11 @@
  */
 
 /*
-  calculate the even-odd-preconditioned force of the clover term
+ calculate the even-odd-preconditioned force of the clover term (cf. paper of Jansen, Liu: Implementation of Symanzik's improvement program for simulations of dynamical wilson fermions in lattice QCD, URL:http://arxiv.org/abs/hep-lat/9603008)
 */
 
-//matrixsu3 which is given by Dirac-Trace(i*sigma_{mu,nu}*(1+T_ee)^{-1})
+
+//matrixsu3 which is given by i * Trace_Dirac[sigma_{mu,nu} * (1+T_ee)^{-1}]
 //cf. equation (22) in Jansen Liu Paper
 Matrixsu3 triangle(__global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, st_index pos_triangle, const dir_idx dir1, const dir_idx dir2)
 {
@@ -440,8 +441,6 @@ __kernel void fermion_force_clover2_eo_0(__global const Matrixsu3StorageType * c
 
 __kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
@@ -494,8 +493,6 @@ __kernel void fermion_force_clover2_eo_1(__global const Matrixsu3StorageType * c
 
 __kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
@@ -549,8 +546,6 @@ __kernel void fermion_force_clover2_eo_2(__global const Matrixsu3StorageType * c
 
 __kernel void fermion_force_clover2_eo_3(__global const Matrixsu3StorageType * const restrict field, __global const Matrix6x6StorageType * const restrict C, __global const Matrix6x6StorageType * const restrict D, __global aeStorageType * const restrict out, int evenodd, hmc_float kappa_in, hmc_float csw)
 {
-    // must include HALO, as we are updating neighbouring sites
-    // -> not all local sites will fully updated if we don't calculate on halo indices, too
     PARALLEL_FOR(id_mem, EOPREC_SPINORFIELDSIZE_MEM) {
         // caculate (pos,time) out of id_mem depending on evenodd
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other

@@ -22,22 +22,24 @@
  calculate the even-odd-preconditioned force of the clover term with eoprec spinorfields (cf. paper of Jansen, Liu: Implementation of Symanzik's improvement program for simulations of dynamical wilson fermions in lattice QCD, URL:http://arxiv.org/abs/hep-lat/9603008)
 */
 
-//matrixsu3 which is given by i * Trace_Dirac[gamma_5*sigma_{mu,nu} Y*X^dagger + gamma_5*sigma_{mu,nu} X*Y^dagger]
+//matrixsu3 which is given by i * Trace_Dirac[gamma_5*sigma_{mu,nu}* Y*X^dagger + gamma_5*sigma_{mu,nu}* X*Y^dagger]
 //cf. equation (22) in Jansen Liu Paper
 Matrixsu3 square(__global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const site_idx pos_square, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 out;
     Matrix3x3 tmp1, tmp2;
-    spinor x, y;
+    spinor x, y, u, v;
     x = getSpinor_eo(X, pos_square);
     y = getSpinor_eo(Y, pos_square);
     
-    //calculate gamma_5 * simga_{mu,nu} * x
-    x = gamma5_local(x);
-    x = sigma_mu_nu_times_spinor(x, dir1, dir2);
+    //calculate u/v = gamma_5 * simga_{mu,nu} * x/y
+    u = sigma_mu_nu_times_spinor(x, dir1, dir2);
+    u = gamma5_local(u);
+    v = sigma_mu_nu_times_spinor(y, dir1, dir2);
+    v = gamma5_local(v);
     
-    tmp1 = tr_dirac_x_times_y_dagger(y.e0, y.e1, y.e2, y.e3, x.e0, x.e1, x.e2, x.e3);
-    tmp2 = tr_dirac_x_times_y_dagger(x.e0, x.e1, x.e2, x.e3, y.e0, y.e1, y.e2, y.e3);
+    tmp1 = tr_dirac_x_times_y_dagger(v.e0, v.e1, v.e2, v.e3, x.e0, x.e1, x.e2, x.e3);
+    tmp2 = tr_dirac_x_times_y_dagger(u.e0, u.e1, u.e2, u.e3, y.e0, y.e1, y.e2, y.e3);
     
     tmp1 = add_matrix3x3(tmp1, tmp2);
     
@@ -46,12 +48,12 @@ Matrixsu3 square(__global const spinorStorageType * const restrict X, __global c
     return out;
 }
 
-//input eo spinor X and Y where one is multiplied by gamma_5*sigma_{dir1,dir2}, Faktor i??
+
 Matrixsu3 diagram1a_up(__global const Matrixsu3StorageType * const restrict field, __global const spinorStorageType * const restrict X, __global const spinorStorageType * const restrict Y, const st_index idx_arg, const dir_idx dir1, const dir_idx dir2, int evenodd)
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
-    st_idx idx_neigh; //idx_neigh1;
+    st_idx idx_neigh;
     site_idx idx_neigh_eo;
     
     // U_nu(x+mu)
@@ -112,7 +114,7 @@ Matrixsu3 diagram1b_up(__global const Matrixsu3StorageType * const restrict fiel
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
-    st_idx idx_neigh; //idx_neigh1;
+    st_idx idx_neigh;
     //site_idx idx_neigh_eo;
     
     // U_nu(x+mu)
@@ -171,7 +173,7 @@ Matrixsu3 diagram1c_up(__global const Matrixsu3StorageType * const restrict fiel
 {
     Matrixsu3 U, out;
     out = unit_matrixsu3();
-    st_idx idx_neigh; //idx_neigh1;
+    st_idx idx_neigh;
     site_idx idx_neigh_eo;
     
     // square(x+mu)
@@ -342,7 +344,7 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+	    hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         v1 = zero_matrix3x3();
         //add up diagrams for all nu unequal mu
@@ -395,7 +397,7 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+	    hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -448,7 +450,7 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+	    hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -501,7 +503,7 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
         hmc_float c_0_hat = 1/(1 + 64 * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+	    hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
