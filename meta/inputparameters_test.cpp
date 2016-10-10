@@ -135,6 +135,7 @@ void checkDefaults(const Inputparameters & params)
 
 	BOOST_REQUIRE_EQUAL(params.get_use_merge_kernels_spinor(), false);
 	BOOST_REQUIRE_EQUAL(params.get_use_merge_kernels_fermion(), false);
+	BOOST_REQUIRE_EQUAL(params.get_use_only_clover(), false);
 	BOOST_REQUIRE_EQUAL(params.get_use_rec12(), false);
 
 	BOOST_REQUIRE_EQUAL(params.get_log_level(), "ALL");
@@ -254,6 +255,7 @@ BOOST_AUTO_TEST_CASE(input_file2)
 
 	BOOST_REQUIRE_EQUAL(params.get_use_merge_kernels_spinor(), true);
 	BOOST_REQUIRE_EQUAL(params.get_use_merge_kernels_fermion(), true);
+	BOOST_REQUIRE_EQUAL(params.get_use_only_clover(), true);
 	BOOST_REQUIRE_EQUAL(params.get_use_rec12(), true);
 }
 

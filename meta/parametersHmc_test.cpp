@@ -162,6 +162,7 @@ BOOST_AUTO_TEST_CASE(input_file2)
 
   BOOST_REQUIRE_EQUAL(params.get_use_merge_kernels_spinor(), true);
   BOOST_REQUIRE_EQUAL(params.get_use_merge_kernels_fermion(), true);
+  BOOST_REQUIRE_EQUAL(params.get_use_only_clover(), true);
   BOOST_REQUIRE_EQUAL(params.get_use_rec12(), true);
 }
 

@@ -66,6 +66,7 @@ BOOST_AUTO_TEST_CASE(implementByMeansOfMetaInputparameters)
 	BOOST_REQUIRE_EQUAL( openClKernelParameters.getMeasureCorrelators(), fullParameters.get_measure_correlators() );
 	BOOST_REQUIRE_EQUAL( openClKernelParameters.getUseMergeKernelsFermion(), fullParameters.get_use_merge_kernels_fermion() );
 	BOOST_REQUIRE_EQUAL( openClKernelParameters.getUseMergeKernelsSpinor(), fullParameters.get_use_merge_kernels_spinor() );
+	BOOST_REQUIRE_EQUAL( openClKernelParameters.getUseOnlyClover(), fullParameters.get_use_only_clover() );
 	BOOST_REQUIRE_EQUAL( openClKernelParameters.getMuBar(), meta::get_mubar(fullParameters) );
 	BOOST_REQUIRE_EQUAL( openClKernelParameters.getMass(), fullParameters.get_mass() );
 	BOOST_REQUIRE_EQUAL( openClKernelParameters.getUseSameRndNumbers(), fullParameters.get_use_same_rnd_numbers() );
