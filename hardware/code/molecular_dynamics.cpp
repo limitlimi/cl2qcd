@@ -481,7 +481,10 @@ void hardware::code::Molecular_Dynamics::fermion_force_eo_device(const hardware:
 
 	//get kappa
 	hmc_float kappa_tmp;
-	if(kernelParameters->getUseOnlyClover()) kappa_tmp = 0.;
+	if(kernelParameters->getUseOnlyClover()) {
+		logger.debug() << "kappa is set to zero, only clover term is activated";
+		kappa_tmp = 0.;
+	}
 	else if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
 	else kappa_tmp = kappa;
 
