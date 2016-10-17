@@ -104,7 +104,17 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
         copyData(&phi_inv, solution);
     }
     logger.trace() << "Calulated S_fermion, solver took " << iterations << " iterations.";
-    return squarenorm(phi_inv);
+    hmc_float result = squarenorm(phi_inv);
+    logger.fatal() << "s_normal=" << result;
+    if(interfacesHandler.getMetropolisParametersInterface().getFermact() == common::action::clover) { //for details see hep-lat/9603008
+    	logger.fatal() << "s_det is calculated";
+    	hmc_float s_det = physics::lattices::log_det_Matrix6x6Field(gf, additionalParameters.getKappa(), additionalParameters.getCsw());
+    	logger.fatal() << "s_det=" << s_det;
+    	logger.fatal() << "s_ohne_s_det=" << result;
+    	result += s_det;
+    	logger.fatal() << "s_mit_s_det=" << result;
+    }
+    return result;
 }
 
 hmc_float physics::algorithms::calc_s_fermion_mp(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield& phi,
@@ -321,8 +331,8 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
     //Fermion-Part:
     if(!parametersInterface.getUseGaugeOnly()) {
         if(parametersInterface.getUseMp()) {
-            if(parametersInterface.getFermact() == common::action::rooted_stagg) {
-                throw Invalid_Parameters("Mass preconditioning not implemented for staggered fermions!", "NOT rooted_stagg", parametersInterface.getFermact());
+            if(parametersInterface.getFermact() == common::action::rooted_stagg || parametersInterface.getFermact() == common::action::clover) {
+                throw Invalid_Parameters("Mass preconditioning not implemented for staggered or clover fermions!", "NOT rooted_stagg or clover", parametersInterface.getFermact());
             }
             //in this case one has contributions from det(m_light/m_heavy) and det(m_heavy)
             // det(m_heavy)
@@ -358,6 +368,7 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
             print_info_debug(interfacesHandler, "[DH]:\tS[DET]_0:\t", spinor_energy_init, false);
             print_info_debug(interfacesHandler, "[DH]:\tS[DET]_1:\t", s_fermion_final, false);
             print_info_debug(interfacesHandler, "[DH]:\tdS[DET]: \t", spinor_energy_init - s_fermion_final);
+            logger.fatal() << "dS=" << spinor_energy_init - s_fermion_final;
             //check on NANs
             if(spinor_energy_init != spinor_energy_init || s_fermion_final != s_fermion_final || deltaH != deltaH) {
                 throw Print_Error_Message("NAN occured in Metropolis! Aborting!", __FILE__, __LINE__);
@@ -372,6 +383,7 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
         compare_prob = 1.0;
     }
     print_info_debug(interfacesHandler, "[DH]:\tdH:\t\t", deltaH);
+    logger.fatal() << "dH=" << deltaH;
     print_info_debug(interfacesHandler, "[MET]:\tAcc-Prop:\t", compare_prob);
 
     //calc gaugeobservables

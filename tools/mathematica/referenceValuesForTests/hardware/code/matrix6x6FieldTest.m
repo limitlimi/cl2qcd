@@ -20,7 +20,7 @@ countMatrixField[Inverse[UpperLeftBlock[nonTrivialRealPar,nonTrivialRealPar,asce
 countMatrixField[Inverse[LowerRightBlock[nonTrivialRealPar,nonTrivialRealPar,ascending3x3mat,nonTrivial3x3mat], Method -> "CofactorExpansion"]]
 
 
-
-
-
-
+(* calculation of S_det = Log(Det[(1+T_ee)^2]) *)
+tmp1=Log[Re[Det[UpperLeftBlock[nonTrivialRealPar,nonTrivialRealPar,ascending3x3mat,nonTrivial3x3mat].UpperLeftBlock[nonTrivialRealPar,nonTrivialRealPar,ascending3x3mat,nonTrivial3x3mat]]]];
+tmp2=Log[Re[Det[LowerRightBlock[nonTrivialRealPar,nonTrivialRealPar,ascending3x3mat,nonTrivial3x3mat].UpperLeftBlock[nonTrivialRealPar,nonTrivialRealPar,ascending3x3mat,nonTrivial3x3mat]]]];
+tmp1+tmp2

@@ -26,6 +26,7 @@
 #include "../../hardware/system.hpp"
 #include "../../hardware/buffers/6x6.hpp"
 #include "../prng.hpp"
+#include "scalar.hpp"
 #include "latticesInterfaces.hpp"
 #include "../../hardware/lattices/matrix6x6Field.hpp"
 #include "gaugefield.hpp"
@@ -84,9 +85,14 @@ namespace physics {
 			hardware::lattices::Matrix6x6Field matrix6x6Field;
 
 			friend hmc_float count_Matrix6x6Field(const Matrix6x6Field&);
+
+			friend hmc_float log_det_Matrix6x6Field(const Matrix6x6Field&, const hmc_float kappa, const hmc_float csw);
 		};
 
 		hmc_float count_Matrix6x6Field(const Matrix6x6Field& field);
+
+		hmc_float log_det_Matrix6x6Field(const Gaugefield& field, const hmc_float kappa, const hmc_float csw);
+		void log_det_Matrix6x6Field(const Scalar<hmc_float>* res, const Gaugefield& field, const hmc_float kappa, const hmc_float csw);
 	}
 }
 

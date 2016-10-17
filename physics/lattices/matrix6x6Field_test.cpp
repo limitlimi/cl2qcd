@@ -105,3 +105,34 @@ BOOST_AUTO_TEST_CASE(set_field)
 		BOOST_CHECK_CLOSE(count_Matrix6x6Field(mat1), 12345., 0.1);
 	}
 }
+
+BOOST_AUTO_TEST_CASE(log_det_squared)
+{
+	using namespace physics::lattices;
+
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=clover", "--csw=0.1"};
+	meta::Inputparameters params(4, _params);
+	const GaugefieldParametersImplementation parametersTmp{ &params };
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	logger.debug() << "Devices: " << system.get_devices().size();
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+	physics::observables::GaugeObservablesParametersImplementation gaugeobservablesParameters(params);
+
+	// init gaugefield cold
+	Gaugefield gf1(system, &parametersTmp, prng, false);
+
+	BOOST_CHECK_EQUAL(log_det_Matrix6x6Field(gf1, 1., 1.), 0.);
+
+	// init gaugefield hot
+	Gaugefield gf2(system, &parametersTmp, prng, true);
+
+	BOOST_CHECK_CLOSE(log_det_Matrix6x6Field(gf2, 0.12345, 0.12345), 0.12345, 0.1);
+
+	// init gaugefield from file
+	Gaugefield gf3(system, &parametersTmp, prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+
+	BOOST_CHECK_CLOSE(log_det_Matrix6x6Field(gf3, 1., 1.), 0.12345, 0.1);
+}

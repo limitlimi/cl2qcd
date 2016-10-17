@@ -25,7 +25,7 @@
 
 ReferenceValues calculateReferenceValues_CloverEvenOddInverseExplicitUpperLeftTester(const int latticeVolume, const GaugefieldFillType gaugefieldFillTypeIn, const hmc_float kappa, const hmc_float csw)
 {
-	if(kappa == 0 or csw == 0 or gaugefieldFillTypeIn != ascendingInTDirNonTrivialInSpatial) {
+	if(kappa == 0. or csw == 0. or gaugefieldFillTypeIn != ascendingInTDirNonTrivialInSpatial) {
 		return ReferenceValues{latticeVolume * 6.};
 	}
 	else if(kappa == nonTrivialParameter and csw == nonTrivialParameter and gaugefieldFillTypeIn == ascendingInTDirNonTrivialInSpatial) {
@@ -36,11 +36,22 @@ ReferenceValues calculateReferenceValues_CloverEvenOddInverseExplicitUpperLeftTe
 
 ReferenceValues calculateReferenceValues_CloverEvenOddInverseExplicitLowerRightTester(const int latticeVolume, const GaugefieldFillType gaugefieldFillTypeIn, const hmc_float kappa, const hmc_float csw)
 {
-	if(kappa == 0 or csw == 0 or gaugefieldFillTypeIn != ascendingInTDirNonTrivialInSpatial) {
+	if(kappa == 0. or csw == 0. or gaugefieldFillTypeIn != ascendingInTDirNonTrivialInSpatial) {
 		return ReferenceValues{latticeVolume * 6.};
 	}
 	else if(kappa == nonTrivialParameter and csw == nonTrivialParameter and gaugefieldFillTypeIn == ascendingInTDirNonTrivialInSpatial) {
 			return ReferenceValues{latticeVolume * -2.559858978354924};
+	}
+	return defaultReferenceValues();
+}
+
+ReferenceValues calculateReferenceValues_CloverEvenOddLogDetTester(const int latticeVolume, const GaugefieldFillType gaugefieldFillTypeIn, const hmc_float kappa, const hmc_float csw)
+{
+	if(gaugefieldFillTypeIn == cold) {
+		return ReferenceValues{0.0};
+	}
+	else if(gaugefieldFillTypeIn == ascendingInTDirNonTrivialInSpatial and kappa == nonTrivialParameter and csw == nonTrivialParameter) {
+		return ReferenceValues{0.5 * latticeVolume * -3.397613813121696};
 	}
 	return defaultReferenceValues();
 }
@@ -64,6 +75,22 @@ struct CloverEvenOddInverseExplicitLowerRightTester : public Matrix6x6FieldTeste
 	}
 };
 
+struct CloverEvenOddLogDetTester : public Matrix6x6FieldTester
+{
+	CloverEvenOddLogDetTester(const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams):
+		Matrix6x6FieldTester("clover_log_det", parameterCollection, testParams, calculateReferenceValues_CloverEvenOddLogDetTester(parameterCollection.hardwareParameters.getLatticeVolume(), testParams.fillType, parameterCollection.kernelParameters.getKappa(), parameterCollection.kernelParameters.getCsw()))
+	{
+		doubleBuffer = new hardware::buffers::Plain<double> (1, device);
+
+		code = this->device->getMatrix6x6FieldCode();
+		code->clover_eo_log_det_device(gaugefieldBuffer, doubleBuffer, parameterCollection.kernelParameters.getKappa(), parameterCollection.kernelParameters.getCsw());
+		doubleBuffer->dump(&kernelResult[0]);
+	}
+
+protected:
+	const hardware::buffers::Plain<hmc_float> * doubleBuffer;
+};
+
 template<typename TesterClass>
 void performTest(const LatticeExtents latticeExtentsIn, const GaugefieldFillType fillType, const hmc_float kappa, const hmc_float csw)
 {
@@ -84,6 +111,10 @@ void testCloverEvenOddInverseExplicitLowerRight(const LatticeExtents lE, const G
 	performTest<CloverEvenOddInverseExplicitLowerRightTester>(lE, fT, kappa, csw);
 }
 
+void testCloverEvenOddLogDet(const LatticeExtents lE, const GaugefieldFillType fT, const hmc_float kappa, const hmc_float csw)
+{
+	performTest<CloverEvenOddLogDetTester>(lE, fT, kappa, csw);
+}
 
 BOOST_AUTO_TEST_SUITE ( CLOVER_EO_INVERSE_EXPLICIT )
 
@@ -95,6 +126,20 @@ BOOST_AUTO_TEST_SUITE ( CLOVER_EO_INVERSE_EXPLICIT )
 	BOOST_AUTO_TEST_CASE( CLOVER_EO_INVERSE_EXPLICIT_LOWER_RIGHT )
 	{
 		testCloverEvenOddInverseExplicitLowerRight(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, nonTrivialParameter, nonTrivialParameter);
+	}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE ( CLOVER_EO_LOG_DET )
+
+	BOOST_AUTO_TEST_CASE( CLOVER_EO_LOG_DET_1 )
+	{
+		testCloverEvenOddLogDet(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, nonTrivialParameter, nonTrivialParameter);
+	}
+
+	BOOST_AUTO_TEST_CASE( CLOVER_EO_LOG_DET_2 )
+	{
+		testCloverEvenOddLogDet(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, nonTrivialParameter, nonTrivialParameter);
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

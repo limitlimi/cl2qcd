@@ -38,6 +38,7 @@ void physics::lattices::Matrix6x6Field::setField(const physics::lattices::Gaugef
 	{
 		throw Invalid_Parameters("The setField method in matrix6x6Field is not to be used with wilson or tm fermion action!", "clover", latticeObjectParameters->getFermact());
 	}
+	//logger.fatal() << "Matrix6x6Field filled(0=upperleft, 1=lowerright)" << upperOrLower;
 	auto gaugefieldBuffers = gaugefield->get_buffers();
 	auto matrix6x6FieldBuffers = this->get_buffers();
 	size_t num_devs = matrix6x6FieldBuffers.size();
@@ -80,6 +81,38 @@ hmc_float physics::lattices::count_Matrix6x6Field(const Matrix6x6Field& field)
 	}
 	return res;
 }
+
+hmc_float physics::lattices::log_det_Matrix6x6Field(const Gaugefield& field, const hmc_float kappa, const hmc_float csw)
+{
+	const Scalar<hmc_float> res(*field.getSystem());
+	log_det_Matrix6x6Field(&res, field, kappa, csw);
+	return res.get();
+}
+
+void physics::lattices::log_det_Matrix6x6Field(const Scalar<hmc_float>* res, const Gaugefield& field, const hmc_float kappa, const hmc_float csw)
+{
+	auto field_buffers = field.get_buffers();
+	auto res_buffers = res->get_buffers();
+	size_t num_buffers = field_buffers.size();
+
+	// TODO implemente for more than one device
+	if(num_buffers != res_buffers.size()) {
+		throw std::invalid_argument("The given lattices do not sue the same number of devices.");
+	}
+
+	for(size_t i = 0; i < num_buffers; ++i) {
+		auto field_buf = field_buffers[i];
+		auto res_buf = res_buffers[i];
+		auto device = field_buf->get_device();
+		auto mat6x6_code = device->getMatrix6x6FieldCode();
+
+		mat6x6_code->clover_eo_log_det_device(field_buf, res_buf, kappa, csw);
+	}
+
+	res->sum();
+}
+
+
 
 void physics::lattices::Matrix6x6Field::update_halo() const
 {

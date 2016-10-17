@@ -25,7 +25,7 @@
 
 int calculateMatrix6x6FieldSize(LatticeExtents latticeExtentsIn) noexcept;
 
-enum Matrix6x6FieldFillType {unity = 1, toBeAdded};
+enum Matrix6x6FieldFillType {unity = 1, ascendingReal6x6, zero6x6};
 
 struct Matrix6x6FieldTestParameters : public virtual TestParameters
 {

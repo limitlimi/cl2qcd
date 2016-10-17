@@ -35,6 +35,8 @@ void hardware::code::matrix6x6Field::fill_kernels()
 
 	clover_eo_inverse_explicit_upper_left = createKernel("clover_eo_inverse_explicit_upper_left") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl" << "fermionmatrix_eo_clover_explizit_inverse.cl";
 	clover_eo_inverse_explicit_lower_right = createKernel("clover_eo_inverse_explicit_lower_right") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_inverse.cl" << "fermionmatrix_eo_clover_explizit_inverse.cl";
+
+	clover_eo_log_det = createKernel("clover_eo_log_det") << basic_opencl_code << "operations_spinorfield_eo.cl" << "fermionmatrix.cl" << "operations_matrix6x6.cl" << "fermionmatrix_eo_clover_explicit.cl" << "fermionmatrix_eo_clover_log_det.cl";
 }
 
 void hardware::code::matrix6x6Field::clear_kernels()
@@ -45,6 +47,7 @@ void hardware::code::matrix6x6Field::clear_kernels()
 
     clerr = clReleaseKernel(clover_eo_inverse_explicit_upper_left);
     clerr = clReleaseKernel(clover_eo_inverse_explicit_lower_right);
+    clerr = clReleaseKernel(clover_eo_log_det);
     if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 }
 
@@ -129,6 +132,40 @@ void hardware::code::matrix6x6Field::clover_eo_inverse_explicit_lower_right_devi
    	get_device()->enqueue_kernel( clover_eo_inverse_explicit_lower_right, gs2, ls2);
 }
 
+void hardware::code::matrix6x6Field::clover_eo_log_det_device(const hardware::buffers::SU3 * gf, const hardware::buffers::Plain<hmc_float> * out, hmc_float kappa, hmc_float csw) const
+{
+	using namespace hardware::buffers;
+
+	//get kappa
+	hmc_float kappa_tmp;
+	if(kappa == ARG_DEF) kappa_tmp = kernelParameters->getKappa();
+	else kappa_tmp = kappa;
+
+	//get csw
+	hmc_float csw_tmp;
+    if(csw == ARG_DEF) csw_tmp = kernelParameters->getCsw();
+    else csw_tmp = csw;
+
+    //query work-sizes for kernel
+   	size_t ls2, gs2;
+   	cl_uint num_groups;
+   	this->get_work_sizes(clover_eo_log_det, &ls2, &gs2, &num_groups);
+   	//set arguments
+   	int clerr = clSetKernelArg(clover_eo_log_det, 0, sizeof(cl_mem), gf->get_cl_buffer());
+   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+   	clerr = clSetKernelArg(clover_eo_log_det, 1, sizeof(cl_mem), out->get_cl_buffer());
+    if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+   	clerr = clSetKernelArg(clover_eo_log_det, 2, sizeof(hmc_float), &kappa_tmp);
+   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+   	clerr = clSetKernelArg(clover_eo_log_det, 3, sizeof(hmc_float), &csw_tmp);
+   	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+   	get_device()->enqueue_kernel( clover_eo_log_det, gs2, ls2);
+}
+
 uint64_t hardware::code::matrix6x6Field::get_flop_size(const std::string& in) const
 {
 	return 0;
@@ -209,7 +246,7 @@ void hardware::code::matrix6x6Field::convertMatrix6x6FieldFromSOA_device(const h
 
 hardware::code::matrix6x6Field::matrix6x6Field(const hardware::code::OpenClKernelParametersInterface& kernelParameters, const hardware::Device * device)
 : Opencl_Module(kernelParameters, device),
-  clover_eo_inverse_explicit_upper_left(0), clover_eo_inverse_explicit_lower_right(0)
+  clover_eo_inverse_explicit_upper_left(0), clover_eo_inverse_explicit_lower_right(0), clover_eo_log_det(0)
 {
     fill_kernels();
 }

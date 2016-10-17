@@ -112,10 +112,10 @@ Matrix6x6 unit_matrix6x6()
     return out;
 }
 
-/*Matrix6x6 nonTrivialMatrix6x6()
+Matrix6x6 zero_matrix6x6()
 {
 	Matrix6x6 out;
-    out.e00.re = 1.; out.e00.im = 0.;
+    out.e00.re = 0.; out.e00.im = 0.;
     out.e01.re = 0.; out.e01.im = 0.;
     out.e02.re = 0.; out.e02.im = 0.;
     out.e03.re = 0.; out.e03.im = 0.;
@@ -123,7 +123,7 @@ Matrix6x6 unit_matrix6x6()
     out.e05.re = 0.; out.e05.im = 0.;
     //1. row
     out.e10.re = 0.; out.e10.im = 0.;
-    out.e11.re = 1.; out.e11.im = 0.;
+    out.e11.re = 0.; out.e11.im = 0.;
     out.e12.re = 0.; out.e12.im = 0.;
     out.e13.re = 0.; out.e13.im = 0.;
     out.e14.re = 0.; out.e14.im = 0.;
@@ -131,7 +131,7 @@ Matrix6x6 unit_matrix6x6()
     //2. row
     out.e20.re = 0.; out.e20.im = 0.;
     out.e21.re = 0.; out.e21.im = 0.;
-    out.e22.re = 1.; out.e22.im = 0.;
+    out.e22.re = 0.; out.e22.im = 0.;
     out.e23.re = 0.; out.e23.im = 0.;
     out.e24.re = 0.; out.e24.im = 0.;
     out.e25.re = 0.; out.e25.im = 0.;
@@ -139,7 +139,7 @@ Matrix6x6 unit_matrix6x6()
     out.e30.re = 0.; out.e30.im = 0.;
     out.e31.re = 0.; out.e31.im = 0.;
     out.e32.re = 0.; out.e32.im = 0.;
-    out.e33.re = 1.; out.e33.im = 0.;
+    out.e33.re = 0.; out.e33.im = 0.;
     out.e34.re = 0.; out.e34.im = 0.;
     out.e35.re = 0.; out.e35.im = 0.;
     //4. row
@@ -147,7 +147,7 @@ Matrix6x6 unit_matrix6x6()
     out.e41.re = 0.; out.e41.im = 0.;
     out.e42.re = 0.; out.e42.im = 0.;
     out.e43.re = 0.; out.e43.im = 0.;
-    out.e44.re = 1.; out.e44.im = 0.;
+    out.e44.re = 0.; out.e44.im = 0.;
     out.e45.re = 0.; out.e45.im = 0.;
     //5. row
     out.e50.re = 0.; out.e50.im = 0.;
@@ -155,17 +155,59 @@ Matrix6x6 unit_matrix6x6()
     out.e52.re = 0.; out.e52.im = 0.;
     out.e53.re = 0.; out.e53.im = 0.;
     out.e54.re = 0.; out.e54.im = 0.;
-    out.e55.re = 1.; out.e55.im = 0.;
+    out.e55.re = 0.; out.e55.im = 0.;
 
     return out;
-}*/
+}
 
 
-//Matrix6x6FieldTester::Matrix6x6FieldTester(std::string kernelName, const ParameterCollection & parameterCollection, const Matrix6x6FieldTestParameters testParams, const ReferenceValues rV):
-//KernelTester(kernelName, parameterCollection.hardwareParameters, parameterCollection.kernelParameters, testParams, rV)
-//{
-//	code = device->getMatrix6x6FieldCode();
-//}
+Matrix6x6 ascendingRealMatrix6x6()
+{
+	Matrix6x6 out;
+    out.e00.re = 1.; out.e00.im = 0.;
+    out.e01.re = 2.; out.e01.im = 0.;
+    out.e02.re = 3.; out.e02.im = 0.;
+    out.e03.re = 4.; out.e03.im = 0.;
+    out.e04.re = 5.; out.e04.im = 0.;
+    out.e05.re = 6.; out.e05.im = 0.;
+    //1. row
+    out.e10.re = 7.; out.e10.im = 0.;
+    out.e11.re = 8.; out.e11.im = 0.;
+    out.e12.re = 9.; out.e12.im = 0.;
+    out.e13.re = 10.; out.e13.im = 0.;
+    out.e14.re = 11.; out.e14.im = 0.;
+    out.e15.re = 12.; out.e15.im = 0.;
+    //2. row
+    out.e20.re = 13.; out.e20.im = 0.;
+    out.e21.re = 14.; out.e21.im = 0.;
+    out.e22.re = 15.; out.e22.im = 0.;
+    out.e23.re = 16.; out.e23.im = 0.;
+    out.e24.re = 17.; out.e24.im = 0.;
+    out.e25.re = 18.; out.e25.im = 0.;
+    //3. row
+    out.e30.re = 19.; out.e30.im = 0.;
+    out.e31.re = 20.; out.e31.im = 0.;
+    out.e32.re = 21.; out.e32.im = 0.;
+    out.e33.re = 22.; out.e33.im = 0.;
+    out.e34.re = 23.; out.e34.im = 0.;
+    out.e35.re = 24.; out.e35.im = 0.;
+    //4. row
+    out.e40.re = 25.; out.e40.im = 0.;
+    out.e41.re = 26.; out.e41.im = 0.;
+    out.e42.re = 27.; out.e42.im = 0.;
+    out.e43.re = 28.; out.e43.im = 0.;
+    out.e44.re = 29.; out.e44.im = 0.;
+    out.e45.re = 30.; out.e45.im = 0.;
+    //5. row
+    out.e50.re = 31.; out.e50.im = 0.;
+    out.e51.re = 32.; out.e51.im = 0.;
+    out.e52.re = 33.; out.e52.im = 0.;
+    out.e53.re = 34.; out.e53.im = 0.;
+    out.e54.re = 35.; out.e54.im = 0.;
+    out.e55.re = 36.; out.e55.im = 0.;
+
+    return out;
+}
 
 int calculateMatrix6x6FieldSize(const LatticeExtents latticeExtentsIn) noexcept
 {
@@ -182,9 +224,12 @@ const Matrix6x6* Matrix6x6FieldCreator::createMatrix6x6Field(const Matrix6x6Fiel
 		case Matrix6x6FieldFillType::unity:
 			tmp[i] = unit_matrix6x6();
 			break;
-		/*case Matrix6x6FieldFillType::toBeAdded:
-			tmp[i] = nonTrivialMatrix6x6();
-			break;*/
+		case Matrix6x6FieldFillType::ascendingReal6x6:
+			tmp[i] = ascendingRealMatrix6x6();
+			break;
+		case Matrix6x6FieldFillType::zero6x6:
+			tmp[i] = zero_matrix6x6();
+			break;
 		default:
 			BOOST_ERROR("No valid Matrix6x6FieldFillType specified");
 		}
