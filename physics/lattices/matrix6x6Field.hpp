@@ -86,13 +86,13 @@ namespace physics {
 
 			friend hmc_float count_Matrix6x6Field(const Matrix6x6Field&);
 
-			friend hmc_float log_det_Matrix6x6Field(const Matrix6x6Field&, const hmc_float kappa, const hmc_float csw);
+			friend hmc_float S_det(const Gaugefield&, const hmc_float kappa, const hmc_float csw);
 		};
 
 		hmc_float count_Matrix6x6Field(const Matrix6x6Field& field);
 
-		hmc_float log_det_Matrix6x6Field(const Gaugefield& field, const hmc_float kappa, const hmc_float csw);
-		void log_det_Matrix6x6Field(const Scalar<hmc_float>* res, const Gaugefield& field, const hmc_float kappa, const hmc_float csw);
+		hmc_float S_det(const Gaugefield& field, const hmc_float kappa, const hmc_float csw);
+		void S_det(const Scalar<hmc_float>* res, const Gaugefield& field, const hmc_float kappa, const hmc_float csw);
 	}
 }
 

@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(set_field)
 	}
 }
 
-BOOST_AUTO_TEST_CASE(log_det_squared)
+BOOST_AUTO_TEST_CASE(S_det_test)
 {
 	using namespace physics::lattices;
 
@@ -124,15 +124,15 @@ BOOST_AUTO_TEST_CASE(log_det_squared)
 	// init gaugefield cold
 	Gaugefield gf1(system, &parametersTmp, prng, false);
 
-	BOOST_CHECK_EQUAL(log_det_Matrix6x6Field(gf1, 1., 1.), 0.);
+	BOOST_CHECK_EQUAL(S_det(gf1, 0.12345, 0.12345), 0.);
 
 	// init gaugefield hot
 	Gaugefield gf2(system, &parametersTmp, prng, true);
 
-	BOOST_CHECK_CLOSE(log_det_Matrix6x6Field(gf2, 0.12345, 0.12345), 0.12345, 0.1);
+	BOOST_CHECK_CLOSE(S_det(gf2, 0.12345, 0.12345), 0.12345, 0.1);
 
 	// init gaugefield from file
 	Gaugefield gf3(system, &parametersTmp, prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
 
-	BOOST_CHECK_CLOSE(log_det_Matrix6x6Field(gf3, 1., 1.), 0.12345, 0.1);
+	BOOST_CHECK_CLOSE(S_det(gf3, 0.12345, 0.12345), 0.12345, 0.1);
 }

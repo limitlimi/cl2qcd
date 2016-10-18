@@ -49,7 +49,7 @@ public:
 
     void clover_eo_inverse_explicit_upper_left_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
     void clover_eo_inverse_explicit_lower_right_device(const hardware::buffers::matrix6x6 * out, const hardware::buffers::SU3 * gf, hmc_float kappa, hmc_float csw) const;
-    void clover_eo_log_det_device(const hardware::buffers::SU3 * gf, const hardware::buffers::Plain<hmc_float> * out, hmc_float kappa, hmc_float csw) const;
+    void S_det_device(const hardware::buffers::SU3 * gf, const hardware::buffers::Plain<hmc_float> * out, hmc_float kappa, hmc_float csw) const;
 
 
     /**
@@ -111,7 +111,7 @@ private:
 
 	cl_kernel clover_eo_inverse_explicit_upper_left;
 	cl_kernel clover_eo_inverse_explicit_lower_right;
-	cl_kernel clover_eo_log_det;
+	cl_kernel S_det;
 
     //cl_kernel convertMatrix6x6FieldToSOA;
     //cl_kernel convertMatrix6x6FieldFromSOA;

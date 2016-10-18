@@ -19,10 +19,10 @@
  */
 
 /*
-  Calculation of S_det = Log(Det[(1+T_ee)^2])
+  Calculation of S_det = -Log(Det[(1+T_ee)^2])
 */
 
-hmc_float log_det_squared_qr(Matrix6x6 a)
+hmc_float log_det_matrix6x6_squared_qr(Matrix6x6 a)
 {
     //map Matrix6x6 struct to C array6x6
     const int rows = 6; const int cols = 6;
@@ -138,7 +138,7 @@ hmc_float log_det_squared_qr(Matrix6x6 a)
 	return result;
 }
 
-hmc_float log_det_squared(Matrix6x6 a)
+hmc_float log_det_matrix6x6_squared(Matrix6x6 a)
 {
     //map Matrix6x6 struct to C array6x6
     const int n = 5;
@@ -241,29 +241,24 @@ hmc_float log_det_squared(Matrix6x6 a)
 }
 
 
-hmc_float log_det_matrix6x6_for_site(__global Matrixsu3StorageType const * const restrict field, st_idx const pos, hmc_float kappa_in, hmc_float csw)
+hmc_float S_det_for_site(__global Matrixsu3StorageType const * const restrict field, st_idx const pos, hmc_float kappa_in, hmc_float csw)
 {
-	//calculate clover_explicit blocks and and call for every block log_det_squared and add results --> input = gaugefield
+	//calculate clover_explicit blocks and and call for every block log_det_matrix6x6_squared and add results
     Matrix6x6 UpperLeft = clover_eoprec_unified_local_upper_left_block(field, pos, kappa_in, csw);
 	Matrix6x6 LowerRight = clover_eoprec_unified_local_lower_right_block(field, pos, kappa_in, csw);
-	hmc_float tmp1 = log_det_squared(UpperLeft);
-	hmc_float tmp2 = log_det_squared(LowerRight);
-	hmc_float res_tmp = tmp1 + tmp2;
-	//printf("%f", res_tmp);
+	hmc_float tmp1 = log_det_matrix6x6_squared(UpperLeft);
+	hmc_float tmp2 = log_det_matrix6x6_squared(LowerRight);
+	hmc_float res_tmp = -tmp1 - tmp2;;
 	return res_tmp;
 }
 
-__kernel void clover_eo_log_det(__global Matrixsu3StorageType const * const restrict field, __global hmc_float * res, hmc_float kappa_in, hmc_float csw)
+__kernel void S_det(__global Matrixsu3StorageType const * const restrict field, __global hmc_float * res, hmc_float kappa_in, hmc_float csw)
 {
 	hmc_float tmp = 0.;
-    printf("kernel is called\n");
     PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
         st_idx pos = get_even_st_idx_local(id_local);
-        tmp -= log_det_matrix6x6_for_site(field, pos, kappa_in, csw);
-        //printf("%f", log_det_matrix6x6_for_site(in, pos));
-        //printf("\n");
+        tmp += S_det_for_site(field, pos, kappa_in, csw);
     }
-    //printf("%f", tmp);
 	*res = tmp;
 }
 

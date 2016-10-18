@@ -74,7 +74,7 @@ hmc_float physics::lattices::count_Matrix6x6Field(const Matrix6x6Field& field)
 	size_t num_buffers = field_buffers.size();
 
 	for(size_t i = 0; i < num_buffers; ++i) {
-		auto field_buf = field_buffers[i];;
+		auto field_buf = field_buffers[i];
 		Matrix6x6 * matrix6x6_in = new Matrix6x6[field_buf->get_elements()];
 		field_buf->dump(matrix6x6_in);
 		res += count_matrix6x6Field(matrix6x6_in, field_buf->get_elements());
@@ -82,14 +82,15 @@ hmc_float physics::lattices::count_Matrix6x6Field(const Matrix6x6Field& field)
 	return res;
 }
 
-hmc_float physics::lattices::log_det_Matrix6x6Field(const Gaugefield& field, const hmc_float kappa, const hmc_float csw)
+//calculation of clover action S_det = -log(det[(1+T_ee)^2]), see hep-lat/9603008 for details
+hmc_float physics::lattices::S_det(const Gaugefield& field, const hmc_float kappa, const hmc_float csw)
 {
 	const Scalar<hmc_float> res(*field.getSystem());
-	log_det_Matrix6x6Field(&res, field, kappa, csw);
+	S_det(&res, field, kappa, csw);
 	return res.get();
 }
 
-void physics::lattices::log_det_Matrix6x6Field(const Scalar<hmc_float>* res, const Gaugefield& field, const hmc_float kappa, const hmc_float csw)
+void physics::lattices::S_det(const Scalar<hmc_float>* res, const Gaugefield& field, const hmc_float kappa, const hmc_float csw)
 {
 	auto field_buffers = field.get_buffers();
 	auto res_buffers = res->get_buffers();
@@ -106,7 +107,7 @@ void physics::lattices::log_det_Matrix6x6Field(const Scalar<hmc_float>* res, con
 		auto device = field_buf->get_device();
 		auto mat6x6_code = device->getMatrix6x6FieldCode();
 
-		mat6x6_code->clover_eo_log_det_device(field_buf, res_buf, kappa, csw);
+		mat6x6_code->S_det_device(field_buf, res_buf, kappa, csw);
 	}
 
 	res->sum();
