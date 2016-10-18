@@ -315,8 +315,10 @@ struct MolecularDynamicsTestParameters : public GaugemomentumTestParameters
 		GaugemomentumTestParameters(latticeExtendsIn), gaugeFillType(fillTypeIn), gmFillType(gmFillTypeIn), spinorFillType(SpinorFillType::one), matrix6x6FieldFillType(Matrix6x6FieldFillType::unity), massParameters(1.), cloverParameters(1.,1.) {}
 	MolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, SpinorFillType sfFillTypeIn, WilsonMassParameters kappaIn) :
 		GaugemomentumTestParameters(latticeExtendsIn, gmFillTypeIn), gaugeFillType(gfFillTypeIn), gmFillType(gmFillTypeIn), spinorFillType(sfFillTypeIn), matrix6x6FieldFillType(Matrix6x6FieldFillType::unity), massParameters(kappaIn), cloverParameters(1.,1.) {}
-	MolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, SpinorFillType sfFillTypeIn, Matrix6x6FieldFillType mat6x6FillTypeIn, CloverParameters cloverParametersIn) :
-		GaugemomentumTestParameters(latticeExtendsIn, gmFillTypeIn), gaugeFillType(gfFillTypeIn), gmFillType(gmFillTypeIn), spinorFillType(sfFillTypeIn), matrix6x6FieldFillType(mat6x6FillTypeIn), massParameters(1.), cloverParameters(cloverParametersIn) {}
+	MolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, SpinorFillType sfFillTypeIn, CloverParameters cloverParametersIn) :
+		GaugemomentumTestParameters(latticeExtendsIn, gmFillTypeIn), gaugeFillType(gfFillTypeIn), gmFillType(gmFillTypeIn), spinorFillType(sfFillTypeIn), matrix6x6FieldFillType(Matrix6x6FieldFillType::unity), massParameters(1.), cloverParameters(cloverParametersIn) {}
+	MolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, Matrix6x6FieldFillType mat6x6FillTypeIn, CloverParameters cloverParametersIn) :
+		GaugemomentumTestParameters(latticeExtendsIn, gmFillTypeIn), gaugeFillType(gfFillTypeIn), gmFillType(gmFillTypeIn), spinorFillType(SpinorFillType::zero), matrix6x6FieldFillType(mat6x6FillTypeIn), massParameters(1.), cloverParameters(cloverParametersIn) {}
 	const GaugefieldFillType gaugeFillType;
 	const GaugeMomentumFilltype gmFillType;
 	const SpinorFillType spinorFillType;
@@ -337,8 +339,10 @@ struct EvenOddMolecularDynamicsTestParameters: public MolecularDynamicsTestParam
 
 struct CloverEvenOddMolecularDynamicsTestParameters: public MolecularDynamicsTestParameters
 {
-	CloverEvenOddMolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, SpinorFillType sfFillTypeIn, Matrix6x6FieldFillType mat6x6FillTypeIn, CloverParameters cloverParametersIn, const bool evenOrOddIn ):
-		MolecularDynamicsTestParameters( latticeExtendsIn, gfFillTypeIn, gmFillTypeIn, sfFillTypeIn, mat6x6FillTypeIn, cloverParametersIn), evenOrOdd(evenOrOddIn) {}
+	CloverEvenOddMolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, SpinorFillType sfFillTypeIn, CloverParameters cloverParametersIn, const bool evenOrOddIn ):
+		MolecularDynamicsTestParameters( latticeExtendsIn, gfFillTypeIn, gmFillTypeIn, sfFillTypeIn, cloverParametersIn), evenOrOdd(evenOrOddIn) {}
+	CloverEvenOddMolecularDynamicsTestParameters(const LatticeExtents latticeExtendsIn, GaugefieldFillType gfFillTypeIn, GaugeMomentumFilltype gmFillTypeIn, Matrix6x6FieldFillType mat6x6FillTypeIn, CloverParameters cloverParametersIn, const bool evenOrOddIn ):
+			MolecularDynamicsTestParameters( latticeExtendsIn, gfFillTypeIn, gmFillTypeIn, mat6x6FillTypeIn, cloverParametersIn), evenOrOdd(evenOrOddIn) {}
 	const bool evenOrOdd;
 };
 
@@ -633,9 +637,19 @@ void callTest(const LatticeExtents lE, GaugefieldFillType gfFillType, GaugeMomen
 }
 
 template<class TesterClass>
-void callTest(const LatticeExtents lE, GaugefieldFillType gfFillType, GaugeMomentumFilltype gmFillType, SpinorFillType sfFillType, Matrix6x6FieldFillType mat6x6FillType, const bool evenOrOdd, CloverParameters cloverParameters)
+void callTest(const LatticeExtents lE, GaugefieldFillType gfFillType, GaugeMomentumFilltype gmFillType, SpinorFillType sfFillType, const bool evenOrOdd, CloverParameters cloverParameters)
 {
-	CloverEvenOddMolecularDynamicsTestParameters parametersForThisTest(lE, gfFillType, gmFillType, sfFillType, mat6x6FillType, cloverParameters, evenOrOdd);
+	CloverEvenOddMolecularDynamicsTestParameters parametersForThisTest(lE, gfFillType, gmFillType, sfFillType, cloverParameters, evenOrOdd);
+	hardware::HardwareParametersMockup hardwareParameters(lE, true);
+	hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, cloverParameters.kappa, cloverParameters.csw);
+	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
+	TesterClass(parameterCollection, parametersForThisTest);
+}
+
+template<class TesterClass>
+void callTest(const LatticeExtents lE, GaugefieldFillType gfFillType, GaugeMomentumFilltype gmFillType, Matrix6x6FieldFillType mat6x6FillType, const bool evenOrOdd, CloverParameters cloverParameters)
+{
+	CloverEvenOddMolecularDynamicsTestParameters parametersForThisTest(lE, gfFillType, gmFillType, mat6x6FillType, cloverParameters, evenOrOdd);
 	hardware::HardwareParametersMockup hardwareParameters(lE, true);
 	hardware::code::OpenClKernelParametersMockupForCloverEvenOdd kernelParameters(parametersForThisTest.ns, parametersForThisTest.nt, cloverParameters.kappa, cloverParameters.csw);
 	ParameterCollection parameterCollection{hardwareParameters, kernelParameters};
@@ -662,13 +676,13 @@ void testEvenOddFermionForce(const LatticeExtents lE, GaugefieldFillType fillTyp
 {
 	callTest<FFermionEvenOddTester>(lE, fillType, gmFillType, sfFillType, evenOrOdd, kappa );
 }
-void testEvenOddClover1FermionForce(const LatticeExtents lE, GaugefieldFillType fillType, GaugeMomentumFilltype gmFillType, SpinorFillType sfFillType, Matrix6x6FieldFillType mat6x6FillType, const bool evenOrOdd, CloverParameters cloverParameters)
+void testEvenOddClover1FermionForce(const LatticeExtents lE, GaugefieldFillType fillType, GaugeMomentumFilltype gmFillType, SpinorFillType sfFillType, const bool evenOrOdd, CloverParameters cloverParameters)
 {
-	callTest<FFermionClover1EvenOddTester>(lE, fillType, gmFillType, sfFillType, mat6x6FillType, evenOrOdd, cloverParameters );
+	callTest<FFermionClover1EvenOddTester>(lE, fillType, gmFillType, sfFillType, evenOrOdd, cloverParameters );
 }
-void testEvenOddClover2FermionForce(const LatticeExtents lE, GaugefieldFillType fillType, GaugeMomentumFilltype gmFillType, SpinorFillType sfFillType, Matrix6x6FieldFillType mat6x6FillType, const bool evenOrOdd, CloverParameters cloverParameters)
+void testEvenOddClover2FermionForce(const LatticeExtents lE, GaugefieldFillType fillType, GaugeMomentumFilltype gmFillType, Matrix6x6FieldFillType mat6x6FillType, const bool evenOrOdd, CloverParameters cloverParameters)
 {
-	callTest<FFermionClover2EvenOddTester>(lE, fillType, gmFillType, sfFillType, mat6x6FillType, evenOrOdd, cloverParameters );
+	callTest<FFermionClover2EvenOddTester>(lE, fillType, gmFillType, mat6x6FillType, evenOrOdd, cloverParameters );
 }
 void compareEvenOddAndNonEvenOddFermionForce(const LatticeExtents lE, GaugefieldFillType fillType, GaugeMomentumFilltype gmFillType, SpinorFillType sfFillType, WilsonMassParameters kappa)
 {
@@ -832,11 +846,11 @@ BOOST_AUTO_TEST_SUITE( F_FERMION_CLOVER1_EO )
 
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER1_EO_1 )
 	{
-	testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+		testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::One, SpinorFillType::one, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER1_EO_2 )
 	{
-		testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+		testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::One, SpinorFillType::one, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -845,11 +859,11 @@ BOOST_AUTO_TEST_SUITE( F_FERMION_CLOVER2_EO )
 
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER2_EO_1 )
 	{
-	testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+		testEvenOddClover2FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::One, Matrix6x6FieldFillType::ascendingReal6x6, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER2_EO_2 )
 	{
-		testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+		testEvenOddClover2FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::One, Matrix6x6FieldFillType::ascendingReal6x6, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
