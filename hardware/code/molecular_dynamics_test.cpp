@@ -449,7 +449,7 @@ struct FFermionClover1EvenOddTester : public MolecularDynamicsTester
 		EvenOddSpinorfieldCreator sf(tP.latticeExtents);
 		const hardware::buffers::Spinor in1(tP.latticeExtents, MolecularDynamicsTester::device);
 		const hardware::buffers::Spinor in2(tP.latticeExtents, MolecularDynamicsTester::device);
-		sf.fillTwoSpinorBuffers(&in1, tP.spinorFillType, &in2, tP.spinorFillType);// the same SpinorFillType is used for both spinors
+		sf.fillTwoSpinorBuffers(&in1, tP.spinorFillType, &in2, SpinorFillType::ascendingComplex);// the same SpinorFillType is used for both spinors
 
 		molecularDynamicsCode->fermion_force_clover1_eo_device( &in1, &in2, gaugefieldBuffer, gaugemomentumBuffer, tP.evenOrOdd, tP.cloverParameters.kappa, tP.cloverParameters.csw);
 		MolecularDynamicsTester::calcSquarenormAndStoreAsKernelResult(gaugemomentumBuffer);
@@ -832,11 +832,11 @@ BOOST_AUTO_TEST_SUITE( F_FERMION_CLOVER1_EO )
 
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER1_EO_1 )
 	{
-	testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+	testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER1_EO_2 )
 	{
-		testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+	testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::Ascending, SpinorFillType::one, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -849,7 +849,7 @@ BOOST_AUTO_TEST_SUITE( F_FERMION_CLOVER2_EO )
 	}
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER2_EO_2 )
 	{
-		testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+	testEvenOddClover1FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::cold, GaugeMomentumFilltype::One, SpinorFillType::one, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

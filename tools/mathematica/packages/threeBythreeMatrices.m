@@ -26,6 +26,11 @@ mat3x3FromKroneckerProductOf3ComponentsVectors::usage=
 	from multiplying U*V^dagger =  u*v^dagger + w*x^dagger, where u, v, w, x are SU(3)-vectors
 	(using spinprojection) see tr_v_times_u_dagger in operations_su3vec.cl"
 
+mat3x3FromKroneckerProduct::usage=
+	"mat3x3FromKroneckerProduct calculates the Dirac-Trace of the matrix resulting
+	from multiplying X*Y^dagger =  x1*y1^dagger + x2*y2^dagger + x3*y3^dagger + x4*y4^dagger , where x1,x2,x3,x4,y1,y2,y3,y4 are SU(3)-vectors
+	(using spinprojection) see tr_dirac_x_times_y_dagger in operations_su3vec.cl"
+
 Begin["Private`"]
 
 cold3x3mat:=
@@ -74,6 +79,20 @@ mat3x3FromKroneckerProductOf3ComponentsVectors[s1_,s2_,s3_,s4_]:=
 	mat3x3FromKroneckerProductOf3ComponentsVectors
 	]
 
+mat3x3FromKroneckerProduct[x_,y_]:=
+	Module[{mat3x3FromKroneckerProduct=KroneckerProduct[{x[[1]], x[[2]], x[[3]]}, ConjugateTranspose[{y[[1]], y[[2]], y[[3]]}]]
+															+ KroneckerProduct[{x[[4]], x[[5]], x[[6]]}, ConjugateTranspose[{y[[4]], y[[5]], y[[6]]}]]
+															+ KroneckerProduct[{x[[7]], x[[8]], x[[9]]}, ConjugateTranspose[{y[[7]], y[[8]], y[[9]]}]]
+															+ KroneckerProduct[{x[[10]], x[[11]], x[[12]]}, ConjugateTranspose[{y[[10]], y[[11]], y[[12]]}]]},
+	mat3x3FromKroneckerProduct
+	]
+
 End[]
 
 EndPackage[]
+
+
+
+
+
+
