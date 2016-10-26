@@ -12,51 +12,6 @@ Get["real.m",Path->{NotebookDirectory[]}]
 Get["vectors.m",Path->{NotebookDirectory[]}]
 
 
-y=Gamma5[cold3x3mat].Sigma14[cold3x3mat].spinorCold
-mat3x3FromKroneckerProductOfEight3ComponentsVectors[su3vecCold,su3vecCold,su3vecCold,su3vecCold,su3vecCold,su3vecCold,su3vecCold,su3vecCold]
-
-
-mat3x3FromKroneckerProduct[Sigma23[cold3x3mat].spinorCold,spinorCold]
-mat3x3FromKroneckerProduct[Sigma32[cold3x3mat].spinorCold,spinorCold]
-mat3x3FromKroneckerProduct[spinorCold,Sigma23[cold3x3mat].spinorCold]
-mat3x3FromKroneckerProduct[Sigma23[cold3x3mat].spinorCold,spinorCold]
-mat3x3FromKroneckerProduct[spinorCold,Sigma23[cold3x3mat].spinorCold]
-
-
-(*square insertion*)
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma14[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma14[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma41[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma41[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma24[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma24[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma42[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma42[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma34[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma34[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma43[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma43[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma12[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma12[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma21[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma21[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma13[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma13[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma31[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma31[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma23[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma23[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma32[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma32[cold3x3mat].spinorCold])
-
-
-(*I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma14[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma14[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma41[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma41[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma24[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma24[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma42[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma42[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma34[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma34[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma43[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma43[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma12[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma12[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma21[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma21[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma13[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma13[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma31[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma31[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma23[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma23[cold3x3mat].spinorCold])
-I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma32[cold3x3mat].spinorCold,spinorCold]+mat3x3FromKroneckerProduct[spinorCold,Gamma5[cold3x3mat].Sigma32[cold3x3mat].spinorCold])*)
-
-
-Sigma23[cold3x3mat].Gamma5[cold3x3mat].spinorCold
-Gamma5[cold3x3mat].Sigma23[cold3x3mat].spinorCold
-Sigma23[cold3x3mat]
-
-
 Square41[s1_,s2_]:=I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma41[cold3x3mat].s1,s2]+mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma41[cold3x3mat].s2,s1]) 
 Square14[s1_,s2_]:=I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma14[cold3x3mat].s1,s2]+mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma14[cold3x3mat].s2,s1])
 Square42[s1_,s2_]:=I*(mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma42[cold3x3mat].s1,s2]+mat3x3FromKroneckerProduct[Gamma5[cold3x3mat].Sigma42[cold3x3mat].s2,s1])
@@ -248,9 +203,18 @@ FermionForceClover[gm_,k_,csw_,s1_,s2_]:= squareNorm[gm]*4 +squareNorm[gm + ferm
 											squareNorm[gm + fermionForceClover1Eo1[k,csw,s1,s2]] +
 											squareNorm[gm + fermionForceClover1Eo2[k,csw,s1,s2]] +
 											squareNorm[gm + fermionForceClover1Eo3[k,csw,s1,s2]]
-FermionForceClover[gaugeMomOne,nonTrivialRealPar,nonTrivialRealPar,spinorCold,spinorAscendingComplex]*4^4/2
-FermionForceClover[gaugeMomAscending,nonTrivialRealPar,nonTrivialRealPar,spinorCold,spinorAscendingComplex]*4^4/2
+FermionForceClover[gaugeMomOne,nonTrivialRealPar,nonTrivialRealPar,spinorAscendingComplex,spinorAscendingComplex]*4^4/2
+FermionForceClover[gaugeMomAscending,nonTrivialRealPar,nonTrivialRealPar,spinorAscendingComplex,spinorAscendingComplex]
 
 
 (*triangle insertion*)
+
+
+N[(Pi/3*90/100)^2]
+N[9/10*Pi/4]
+
+N[(9/40)*Pi]
+N[(9/10)*Pi-(2/3)*Pi]
+
+
 

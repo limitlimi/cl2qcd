@@ -108,7 +108,7 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
     logger.fatal() << "s_normal=" << result;
     if(interfacesHandler.getMetropolisParametersInterface().getFermact() == common::action::clover) { //for details see hep-lat/9603008
     	logger.fatal() << "s_det is calculated";
-    	hmc_float s_det = physics::lattices::log_det_Matrix6x6Field(gf, additionalParameters.getKappa(), additionalParameters.getCsw());
+    	hmc_float s_det = physics::lattices::S_det(gf, additionalParameters.getKappa(), additionalParameters.getCsw());
     	logger.fatal() << "s_det=" << s_det;
     	logger.fatal() << "s_ohne_s_det=" << result;
     	result += s_det;
