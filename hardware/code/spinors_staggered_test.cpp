@@ -1197,7 +1197,7 @@ BOOST_AUTO_TEST_SUITE(SCALAR_PRODUCT_EO)
 	
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_2 )
 	{
-		testEvenOddScalarProductReal  ( LatticeExtents{ns4,nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::ascendingComplex});
+		testEvenOddScalarProductReal  ( LatticeExtents{ns4,nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::ascendingComplex});
 	}
 	
 	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_REDUCTION_1 )
