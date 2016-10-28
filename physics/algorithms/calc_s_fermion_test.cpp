@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(calc_s_fermion_wilson){
 	using namespace physics::algorithms;
 	using namespace physics::lattices;
 	std::cout << "Creating parameter string" << std::endl;
-	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1", "--beta=5.69"};
-	meta::Inputparameters params(4, _params);
+	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1", "--beta=5.69", "--solver=cg"};
+	meta::Inputparameters params(5, _params);
 	physics::InterfacesHandlerImplementation interfacesHandler{params};
 	hardware::HardwareParametersImplementation hP(&params);
 	hardware::code::OpenClKernelParametersImplementation kP(params);
