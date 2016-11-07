@@ -363,14 +363,17 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
             }
         } else {
             hmc_float s_fermion_final = calc_s_fermion(new_u, phi, system, interfacesHandler, interfacesHandler.getAdditionalParameters<SPINORFIELD>(false));
-            deltaH += spinor_energy_init - s_fermion_final;
 
-            print_info_debug(interfacesHandler, "[DH]:\tS[DET]_0:\t", spinor_energy_init, false);
+            hmc_float spinor_energy_init_updated;
+            spinor_energy_init_updated = spinor_energy_init + physics::lattices::S_det(gf, interfacesHandler.getAdditionalParameters<SPINORFIELD>(false).getKappa(), interfacesHandler.getAdditionalParameters<SPINORFIELD>(false).getCsw());
+            deltaH += spinor_energy_init_updated - s_fermion_final;
+
+            print_info_debug(interfacesHandler, "[DH]:\tS[DET]_0:\t", spinor_energy_init_updated, false);
             print_info_debug(interfacesHandler, "[DH]:\tS[DET]_1:\t", s_fermion_final, false);
-            print_info_debug(interfacesHandler, "[DH]:\tdS[DET]: \t", spinor_energy_init - s_fermion_final);
-            logger.fatal() << "dS=" << spinor_energy_init - s_fermion_final;
+            print_info_debug(interfacesHandler, "[DH]:\tdS[DET]: \t", spinor_energy_init_updated - s_fermion_final);
+            logger.fatal() << "dS=" << spinor_energy_init_updated - s_fermion_final;
             //check on NANs
-            if(spinor_energy_init != spinor_energy_init || s_fermion_final != s_fermion_final || deltaH != deltaH) {
+            if(spinor_energy_init_updated != spinor_energy_init_updated || s_fermion_final != s_fermion_final || deltaH != deltaH) {
                 throw Print_Error_Message("NAN occured in Metropolis! Aborting!", __FILE__, __LINE__);
             }
         }
