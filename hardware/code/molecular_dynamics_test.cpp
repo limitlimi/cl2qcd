@@ -219,8 +219,28 @@ const ReferenceValues calculateReferenceValues_FFermionClover1EvenOdd(const int 
 	return defaultReferenceValues();
 }
 
-const ReferenceValues calculateReferenceValues_FFermionClover2EvenOdd()
+const ReferenceValues calculateReferenceValues_FFermionClover2EvenOdd(const int latticeVolume, const GaugeMomentumFilltype gmFillType, const Matrix6x6FieldFillType mat6x6FillType, const CloverParameters cloverParameters, const bool evenOrOdd)
 {
+	if (cloverParameters.csw == nonTrivialParameter && cloverParameters.kappa == nonTrivialParameter)
+	{
+		if ( gmFillType == GaugeMomentumFilltype::One )
+		{
+			if ( mat6x6FillType == Matrix6x6FieldFillType::unity )
+				return ReferenceValues{ 64 * latticeVolume / 2 };
+			else if ( mat6x6FillType == Matrix6x6FieldFillType::ascendingReal6x6 )
+				return ReferenceValues{ 68.90075332746906 * latticeVolume / 2 };
+			return defaultReferenceValues();
+		}
+		else if ( gmFillType == GaugeMomentumFilltype::Ascending )
+		{
+			if ( mat6x6FillType == Matrix6x6FieldFillType::unity )
+				return ReferenceValues{ 1632 * latticeVolume / 2 };
+			else if ( mat6x6FillType == Matrix6x6FieldFillType::ascendingReal6x6 )
+				return ReferenceValues{ 1636.900751139935 * latticeVolume / 2 };
+			return defaultReferenceValues();
+		}
+		return defaultReferenceValues();
+	}
 	return defaultReferenceValues();
 }
 
@@ -475,7 +495,7 @@ struct FFermionClover1EvenOddTester : public MolecularDynamicsTester
 struct FFermionClover2EvenOddTester : public MolecularDynamicsTester
 {
 	FFermionClover2EvenOddTester(const ParameterCollection pC, const CloverEvenOddMolecularDynamicsTestParameters tP) :
-		MolecularDynamicsTester("f_fermion_clover2_eo", pC, calculateReferenceValues_FFermionClover2EvenOdd(), tP)
+		MolecularDynamicsTester("f_fermion_clover2_eo", pC, calculateReferenceValues_FFermionClover2EvenOdd(tP.latticeExtents.getLatticeVolume(), tP.gmFillType, tP.matrix6x6FieldFillType, tP.cloverParameters, tP.evenOrOdd), tP)
 	{
 		Matrix6x6FieldCreator matrix6x6(tP.latticeExtents);
 		const hardware::buffers::matrix6x6 * matrix6x6FieldBuffer = new hardware::buffers::matrix6x6(tP.latticeExtents, this->device);
@@ -875,7 +895,15 @@ BOOST_AUTO_TEST_SUITE( F_FERMION_CLOVER2_EO )
 	}
 	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER2_EO_2 )
 	{
+		testEvenOddClover2FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::Ascending, Matrix6x6FieldFillType::unity, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+	}
+	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER2_EO_3 )
+	{
 		testEvenOddClover2FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::One, Matrix6x6FieldFillType::ascendingReal6x6, ODD, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
+	}
+	BOOST_AUTO_TEST_CASE( F_FERMION_CLOVER2_EO_4 )
+	{
+		testEvenOddClover2FermionForce(LatticeExtents{ns4, nt4}, GaugefieldFillType::ascendingInTDirNonTrivialInSpatial, GaugeMomentumFilltype::Ascending, Matrix6x6FieldFillType::ascendingReal6x6, EVEN, CloverParameters{nonTrivialParameter, nonTrivialParameter} );
 	}
 
 BOOST_AUTO_TEST_SUITE_END()
