@@ -128,20 +128,3 @@ Sigma32[x_] :=
 End[]
 
 EndPackage[]
-
-
-Sigma14[cold3x3mat].spinorCold;
-
-
-(*Sigma14[x_]:=ArrayFlatten[{{0, -1.*x, 0, 0}, {-1.*x, 0, 0, 0}, {0, 0, 0, 1.*x}, {0, 0, 1.*x,0}}]
-Sigma41[x_]:=ArrayFlatten[{{0, 1.*x, 0, 0}, {1.*x, 0, 0, 0}, {0, 0, 0, -1.*x}, {0, 0, -1.*x,0}}]
-Sigma13[x_]:=ArrayFlatten[{{0, -I*x, 0, 0}, {I*x, 0, 0, 0}, {0, 0, 0, -I*x}, {0, 0, I*x,0}}]
-Sigma31[x_]:=ArrayFlatten[{{0, I*x, 0, 0}, {-I*x, 0, 0, 0}, {0, 0, 0, I*x}, {0, 0, -I*x,0}}]
-Sigma12[x_]:=ArrayFlatten[{{-1.*x, 0, 0, 0}, {0, 1.*x, 0, 0}, {0, 0, -1.*x, 0}, {0, 0, 0, 1.*x}}]
-Sigma21[x_]:=ArrayFlatten[{{1.*x, 0, 0, 0}, {0, -1.*x, 0, 0}, {0, 0, 1.*x, 0}, {0, 0, 0, -1.*x}}]
-Sigma23[x_]:=ArrayFlatten[{{0, -1.*x, 0, 0}, {-1.*x, 0, 0, 0}, {0, 0, 0, -1.*x}, {0, 0, -1.*x, 0}}]
-Sigma32[x_]:=ArrayFlatten[{{0, 1.*x, 0, 0}, {1.*x, 0, 0, 0}, {0, 0, 0, 1.*x}, {0, 0, 1.*x, 0}}]
-Sigma24[x_]:=ArrayFlatten[{{0, I*x, 0, 0}, {-I*x, 0, 0, 0}, {0, 0, 0, -I*x}, {0, 0, I*x, 0}}]
-Sigma42[x_]:=ArrayFlatten[{{0, -I*x, 0, 0}, {I*x, 0, 0, 0}, {0, 0, 0, I*x}, {0, 0, -I*x, 0}}]
-Sigma34[x_]:=ArrayFlatten[{{-1.*x, 0, 0, 0}, {0, 1.*x, 0, 0}, {0, 0, 1.*x, 0}, {0, 0, 0, -1.*x}}]
-Sigma43[x_]:=ArrayFlatten[{{1.*x, 0, 0, 0}, {0, -1.*x, 0, 0}, {0, 0, -1.*x, 0}, {0, 0, 0, 1.*x}}]*)

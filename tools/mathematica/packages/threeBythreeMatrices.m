@@ -31,6 +31,9 @@ mat3x3FromKroneckerProduct::usage=
 	from multiplying X*Y^dagger =  x1*y1^dagger + x2*y2^dagger + x3*y3^dagger + x4*y4^dagger , where x1,x2,x3,x4,y1,y2,y3,y4 are SU(3)-vectors
 	(using spinprojection) see tr_dirac_x_times_y_dagger in operations_su3vec.cl"
 
+diracTraceOf12x12Matrix::usage=
+	"diracTraceOf12x12Matrix calculates the Dirac-Trace of a generic 12x12 matrix see triangle in force_fermion_clover2_eo.cl"
+
 Begin["Private`"]
 
 cold3x3mat:=
@@ -87,12 +90,14 @@ mat3x3FromKroneckerProduct[x_,y_]:=
 	mat3x3FromKroneckerProduct
 	]
 
-End[]
+diracTraceOf12x12Matrix[a_]:=
+	Module[{diracTraceOf12x12Matrix={{a[[1,1]]+a[[4,4]]+a[[7,7]]+a[[10,10]],a[[1,2]]+a[[4,5]]+a[[7,8]]+a[[10,11]],a[[1,3]]+a[[4,6]]+a[[7,9]]+a[[10,12]]},{a[[2,1]]+a[[5,4]]+a[[8,7]]+a[[11,10]],a[[2,2]]+a[[5,5]]+a[[8,8]]+a[[11,11]],a[[2,3]]+a[[5,6]]+a[[8,9]]+a[[11,12]]},{a[[3,1]]+a[[6,4]]+a[[9,7]]+a[[12,10]],a[[3,2]]+a[[6,5]]+a[[9,8]]+a[[12,11]],a[[3,3]]+a[[6,6]]+a[[9,9]]+a[[12,12]]}}},
+	diracTraceOf12x12Matrix
+	]
+
+End []
 
 EndPackage[]
-
-
-
 
 
 
