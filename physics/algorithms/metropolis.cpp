@@ -365,7 +365,12 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
             hmc_float s_fermion_final = calc_s_fermion(new_u, phi, system, interfacesHandler, interfacesHandler.getAdditionalParameters<SPINORFIELD>(false));
 
             hmc_float spinor_energy_init_updated;
-            spinor_energy_init_updated = spinor_energy_init + physics::lattices::S_det(gf, interfacesHandler.getAdditionalParameters<SPINORFIELD>(false).getKappa(), interfacesHandler.getAdditionalParameters<SPINORFIELD>(false).getCsw());
+            if(interfacesHandler.getMetropolisParametersInterface().getFermact() == common::action::clover) {
+                spinor_energy_init_updated = spinor_energy_init + physics::lattices::S_det(gf, interfacesHandler.getAdditionalParameters<SPINORFIELD>(false).getKappa(), interfacesHandler.getAdditionalParameters<SPINORFIELD>(false).getCsw());
+            }
+            else {
+                spinor_energy_init_updated = spinor_energy_init;
+            }
             deltaH += spinor_energy_init_updated - s_fermion_final;
 
             print_info_debug(interfacesHandler, "[DH]:\tS[DET]_0:\t", spinor_energy_init_updated, false);
