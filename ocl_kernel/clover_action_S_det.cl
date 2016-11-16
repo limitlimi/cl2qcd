@@ -254,12 +254,14 @@ hmc_float S_det_for_site(__global Matrixsu3StorageType const * const restrict fi
 
 __kernel void S_det(__global Matrixsu3StorageType const * const restrict field, __global hmc_float * res, hmc_float kappa_in, hmc_float csw)
 {
-	hmc_float tmp = 0.;
-    PARALLEL_FOR(id_local, EOPREC_SPINORFIELDSIZE_LOCAL) {
-        st_idx pos = get_even_st_idx_local(id_local);
-        tmp += S_det_for_site(field, pos, kappa_in, csw);
-    }
-	*res = tmp;
+	if (get_global_id(0) == 0){
+		hmc_float tmp = 0.;
+		for(size_t id_local = get_global_id(0); id_local < EOPREC_SPINORFIELDSIZE_LOCAL; id_local += 1) {
+			st_idx pos = get_even_st_idx_local(id_local);
+			tmp += S_det_for_site(field, pos, kappa_in, csw);
+	    	}
+		*res = tmp;
+	}
 }
 
 
