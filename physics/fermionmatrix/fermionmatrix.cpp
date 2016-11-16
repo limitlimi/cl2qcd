@@ -251,12 +251,12 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 		{
         	hmc_float csw = additionalParameters.getCsw();
             dslash(&tmp, gf, in, ODD, kappa);
-            clover_eo_inverse(&tmp2, gf, tmp, ODD, kappa, csw);
+            clover_eo_inverse(&tmp2, gf, tmp, EVEN, kappa, csw);
             dslash(out, gf, tmp2, EVEN, kappa);
-            clover_eo(&tmp, gf, in, EVEN, kappa, csw);
+            clover_eo(&tmp, gf, in, ODD, kappa, csw);
             saxpy(out, {1, 0.}, *out, tmp);
             //multiply by c_0_hat
-            hmc_float c_0_hat = 1/(1 + 64 * kappa * kappa);
+            hmc_float c_0_hat = 1.;//1/(1 + 64 * kappa * kappa);
             sax(out, {c_0_hat, 0.}, *out);
             break;
 		}
@@ -383,12 +383,12 @@ void physics::fermionmatrix::Aee_AND_gamma5_eo::operator()(const physics::lattic
 		{
         	hmc_float csw = additionalParameters.getCsw();
             dslash(&tmp, gf, in, ODD, kappa);
-            clover_eo_inverse(&tmp2, gf, tmp, ODD, kappa, csw);
+            clover_eo_inverse(&tmp2, gf, tmp, EVEN, kappa, csw);
             dslash(out, gf, tmp2, EVEN, kappa);
-            clover_eo(&tmp, gf, in, EVEN, kappa, csw);
+            clover_eo(&tmp, gf, in, ODD, kappa, csw);
             saxpy_AND_gamma5_eo(out, {1., 0.}, *out, tmp);
             //multiply by c_0_hat
-            hmc_float c_0_hat = 1/(1 + 64 * kappa * kappa);
+            hmc_float c_0_hat = 1.;// 1/(1 + 64 * kappa * kappa);
             sax(out, {c_0_hat, 0.}, *out);
             break;
 		}
@@ -513,7 +513,17 @@ void physics::fermionmatrix::Aee_minus::operator()(const physics::lattices::Spin
         //for the clover case R = {{1+T_ee,0},{0,1+T_oo}}, D = Wilson
         case common::action::clover: //explicit scope to be able to declare variable in it, initializing it at the same time
 		{
-			throw Invalid_Parameters("Using Aee_minus with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
+        	hmc_float csw = additionalParameters.getCsw();
+            dslash(&tmp, gf, in, ODD, kappa);
+            clover_eo_inverse(&tmp2, gf, tmp, EVEN, kappa, csw);
+            dslash(out, gf, tmp2, EVEN, kappa);
+            clover_eo(&tmp, gf, in, ODD, kappa, csw);
+            saxpy(out, {1, 0.}, *out, tmp);
+            //multiply by c_0_hat
+            hmc_float c_0_hat = 1.;//1/(1 + 64 * kappa * kappa);
+            sax(out, {c_0_hat, 0.}, *out);
+            break;
+			//throw Invalid_Parameters("Using Aee_minus with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
 		}
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
@@ -545,7 +555,7 @@ cl_ulong physics::fermionmatrix::Aee_minus::get_flops() const
 			res += spinor_code->get_flop_size("saxpy_eoprec");
 			break;
         case common::action::clover:
-			throw Invalid_Parameters("Using Aee_minus with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
+			//throw Invalid_Parameters("Using Aee_minus with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
             break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
@@ -579,7 +589,7 @@ cl_ulong physics::fermionmatrix::Aee_minus::get_read_write_size() const
 			res += spinor_code->get_read_write_size("saxpy_eoprec");
 			break;
         case common::action::clover:
-			throw Invalid_Parameters("Using Aee_minus with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
+			//throw Invalid_Parameters("Using Aee_minus with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
             break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
@@ -630,8 +640,17 @@ void physics::fermionmatrix::Aee_minus_AND_gamma5_eo::operator()(const physics::
 		}
 		case common::action::clover:
 		{
-			throw Invalid_Parameters("Using Aee_minus_AND_gamma5_eo with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
-			break;
+        	hmc_float csw = additionalParameters.getCsw();
+            dslash(&tmp, gf, in, ODD, kappa);
+            clover_eo_inverse(&tmp2, gf, tmp, EVEN, kappa, csw);
+            dslash(out, gf, tmp2, EVEN, kappa);
+            clover_eo(&tmp, gf, in, ODD, kappa, csw);
+            saxpy(out, {1, 0.}, *out, tmp);
+            //multiply by c_0_hat
+            hmc_float c_0_hat = 1.;//1/(1 + 64 * kappa * kappa);
+            sax(out, {c_0_hat, 0.}, *out);
+            break;
+			//throw Invalid_Parameters("Using Aee_minus_AND_gamma5_eo with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
 		}
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
@@ -663,7 +682,7 @@ cl_ulong physics::fermionmatrix::Aee_minus_AND_gamma5_eo::get_flops() const
 			res += spinor_code->get_flop_size("saxpy_AND_gamma5_eo");
 			break;
 		case common::action::clover:
-			throw Invalid_Parameters("Using Aee_minus_AND_gamma5_eo with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
+			//throw Invalid_Parameters("Using Aee_minus_AND_gamma5_eo with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
 			break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
@@ -697,7 +716,7 @@ cl_ulong physics::fermionmatrix::Aee_minus_AND_gamma5_eo::get_read_write_size() 
 			res += spinor_code->get_read_write_size("saxpy_AND_gamma5_eo");
 			break;
 		case common::action::clover:
-			throw Invalid_Parameters("Using Aee_minus_AND_gamma5_eo with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
+			//throw Invalid_Parameters("Using Aee_minus_AND_gamma5_eo with clover action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
 			break;
 		default:
 			throw Invalid_Parameters("Unkown fermion action!", "wilson or twistedmass", fermionmatrixParametersInterface.getFermionicActionType());
