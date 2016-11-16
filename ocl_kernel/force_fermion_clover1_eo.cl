@@ -326,8 +326,9 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
 
-        Matrix3x3 v1, v2;
+        Matrix3x3 v1, v2, tmp;
         ae out_tmp;
+        Matrixsu3 U;
         //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
@@ -342,8 +343,8 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         global_link_pos = get_link_pos(dir1, n, t);
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
-        hmc_float c_0_hat = 1./(1. + 64. * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+        hmc_float c_0_hat = 1.;///(1. + 64. * kappa_in * kappa_in);
+        hmc_float factor = - 0.25 * kappa_in * c_0_hat * csw;
         
         v1 = zero_matrix3x3();
         //add up diagrams for all nu unequal mu
@@ -365,7 +366,10 @@ __kernel void fermion_force_clover1_eo_0(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_real(v1, factor);
+        U = getSU3(field, get_link_idx(dir1, pos));
+        tmp = matrix_su3to3x3(U);
+        v2 = multiply_matrix3x3(tmp,v1);
+        v1 = multiply_matrix3x3_by_real(v2, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
@@ -379,8 +383,9 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
 
-        Matrix3x3 v1, v2;
+        Matrix3x3 v1, v2, tmp;
         ae out_tmp;
+        Matrixsu3 U;
         //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
@@ -395,8 +400,8 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         global_link_pos = get_link_pos(dir1, n, t);
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
-        hmc_float c_0_hat = 1./(1. + 64. * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+        hmc_float c_0_hat = 1.;///(1. + 64. * kappa_in * kappa_in);
+        hmc_float factor = - 0.25 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -419,7 +424,10 @@ __kernel void fermion_force_clover1_eo_1(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_real(v1, factor);
+        U = getSU3(field, get_link_idx(dir1, pos));
+        tmp = matrix_su3to3x3(U);
+        v2 = multiply_matrix3x3(tmp,v1);
+        v1 = multiply_matrix3x3_by_real(v2, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
@@ -432,8 +440,9 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
 
-        Matrix3x3 v1, v2;
+        Matrix3x3 v1, v2, tmp;
         ae out_tmp;
+        Matrixsu3 U;
         //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
@@ -448,8 +457,8 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         global_link_pos = get_link_pos(dir1, n, t);
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
-        hmc_float c_0_hat = 1./(1. + 64. * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+        hmc_float c_0_hat = 1.;///(1. + 64. * kappa_in * kappa_in);
+        hmc_float factor = - 0.25 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -472,7 +481,10 @@ __kernel void fermion_force_clover1_eo_2(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_real(v1, factor);
+        U = getSU3(field, get_link_idx(dir1, pos));
+        tmp = matrix_su3to3x3(U);
+        v2 = multiply_matrix3x3(tmp,v1);
+        v1 = multiply_matrix3x3_by_real(v2, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
@@ -485,8 +497,9 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         // as we are positioning only on even or odd site we can update up- and downwards link without the danger of overwriting each other
         st_index pos = (evenodd == EVEN) ? get_even_st_idx(id_mem) : get_odd_st_idx(id_mem);
 
-        Matrix3x3 v1, v2;
+        Matrix3x3 v1, v2, tmp;
         ae out_tmp;
+        Matrixsu3 U;
         //note: no factor for boundary conditions and chemical potential because clover term is diagonal in the lattice points
         int dir1, dir2;
         int global_link_pos;
@@ -501,8 +514,8 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         global_link_pos = get_link_pos(dir1, n, t);
         
         //the 2 here comes from Tr(lambda_ij) = 2delta_ij
-        hmc_float c_0_hat = 1./(1. + 64. * kappa_in * kappa_in);
-	hmc_float factor = 0.125 * kappa_in * c_0_hat * csw;
+        hmc_float c_0_hat = 1.;///(1. + 64. * kappa_in * kappa_in);
+        hmc_float factor = - 0.25 * kappa_in * c_0_hat * csw;
         
         
         v1 = zero_matrix3x3();
@@ -525,7 +538,10 @@ __kernel void fermion_force_clover1_eo_3(__global const Matrixsu3StorageType * c
         v2 = add_up_diagrams(field,X,Y,pos,dir1,dir2);
         v1 = add_matrix3x3(v1, v2);
         
-        v1 = multiply_matrix3x3_by_real(v1, factor);
+        U = getSU3(field, get_link_idx(dir1, pos));
+        tmp = matrix_su3to3x3(U);
+        v2 = multiply_matrix3x3(tmp,v1);
+        v1 = multiply_matrix3x3_by_real(v2, factor);
         out_tmp = tr_lambda_u(v1);
         update_gaugemomentum(out_tmp, 1., global_link_pos, out);
     }
