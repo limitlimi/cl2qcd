@@ -612,6 +612,31 @@ struct SaxpyEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAs
 		}
 };
 
+struct SaxpyRealEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
+{
+	SaxpyRealEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+			EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_eoprec_real", parameterCollection, testParameters, calculateReferenceValues_saxpy_real)
+			{
+				hardware::buffers::Plain<hmc_float> alpha_real_vec(1, device);
+				std::vector<hmc_float> alpha_host_real_vec(1, testParameters.complexCoefficients.at(0).re);
+				alpha_real_vec.load(&alpha_host_real_vec[0]);
+				code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), &alpha_real_vec, getOutSpinor());
+			}
+};
+
+struct SaxpyRealVecEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
+{
+	SaxpyRealVecEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+		EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_eoprec_real_vec", parameterCollection, testParameters, calculateReferenceValues_saxpy_real)
+		{
+			hardware::buffers::Plain<hmc_float> alpha_real_vec(5, device);
+			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.complexCoefficients.at(0).re);
+			const int index_alpha = 3;
+			alpha_real_vec.load(&alpha_host_real_vec[0]);
+			code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), &alpha_real_vec, index_alpha, getOutSpinor());
+		}
+};
+
 struct SaxpyArgEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
 {
 	SaxpyArgEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
@@ -695,6 +720,16 @@ void testNonEvenOddSaxpbyVecReal( const LatticeExtents lE, const ComplexNumbers 
 void testEvenOddSaxpy(const LatticeExtents lE, const ComplexNumbers cN)
 {
 	performTest<SaxpyEvenOddTester> (lE, cN, 3, true);
+}
+
+void testEvenOddSaxpyReal(const LatticeExtents lE, const ComplexNumbers cN)
+{
+	performTest<SaxpyRealEvenOddTester> (lE, cN, 3, false);
+}
+
+void testEvenOddSaxpyRealVec(const LatticeExtents lE, const ComplexNumbers cN)
+{
+	performTest<SaxpyRealVecEvenOddTester> (lE, cN, 3, false);
 }
 
 void testEvenOddSaxpyArg(const LatticeExtents lE, const ComplexNumbers cN)
@@ -1218,6 +1253,36 @@ BOOST_AUTO_TEST_SUITE(SAXPY_EO)
 	BOOST_AUTO_TEST_CASE( SAXPY_EO_8 )
 	{
 		testEvenOddSaxpyArg(LatticeExtents{ns8, nt16}, ComplexNumbers {{1.,1.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_EO_9 )
+	{
+		testEvenOddSaxpyReal(LatticeExtents{ns4, nt4}, ComplexNumbers {{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_EO_10 )
+	{
+		testEvenOddSaxpyReal(LatticeExtents{ns8, nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_EO_11 )
+	{
+		testEvenOddSaxpyReal(LatticeExtents{ns4, nt8}, ComplexNumbers {{-1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_1 )
+	{
+		testEvenOddSaxpyRealVec( LatticeExtents{ns4,nt4}, ComplexNumbers {{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_2 )
+	{
+		testEvenOddSaxpyRealVec( LatticeExtents{ns8,nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_3 )
+	{
+		testEvenOddSaxpyRealVec( LatticeExtents{ns4,nt8}, ComplexNumbers {{-1.,0.}});
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -212,6 +212,8 @@ template<> size_t get_read_write_size<physics::lattices::Spinorfield_eo, physics
  */
 void saxpy(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 void saxpy(const Spinorfield_eo* out, const Scalar<hmc_complex>& alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
+void saxpy(const Spinorfield_eo* out, const Scalar<hmc_float>& alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
+void saxpy(const Spinorfield_eo* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 
 template<typename S, void (*T)(const S*, const hmc_complex, const S&, const S&)> size_t get_flops(const hardware::System&);
 template<> size_t get_flops<physics::lattices::Spinorfield_eo, physics::lattices::saxpy>(const hardware::System&);
