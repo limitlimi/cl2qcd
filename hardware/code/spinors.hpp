@@ -62,6 +62,7 @@ public:
 	void convert_to_eoprec_device(const hardware::buffers::Spinor * even, const hardware::buffers::Spinor * odd, const hardware::buffers::Plain<spinor> * in) const;
 
 	void set_complex_to_scalar_product_device(const hardware::buffers::Plain<spinor> * a, const hardware::buffers::Plain<spinor> * b, const hardware::buffers::Plain<hmc_complex> * out) const;
+	void set_float_to_scalar_product_real_device(const hardware::buffers::Plain<spinor> * a, const hardware::buffers::Plain<spinor> * b, const hardware::buffers::Plain<hmc_float> * out) const;
 	void set_complex_to_scalar_product_eoprec_device(const hardware::buffers::Spinor * a, const hardware::buffers::Spinor * b, const hardware::buffers::Plain<hmc_complex> * out) const;
 	void global_squarenorm_reduction(const hardware::buffers::Plain<hmc_float> * out, const hardware::buffers::Plain<hmc_float> * tmp_buf) const;
 	void set_float_to_global_squarenorm_device(const hardware::buffers::Plain<spinor> * a, const hardware::buffers::Plain<hmc_float> * out) const;
@@ -69,9 +70,17 @@ public:
 	void set_zero_spinorfield_device(const hardware::buffers::Plain<spinor> * x) const;
 	void set_zero_spinorfield_eoprec_device(const hardware::buffers::Spinor * x) const;
 	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hmc_float alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y,  const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Plain<spinor> * out) const;
 	void saxpy_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hmc_complex alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpby_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hmc_complex alpha, const hmc_complex beta, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpby_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<hmc_float> * beta, const int index_alpha, const int index_beta, const hardware::buffers::Plain<spinor> * out) const;
 	void sax_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Plain<spinor> * out) const;
+	void sax_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Plain<spinor> * out) const;
 	void saxsbypz_device(const hardware::buffers::Plain<spinor> * x, const hardware::buffers::Plain<spinor> * y, const hardware::buffers::Plain<spinor> * z, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Plain<hmc_complex> * beta, const hardware::buffers::Plain<spinor> * out) const;
+	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Spinor * out) const;
+	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Spinor * out) const;
 	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Spinor * out) const;
 	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hmc_complex alpha, const hardware::buffers::Spinor * out) const;
 	void sax_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Spinor * out) const;
@@ -150,8 +159,14 @@ private:
 	//BLAS
 	cl_kernel set_spinorfield_cold;
 	cl_kernel saxpy;
+	cl_kernel saxpy_real;
+	cl_kernel saxpy_real_arg;
+	cl_kernel saxpy_real_vec;
 	cl_kernel saxpy_arg;
+	cl_kernel saxpby_real_vec;
+	cl_kernel saxpby_cplx_arg;
 	cl_kernel sax;
+	cl_kernel sax_real_vec;
 	cl_kernel saxsbypz;
 	cl_kernel set_zero_spinorfield;
 
@@ -159,7 +174,9 @@ private:
 	cl_kernel convert_to_eoprec;
 	cl_kernel set_eoprec_spinorfield_cold;
 	cl_kernel set_zero_spinorfield_eoprec;
+	cl_kernel saxpy_eoprec_real;
 	cl_kernel saxpy_eoprec;
+	cl_kernel saxpy_eoprec_real_vec;
 	cl_kernel saxpy_arg_eoprec;
 	cl_kernel sax_eoprec;
 	cl_kernel saxsbypz_eoprec;
@@ -167,6 +184,8 @@ private:
 	//Scalar Product
 	cl_kernel scalar_product;
 	cl_kernel scalar_product_reduction;
+	cl_kernel scalar_product_real_part;
+	cl_kernel scalar_product_real_reduction;
 	cl_kernel global_squarenorm;
 	cl_kernel _global_squarenorm_reduction;
 	cl_kernel scalar_product_eoprec;

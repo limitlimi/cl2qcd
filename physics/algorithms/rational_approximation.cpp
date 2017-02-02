@@ -20,12 +20,8 @@
  */
 
 #include "rational_approximation.hpp"
-//#include "alg_remez.h"
-//#include "../../types.h"
-//#include "../../exceptions.h"
-//#include "../../logger.hpp"
-//#include <fstream>
-//#include <cmath>
+#include "../../executables/exceptions.h"
+#include <fstream>
 
 //Rational_Coefficients class
 

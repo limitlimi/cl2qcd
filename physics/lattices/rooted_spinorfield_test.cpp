@@ -1,7 +1,7 @@
 /** @file
  * Unit test for the physics::lattices::Rooted_Staggeredfield_eo class
  *
- * Copyright (c) 2013 Alessandro Sciarra <sciarra@th.physik.uni-frankfurt.de>
+ * Copyright (c) 2016 Christopher Czaban <czaban@th.physik.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
@@ -19,12 +19,12 @@
  * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "rooted_staggeredfield_eo.hpp"
+#include "rooted_spinorfield.hpp"
 #include "util.hpp"
 
 // use the boost test framework
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE physics::lattice::Rooted_Staggeredfield_eo
+#define BOOST_TEST_MODULE physics::lattice::wilson::Rooted_Spinorfield
 #include <boost/test/unit_test.hpp>
 
 #include "../../interfaceImplementations/interfacesHandler.hpp"
@@ -32,8 +32,6 @@
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
 #include "../../host_functionality/logger.hpp"
 #include "../../meta/type_ops.hpp"
-#include "../fermionmatrix/fermionmatrix_stagg.hpp"
-#include "./gaugefield.hpp"
 #include <cmath>
 
 
@@ -49,36 +47,34 @@ BOOST_AUTO_TEST_CASE(initialization)
 	physics::InterfacesHandlerImplementation interfacesHandler{params};
 	logger.debug() << "Devices: " << system.get_devices().size();
 
-	Rooted_Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>());
+	wilson::Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
 	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
-	Rooted_Staggeredfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>(), approx);
-	
-}
+	wilson::Rooted_Spinorfield sf2(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
 
+	hmc_float rc = sf2.Get_order();
+
+	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&sf, 13);
+
+	log_squarenorm("sq. Rooted_Spinorfield: ",sf);
+
+	logger.debug() << "Rational coefficients order: " << rc;
+}
 
 BOOST_AUTO_TEST_CASE(rescale)
 {
 	using namespace physics::algorithms;
-	using namespace physics::lattices;
+	using namespace physics::lattices::wilson;
 
 	Rational_Approximation approx(15,1,4,1e-5,1,false);
-	
-	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--mass=0.567", "--conservative=false", "--num_dev=1"};
-	meta::Inputparameters params(6, _params);
-	hardware::HardwareParametersImplementation hP(&params);
-	hardware::code::OpenClKernelParametersImplementation kP(params);
-	hardware::System system(hP, kP);
-	physics::InterfacesHandlerImplementation interfacesHandler{params};
-	physics::PrngParametersImplementation prngParameters(params);
-	physics::PRNG prng(system, &prngParameters);
-	
-	//Operator for the test
-	physics::fermionmatrix::MdagM_eo matrix(system, interfacesHandler.getInterface<physics::fermionmatrix::MdagM_eo>());
-	//This configuration for the Ref.Code is the same as for example dks_input_5
-	const GaugefieldParametersImplementation gaugefieldParameters{ &params };
-	Gaugefield gf(system, &gaugefieldParameters, prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
-	Rooted_Staggeredfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>());
-	
+
+	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+	meta::Inputparameters params(3, _params);
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+    physics::InterfacesHandlerImplementation interfacesHandler{params};
+    Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
+
 	//Min and max eigenvalues for conservative and not conservative case
 	hmc_float minEigenvalue = 0.3485318319429664;
 	hmc_float maxEigenvalue = 5.2827906935473500;
@@ -144,5 +140,6 @@ BOOST_AUTO_TEST_CASE(rescale)
 		BOOST_CHECK_CLOSE(a_cons[i], a_ref_cons[i], 2.e-4);
 		BOOST_CHECK_CLOSE(b_cons[i], b_ref_cons[i], 2.e-4);
 	}
+
 	logger.info() << "Test done!";
 }

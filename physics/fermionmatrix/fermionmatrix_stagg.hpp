@@ -88,7 +88,7 @@ public:
 	 * Invoke the matrix function.
 	 */
 	virtual void operator() (const physics::lattices::Staggeredfield_eo * out, const physics::lattices::Gaugefield& gf,
-	                         const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters* additionalParameters = NULL) const = 0;
+	                         const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters& additionalParameters = physics::AdditionalParameters{}) const = 0;
 	virtual ~Fermionmatrix_stagg_eo(){}
 
 protected:
@@ -106,7 +106,7 @@ public:
 	D_KS_eo(const hardware::System& system,  const FermionmatrixStaggeredParametersInterface& fermionmatrixStaggeredParametersInterface, bool evenodd)
         : Fermionmatrix_stagg_eo(system, fermionmatrixStaggeredParametersInterface, false, false), evenodd(evenodd) {};
 	void operator() (const physics::lattices::Staggeredfield_eo * out, const physics::lattices::Gaugefield& gf,
-	                 const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters* additionalParameters = NULL) const override;
+	                 const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters& additionalParameters = physics::AdditionalParameters{}) const override;
 	cl_ulong get_flops() const override;
 private:
 	//This variable is to switch between the Deo and Doe:
@@ -121,7 +121,7 @@ public:
 	MdagM_eo(const hardware::System& system, const physics::FermionStaggeredEoParametersInterface& fermionStaggeredEoParametersInterface, bool ul=EVEN)
         : Fermionmatrix_stagg_eo(system, fermionStaggeredEoParametersInterface, true, true), tmp(system, fermionStaggeredEoParametersInterface), upper_left(ul) {};
 	void operator() (const physics::lattices::Staggeredfield_eo * out, const physics::lattices::Gaugefield& gf,
-	                 const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters* additionalParameters = NULL) const override;
+	                 const physics::lattices::Staggeredfield_eo& in, const physics::AdditionalParameters& additionalParameters = physics::AdditionalParameters{}) const override;
 	hmc_float getThresholdForMinimumEigenvalue(hmc_float mass) const override;
 	cl_ulong get_flops() const override;
 	bool get_upper_left() const;

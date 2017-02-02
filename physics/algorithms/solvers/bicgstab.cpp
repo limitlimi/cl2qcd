@@ -92,8 +92,8 @@ static int bicgstab_save(const physics::lattices::Spinorfield * x, const physics
 
     for (iter = 0; iter < parametersInterface.getCgMax(); iter++) {
         if(iter % parametersInterface.getIterRefresh() == 0) {
-            v.zero();
-            p.zero();
+            v.setZero();
+            p.setZero();
 
             //initial r_n
             f(&rn, gf, *x, additionalParameters);
@@ -417,8 +417,8 @@ static int bicgstab_save(const physics::lattices::Spinorfield_eo * x, const phys
     // comments correspond to the bicgstab_fast version
     for (iter = 0; iter < cgmax; iter++) {
         if(iter % parametersInterface.getIterRefresh() == 0) {
-            v.zero();
-            p.zero();
+            v.setZero();
+            p.setZero();
 
             f(&rn, gf, *x, additionalParameters);
             log_squarenorm(create_log_prefix_bicgstab(iter) + "rn: ", rn);

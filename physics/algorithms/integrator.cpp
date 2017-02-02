@@ -268,6 +268,11 @@ void physics::algorithms::twomn(const physics::lattices::Gaugemomenta * const gm
     ::twomn(gm, gf, phi, phi_mp, system, interfaceHandler);
 }
 void physics::algorithms::twomn(const physics::lattices::Gaugemomenta * const gm, const physics::lattices::Gaugefield * const gf,
+        const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system, physics::InterfacesHandler& interfaceHandler)
+{
+    ::twomn(gm, gf, phi, system, interfaceHandler);
+}
+void physics::algorithms::twomn(const physics::lattices::Gaugemomenta * const gm, const physics::lattices::Gaugefield * const gf,
         const physics::lattices::Spinorfield_eo& phi, const physics::lattices::Spinorfield_eo& phi_mp, const hardware::System& system,
         physics::InterfacesHandler& interfaceHandler)
 {
@@ -282,8 +287,10 @@ template<class SPINORFIELD> void twomn(const physics::lattices::Gaugemomenta * c
     logger.trace() << "\tHMC [INT]\tstarting 2MN...";
     //it is assumed that the new gaugefield and gaugemomentum have been set to the old ones already when this function is called the first time
     if(parametersInterface.getNumTimescales() == 1) {
+    	logger.error() << "\tRHMC:\tcalling twmon_1ts algorithm";
         twomn_1ts(gm, gf, phi, system, interfaceHandler);
     } else if(parametersInterface.getNumTimescales() == 2) {
+    	logger.error() << "\tRHMC:\tcalling twmon_2ts algorithm";
         twomn_2ts(gm, gf, phi, system, interfaceHandler);
     } else if(parametersInterface.getNumTimescales() == 3) {
         throw Print_Error_Message("3 timescales require mass prec.");
@@ -362,6 +369,7 @@ template<class SPINORFIELD> void twomn_2ts(const physics::lattices::Gaugemomenta
     const hmc_float one_minus_2_lambda0_times_deltaTau0 = one_minus_2_lambda0 * deltaTau0;
     const hmc_float one_minus_2_lambda1_times_deltaTau1 = one_minus_2_lambda1 * deltaTau1;
 
+    logger.error() << "\tRHMC:\tcalling md_update_gaugemomentum_fermion";
     md_update_gaugemomentum_fermion(gm, lambda1_times_deltaTau1, *gf, phi, system, interfaceHandler, additionalParameters);
     //now, n0 steps "more" are performed for the gauge-part
     //this corresponds to [exp(lambda*eps T(V_gauge) ) exp( eps/2 V ) exp( (1 - 2lamdba) *eps T(V_gauge) ) exp( eps/2 V ) exp( lamdba*eps T(V_ga    uge) ) ]^m
@@ -544,6 +552,12 @@ void physics::algorithms::integrator(const physics::lattices::Gaugemomenta * con
     ::integrator(gm, gf, phi, system, interfaceHandler);
 }
 void physics::algorithms::integrator(const physics::lattices::Gaugemomenta * const gm, const physics::lattices::Gaugefield * const gf,
+        const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system, physics::InterfacesHandler& interfaceHandler)
+{
+	logger.error() << "\tRHMC:\tcall integrator template function";
+    ::integrator(gm, gf, phi, system, interfaceHandler);
+}
+void physics::algorithms::integrator(const physics::lattices::Gaugemomenta * const gm, const physics::lattices::Gaugefield * const gf,
         const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system, physics::InterfacesHandler& interfaceHandler)
 {
     ::integrator(gm, gf, phi, system, interfaceHandler);
@@ -555,13 +569,15 @@ template<class SPINORFIELD> void integrator(const physics::lattices::Gaugemoment
     const physics::algorithms::IntegratorParametersInterface & parametersInterface = interfaceHandler.getIntegratorParametersInterface();
 
     check_integrator_params(interfaceHandler);
-
+    logger.error() << "\tRHMC:\tselecting integration algorithm";
     //CP: actual integrator calling
     switch (parametersInterface.getIntegrator(0)) {
         case common::leapfrog:
+        	logger.error() << "\tRHMC:\tcalling leapfrog algorithm";
             leapfrog(gm, gf, phi, system, interfaceHandler);
             break;
         case common::twomn:
+        	logger.error() << "\tRHMC:\tcalling twmon algorithm";
             twomn(gm, gf, phi, system, interfaceHandler);
             break;
     }

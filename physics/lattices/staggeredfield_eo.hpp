@@ -72,7 +72,7 @@ public:
 	/**
 	 * Set Staggeredfield to zero
 	 */
-	void set_zero() const;
+	void setZero() const;
 
 	/**
 	 * Set Staggeredfield to cold
@@ -82,7 +82,7 @@ public:
 	/**
 	 * Set Staggeredfield to be gaussian.
 	 */
-	void set_gaussian(const physics::PRNG& prng) const;
+	void setGaussian(const physics::PRNG& prng) const;
 
 	/**
 	 * Update the halos of the spinorfield buffers.
@@ -94,11 +94,14 @@ public:
 	 */
 	unsigned get_elements() const noexcept;
 
+protected:
+	//This method has to be protected to make pseudo_randomize a friend of the child classes.
+	void import(const su3vec * const host) const;
+
 private:
 	hardware::System const& system;
 	const StaggeredfieldEoParametersInterface& staggaredfieldEoParametersInterface;
 	hardware::lattices::Staggeredfield_eo staggeredFieldEo;
-	void import(const su3vec * const host) const;
 
 	friend hmc_complex scalar_product(const Staggeredfield_eo& left, const Staggeredfield_eo& right);
 	friend hmc_float scalar_product_real_part(const Staggeredfield_eo& left, const Staggeredfield_eo& right);

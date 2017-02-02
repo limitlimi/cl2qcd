@@ -37,6 +37,10 @@ namespace physics {
         class Spinorfield_eo;
         class Staggeredfield_eo;
         class Rooted_Staggeredfield_eo;
+
+        namespace wilson {
+        	class Rooted_Spinorfield;
+        }
     }
 
     namespace fermionmatrix {
@@ -67,6 +71,10 @@ namespace physics {
     template<>
     struct InterfaceType<physics::lattices::Spinorfield> {
             using value = physics::lattices::SpinorfieldParametersInterface;
+    };
+    template<>
+        struct InterfaceType<physics::lattices::wilson::Rooted_Spinorfield> {
+                using value = physics::lattices::RootedSpinorfieldParametersInterface;
     };
     template<>
     struct InterfaceType<physics::lattices::Spinorfield_eo> {
@@ -161,6 +169,7 @@ namespace physics {
             virtual const physics::lattices::GaugefieldParametersInterface& getGaugefieldParametersInterface() = 0;
             virtual const physics::lattices::GaugemomentaParametersInterface& getGaugemomentaParametersInterface() = 0;
             virtual const physics::lattices::SpinorfieldParametersInterface& getSpinorfieldParametersInterface() = 0;
+            virtual const physics::lattices::RootedSpinorfieldParametersInterface& getRootedSpinorfieldParametersInterface() = 0;
             virtual const physics::lattices::SpinorfieldEoParametersInterface& getSpinorfieldEoParametersInterface() = 0;
             virtual const physics::lattices::StaggeredfieldEoParametersInterface& getStaggeredfieldEoParametersInterface() = 0;
             virtual const physics::lattices::RootedStaggeredfieldEoParametersInterface& getRootedStaggeredfieldEoParametersInterface() = 0;
@@ -184,6 +193,10 @@ namespace physics {
     template<> inline const typename InterfaceType<physics::lattices::Spinorfield>::value& InterfacesHandler::getInterface<physics::lattices::Spinorfield>()
     {
         return getSpinorfieldParametersInterface();
+    }
+    template<> inline const typename InterfaceType<physics::lattices::wilson::Rooted_Spinorfield>::value& InterfacesHandler::getInterface<physics::lattices::wilson::Rooted_Spinorfield>()
+    {
+            return getRootedSpinorfieldParametersInterface();
     }
     template<> inline const typename InterfaceType<physics::lattices::Spinorfield_eo>::value& InterfacesHandler::getInterface<physics::lattices::Spinorfield_eo>()
     {
@@ -258,6 +271,11 @@ namespace physics {
     {
         return getStaggeredAdditionalParameters();
     }
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>(bool withMassPreconditioning)
+    {
+    	return getWilsonAdditionalParameters(withMassPreconditioning);
+    }
+
 
 }
 

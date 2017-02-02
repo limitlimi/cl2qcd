@@ -26,6 +26,7 @@
 #include "../lattices/scalar_complex.hpp"
 #include "../lattices/algebra_real.hpp"
 #include "../lattices/staggeredfield_eo.hpp"
+#include "../lattices/spinorfield.hpp"
 #include <sstream>
 #include <vector>
 #include <numeric>
@@ -42,6 +43,17 @@ int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::latt
     return solverShifted.getNumberOfIterationsDone();
 }
 
+int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::lattices::Spinorfield> > x,
+                                       const physics::fermionmatrix::Fermionmatrix& A,
+                                       const physics::lattices::Gaugefield& gf, const std::vector<hmc_float> sigma,
+                                       const physics::lattices::Spinorfield& b, const hardware::System& system,
+                                       physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+{
+    physics::algorithms::solvers::SolverShifted<physics::lattices::Spinorfield, physics::fermionmatrix::Fermionmatrix>
+    solverShifted(x, A, gf, sigma, b, system, interfacesHandler, prec, additionalParameters);
+    x = solverShifted.solve();
+    return solverShifted.getNumberOfIterationsDone();
+}
 
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::SolverShifted(const std::vector<std::shared_ptr<FERMIONFIELD> > xIn, const FERMIONMATRIX& AIn,
@@ -103,7 +115,7 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::s
     alpha_vec.store(std::vector<hmc_float>(numberOfEquations, 0.));   // alpha[i] = 0
     shift.store(sigma);
     for (int i = 0; i < numberOfEquations; i++) {
-        x[i]->set_zero();    // x[i] = 0
+        x[i]->setZero();    // x[i] = 0
         copyData(ps[i].get(), b);   // ps[i] = b
     }
     copyData(&r, b);                        // r = b
@@ -121,7 +133,7 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::u
 {
     //v=A.p and tmp1=(r,r) and tmp3=(p,v) ---> beta_scalar=(-1)*tmp1/tmp3
     copyData(&beta_scalar_prev, beta_scalar);   //before updating beta_scalar its value is saved
-    A(&v, gf, p, &additionalParameters);
+    A(&v, gf, p, additionalParameters);
     log_squarenorm(createLogPrefix() + "v: ", v);
     scalar_product_real_part(&tmp3, p, v);
     divide(&beta_scalar, tmp1, tmp3);   //tmp1 is set from previous iteration
@@ -274,16 +286,19 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::m
         const cl_ulong matrix_flops = A.get_flops();
         const int sum_of_partial_iter = std::accumulate(single_system_iter.begin(), single_system_iter.end(), 0);
         logger.debug() << "matrix_flops: " << matrix_flops;
-        cl_ulong flops_per_iter_no_inner_loop = matrix_flops
-                + 2 * physics::lattices::get_flops<physics::lattices::Staggeredfield_eo, hmc_float, physics::lattices::scalar_product_real_part>(system) + 3
-                + 2 * physics::lattices::get_flops<physics::lattices::Staggeredfield_eo, hmc_float, physics::lattices::saxpy>(system)
-                + physics::lattices::get_flops_update_cgm("alpha", numberOfEquations, system)
-                + physics::lattices::get_flops_update_cgm("beta", numberOfEquations, system)
-                + physics::lattices::get_flops_update_cgm("zeta", numberOfEquations, system);
-        cl_ulong flops_per_iter_only_inner_loop = physics::lattices::get_flops<physics::lattices::Staggeredfield_eo, hmc_float, physics::lattices::saxpy>(system)
-                + physics::lattices::get_flops<physics::lattices::Staggeredfield_eo, hmc_float, physics::lattices::saxpby>(system)
-                + physics::lattices::get_flops<physics::lattices::Staggeredfield_eo, hmc_float, physics::lattices::sax>(system)
-                + physics::lattices::get_flops<physics::lattices::Staggeredfield_eo, physics::lattices::squarenorm>(system);
+//        cl_ulong flops_per_iter_no_inner_loop = matrix_flops
+//                + 2 * physics::lattices::get_flops<FERMIONFIELD, hmc_float, physics::lattices::scalar_product_real_part>(system) + 3
+//                + 2 * physics::lattices::get_flops<FERMIONFIELD, hmc_float, physics::lattices::saxpy>(system)
+//                + physics::lattices::get_flops_update_cgm("alpha", numberOfEquations, system)
+//                + physics::lattices::get_flops_update_cgm("beta", numberOfEquations, system)
+//                + physics::lattices::get_flops_update_cgm("zeta", numberOfEquations, system);
+//        cl_ulong flops_per_iter_only_inner_loop = physics::lattices::get_flops<FERMIONFIELD, hmc_float, physics::lattices::saxpy>(system)
+//                + physics::lattices::get_flops<FERMIONFIELD, hmc_float, physics::lattices::saxpby>(system)
+//                + physics::lattices::get_flops<FERMIONFIELD, hmc_float, physics::lattices::sax>(system)
+//                + physics::lattices::get_flops<FERMIONFIELD, physics::lattices::squarenorm>(system);
+        cl_ulong flops_per_iter_no_inner_loop = 0;
+        cl_ulong flops_per_iter_only_inner_loop = 0;
+
         cl_ulong total_flops = iterationNumber * flops_per_iter_no_inner_loop + sum_of_partial_iter * flops_per_iter_only_inner_loop;
         cl_ulong noWarmup_flops = (iterationNumber - 1) * flops_per_iter_no_inner_loop + (sum_of_partial_iter - numberOfEquations) * flops_per_iter_only_inner_loop;
 
@@ -313,8 +328,8 @@ void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::d
             log_squarenorm(createLogPrefix() + "r: ", r);
             log_squarenorm(createLogPrefix() + "p: ", p);
         }
-        debugLogSquarenormSetOfFields(createLogPrefix() + "x", x, numberOfComponentsToBePrinted);
-        debugLogSquarenormSetOfFields(createLogPrefix() + "ps", ps, numberOfComponentsToBePrinted);
+        debugLogSquarenormSetOfFields(createLogPrefix() + "x ", x, numberOfComponentsToBePrinted);
+        debugLogSquarenormSetOfFields(createLogPrefix() + "ps ", ps, numberOfComponentsToBePrinted);
     }
 }
 
@@ -343,18 +358,20 @@ std::string physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMAT
     return logPrefix.str();
 }
 
+
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::debugLogSquarenormSetOfFields(const std::string& message,
-                                                 const std::vector<std::shared_ptr<physics::lattices::Staggeredfield_eo> > setOfFields, const int reportNumber)
+                                                 const std::vector<std::shared_ptr<FERMIONFIELD> > setOfFields, const int reportNumber)
 {
     if(logger.beDebug()) {
         for (int i = 0; i < reportNumber; i++) {
-            std::ostringstream messageComplete(message);
+            std::ostringstream messageComplete(message, std::ostringstream::ate);
             messageComplete <<  "[field_" << i << "]: ";
             physics::lattices::log_squarenorm(messageComplete.str(), *setOfFields[i]);
         }
     }
 }
+
 
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 void physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::debugCompareSquarenormsOfResultFieldsBetweenBeginAndEndOfIteration()
@@ -385,7 +402,7 @@ const std::vector<std::shared_ptr<FERMIONFIELD> > physics::algorithms::solvers::
 {
     if(hasSystemBeSolved) return x;
     if(squarenorm(b) == 0) {
-        for (uint i = 0; i < sigma.size(); i++) x[i]->set_zero();
+        for (uint i = 0; i < sigma.size(); i++) x[i]->setZero();
         hasSystemBeSolved = true;
         return x;
     }

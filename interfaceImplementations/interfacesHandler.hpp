@@ -39,6 +39,7 @@ namespace physics {
                   gaugefieldParametersInterface{nullptr},
                   gaugemomentaParametersInterface{nullptr},
                   spinorfieldParametersInterface{nullptr},
+				  rootedSpinorfieldParametersInterface{nullptr},
                   spinorfieldEoParametersInterface{nullptr},
                   staggeredfieldEoParametersInterface{nullptr},
                   rootedStaggaredfieldEoParametersInterface{nullptr},
@@ -169,6 +170,12 @@ namespace physics {
                     spinorfieldParametersInterface = std::unique_ptr<const physics::lattices::SpinorfieldParametersImplementation>(new physics::lattices::SpinorfieldParametersImplementation{parameters});
                 return *spinorfieldParametersInterface;
             }
+            const physics::lattices::RootedSpinorfieldParametersInterface& getRootedSpinorfieldParametersInterface() override
+            {
+            	if(rootedSpinorfieldParametersInterface == nullptr)
+            		rootedSpinorfieldParametersInterface = std::unique_ptr<const physics::lattices::RootedSpinorfieldParametersImplementation>(new physics::lattices::RootedSpinorfieldParametersImplementation{parameters});
+            	return *rootedSpinorfieldParametersInterface;
+            }
             const physics::lattices::SpinorfieldEoParametersInterface& getSpinorfieldEoParametersInterface() override
             {
                 if(spinorfieldEoParametersInterface == nullptr)
@@ -243,6 +250,7 @@ namespace physics {
             std::unique_ptr<const physics::lattices::GaugefieldParametersInterface> gaugefieldParametersInterface;
             std::unique_ptr<const physics::lattices::GaugemomentaParametersInterface> gaugemomentaParametersInterface;
             std::unique_ptr<const physics::lattices::SpinorfieldParametersInterface> spinorfieldParametersInterface;
+            std::unique_ptr<const physics::lattices::RootedSpinorfieldParametersInterface> rootedSpinorfieldParametersInterface;
             std::unique_ptr<const physics::lattices::SpinorfieldEoParametersInterface> spinorfieldEoParametersInterface;
             std::unique_ptr<const physics::lattices::StaggeredfieldEoParametersInterface> staggeredfieldEoParametersInterface;
             std::unique_ptr<const physics::lattices::RootedStaggeredfieldEoParametersInterface> rootedStaggaredfieldEoParametersInterface;

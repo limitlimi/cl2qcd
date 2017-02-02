@@ -470,7 +470,9 @@ void hardware::code::Gaugefield::importGaugefield(const hardware::buffers::SU3 *
 
 	logger.trace() << "Import gaugefield to get_device()";
 	if(get_device()->get_prefers_soa()) {
+		logger.debug() << "Creating Plain<Matrixsu3> tmp ...";
 		Plain<Matrixsu3> tmp(gaugefield->get_elements(), get_device());
+		logger.debug() << "Loading data to tmp ...";
 		tmp.load(data);
 		convertGaugefieldToSOA_device(gaugefield, &tmp);
 	} else {

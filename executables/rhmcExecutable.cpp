@@ -21,12 +21,11 @@
 #include "rhmcExecutable.h"
 
 static int getRationalApproximationNumerator(double numTastes, int numTastesDecimalDigits);
-static int getRationalApproximationDenominator(std::string whichRationalApproximation, int numTastesDecimalDigits);
+static int getRationalApproximationDenominator(std::string whichRationalApproximation, int numTastesDecimalDigits, common::action action);
 
 rhmcExecutable::rhmcExecutable(int argc, const char* argv[]) :  generationExecutable(argc, argv, "rhmc")
 {
     using namespace physics::algorithms;
-
     checkRhmcParameters(parameters);
     initializationTimer.reset();
     printParametersToScreenAndFile();
@@ -41,36 +40,53 @@ rhmcExecutable::rhmcExecutable(int argc, const char* argv[]) :  generationExecut
         //global in parametersRhmc, if not I throw an exception to avoid discrepancies
         //between the parameters used (those in parametersRhmc) and those that the user
         //maybe would like to use (read TODO in parametersRhmc.hpp file for further info)
-        if(approx_hb->Get_order() != parameters.get_metro_approx_ord() ||
-           approx_md->Get_order() != parameters.get_md_approx_ord() ||
-           approx_met->Get_order() != parameters.get_metro_approx_ord() ||
-           approx_hb->Get_exponent()*8 != parameters.get_num_tastes() ||
-           approx_md->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
-           approx_met->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
-           approx_hb->Get_lower_bound() != parameters.get_approx_lower() ||
-           approx_md->Get_lower_bound() != parameters.get_approx_lower() ||
-           approx_met->Get_lower_bound() != parameters.get_approx_lower() ||
-           approx_hb->Get_upper_bound() != parameters.get_approx_upper() ||
-           approx_md->Get_upper_bound() != parameters.get_approx_upper() ||
-           approx_met->Get_upper_bound() != parameters.get_approx_upper()){
-            throw Print_Error_Message("The parameters of at least one Rational Approximation read from file are not coherent with those given as input!");
+        if(parameters.get_fermact() == common::action::wilson){
+        	if(approx_hb->Get_order() != parameters.get_metro_approx_ord() ||
+        			approx_md->Get_order() != parameters.get_md_approx_ord() ||
+					approx_met->Get_order() != parameters.get_metro_approx_ord() ||
+					approx_hb->Get_exponent()*4 != parameters.get_num_tastes() ||
+					approx_md->Get_exponent()*2*(-1) != parameters.get_num_tastes() ||
+					approx_met->Get_exponent()*2*(-1) != parameters.get_num_tastes() ||
+					approx_hb->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_md->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_met->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_hb->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_md->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_met->Get_upper_bound() != parameters.get_approx_upper()){
+        		throw Print_Error_Message("The parameters of at least one Rational Approximation read from file are not coherent with those given as input!");
+        	}
+        }else if(parameters.get_fermact() == common::action::rooted_stagg){
+        	if(approx_hb->Get_order() != parameters.get_metro_approx_ord() ||
+        			approx_md->Get_order() != parameters.get_md_approx_ord() ||
+					approx_met->Get_order() != parameters.get_metro_approx_ord() ||
+					approx_hb->Get_exponent()*8 != parameters.get_num_tastes() ||
+					approx_md->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
+					approx_met->Get_exponent()*4*(-1) != parameters.get_num_tastes() ||
+					approx_hb->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_md->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_met->Get_lower_bound() != parameters.get_approx_lower() ||
+					approx_hb->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_md->Get_upper_bound() != parameters.get_approx_upper() ||
+					approx_met->Get_upper_bound() != parameters.get_approx_upper()){
+        		throw Print_Error_Message("The parameters of at least one Rational Approximation read from file are not coherent with those given as input!");
+        	}
         }
     }else{
         logger.info() << "Generation of Rational Approximations...";
         //This is the approx. to be used to generate the initial (pseudo)fermionic field
         approx_hb = new Rational_Approximation(parameters.get_metro_approx_ord(),
                     getRationalApproximationNumerator(parameters.get_num_tastes(), parameters.get_num_tastes_decimal_digits()),
-                    getRationalApproximationDenominator("HB",parameters.get_num_tastes_decimal_digits()),
+                    getRationalApproximationDenominator("HB",parameters.get_num_tastes_decimal_digits(), parameters.get_fermact()),
                     parameters.get_approx_lower(), parameters.get_approx_upper(), false);
         //This is the approx. to be used to generate the initial (pseudo)fermionic field
         approx_md = new Rational_Approximation(parameters.get_md_approx_ord(),
                     getRationalApproximationNumerator(parameters.get_num_tastes(), parameters.get_num_tastes_decimal_digits()),
-                    getRationalApproximationDenominator("MD",parameters.get_num_tastes_decimal_digits()),
+                    getRationalApproximationDenominator("MD",parameters.get_num_tastes_decimal_digits(), parameters.get_fermact()),
                     parameters.get_approx_lower(), parameters.get_approx_upper(), true);
         //This is the approx. to be used to generate the initial (pseudo)fermionic field
         approx_met = new Rational_Approximation(parameters.get_metro_approx_ord(),
                      getRationalApproximationNumerator(parameters.get_num_tastes(), parameters.get_num_tastes_decimal_digits()),
-                     getRationalApproximationDenominator("MET",parameters.get_num_tastes_decimal_digits()),
+                     getRationalApproximationDenominator("MET",parameters.get_num_tastes_decimal_digits(), parameters.get_fermact()),
                      parameters.get_approx_lower(), parameters.get_approx_upper(), true);
         //Save the rational approximations to three different files for later reuse
         approx_hb->Save_rational_approximation(parameters.get_approx_heatbath_file());
@@ -128,7 +144,10 @@ void rhmcExecutable::performOnlineMeasurements()
 		std::string gaugeout_name = meta::get_rhmc_obs_file_name(parameters, "");
 		printRhmcObservables(gaugeout_name);
 		if (parameters.get_measure_pbp()) {
-			physics::observables::staggered:: measureChiralCondensateAndWriteToFile(*gaugefield, iteration, *interfacesHandler);
+			if(parameters.get_fermact() == common::action::wilson)
+				throw Print_Error_Message("Chiral condensate currently not implemented for Wilson Rhmc!");
+			else if(parameters.get_fermact() == common::action::rooted_stagg)
+				physics::observables::staggered:: measureChiralCondensateAndWriteToFile(*gaugefield, iteration, *interfacesHandler);
 		}
 	}
 }
@@ -176,18 +195,23 @@ void rhmcExecutable::printRhmcObservablesToScreen()
 
 void rhmcExecutable::checkRhmcParameters(const meta::Inputparameters& p)
 {
-    if(p.get_fermact() != common::action::rooted_stagg)
-        throw Invalid_Parameters("Fermion action not suitable for RHMC!", common::action::rooted_stagg, p.get_fermact());
-    if(!p.get_use_eo())
-        throw Invalid_Parameters("RHMC available only WITH eo-prec!", "use_eo=1", p.get_use_eo());
+    if((p.get_fermact() != common::action::rooted_stagg) && (p.get_fermact() != common::action::wilson)) // add && commom::action::wilson
+        throw Invalid_Parameters("Fermion action not suitable for RHMC!", "rooted_stagg or wilson", p.get_fermact());
+    if(!p.get_use_eo() && (p.get_fermact() == common::action::rooted_stagg)) // distinguish between wilson and staggered
+        throw Invalid_Parameters("Staggered RHMC available only WITH eo-prec!", "use_eo=1", p.get_use_eo());
+    if(p.get_use_eo() && (p.get_fermact() == common::action::wilson)) // distinguish between wilson and staggered
+            throw Invalid_Parameters("Wilson RHMC available only WITHOUT eo-prec!", "use_eo=0", p.get_use_eo());
+    //TODO: Check if mass preconditioning can be used with the Wilson Rhmc. If yes, then do a distinction between staggerend and wilson here.
     if(p.get_use_mp())
         throw Invalid_Parameters("RHMC available only WITHOUT mass preconditionig!", "use_mp=0", p.get_use_mp());
     if(p.get_use_chem_pot_re())
         throw Invalid_Parameters("RHMC available only WITHOUT real chemical potential!", "use_chem_pot_re=0", p.get_use_chem_pot_re());
     if(p.get_num_tastes_decimal_digits() > 6)
         throw Invalid_Parameters("RHMC available only with 6-decimals num_tastes precision!", "num_tastes_decimal_digits<=6", p.get_num_tastes_decimal_digits());
-    if((int)(p.get_num_tastes()*std::pow(10,p.get_num_tastes_decimal_digits()))%(4*(int)(std::pow(10,p.get_num_tastes_decimal_digits()))) == 0)
-        throw Invalid_Parameters("RHMC not working with multiple of 4 tastes (there is no need of the rooting trick)!", "num_tastes%4 !=0", "num_tastes=" + std::to_string(p.get_num_tastes()));
+    if((p.get_fermact() == common::action::rooted_stagg) && (int)(p.get_num_tastes()*std::pow(10,p.get_num_tastes_decimal_digits()))%(4*(int)(std::pow(10,p.get_num_tastes_decimal_digits()))) == 0) // distinguish between wilson and staggered
+        throw Invalid_Parameters("Staggered RHMC not working with multiple of 4 tastes (there is no need of the rooting trick)!", "num_tastes%4 !=0", "num_tastes=" + std::to_string(p.get_num_tastes()));
+    if((p.get_fermact() == common::action::wilson) && (int)(p.get_num_tastes()*std::pow(10,p.get_num_tastes_decimal_digits()))%(2*(int)(std::pow(10,p.get_num_tastes_decimal_digits()))) == 0) // distinguish between wilson and staggered
+            throw Invalid_Parameters("Wilson RHMC not working with multiple of 2 tastes (there is no need of the rooting trick)!", "num_tastes%2 !=0", "num_tastes=" + std::to_string(p.get_num_tastes()));
     if(p.get_cg_iteration_block_size() == 0 || p.get_findminmax_iteration_block_size() == 0)
         throw Invalid_Parameters("Iteration block sizes CANNOT be zero!", "cg_iteration_block_size!=0 && findminmax_iteration_block_size!=0", p.get_cg_iteration_block_size()==0 ? "cg_iteration_block_size=0" : "findminmax_iteration_block_size=0");
     if(p.get_approx_upper() != 1)
@@ -214,19 +238,33 @@ static int getRationalApproximationNumerator(double numTastes, int numTastesDeci
     double intpart;
     modf (tmpNumerator , &intpart);
     if((tmpNumerator-intpart) != 0.0 ){
-        logger.error() << "Found option num_tastes=" << numTastes << " but num_tastes_decimal_digits=" << numTastesDecimalDigits << " and this will imply a lost of precision!";
+        logger.error() << "Found option num_tastes=" << numTastes << " but num_tastes_decimal_digits=" << numTastesDecimalDigits << " and this will imply a loss of precision!";
         throw Print_Error_Message("Options num_tastes and num_tastes_decimal_digits are not coherent!");
     }
     return (int)(numTastes*std::pow(10, numTastesDecimalDigits));
 }
 
-static int getRationalApproximationDenominator(std::string whichRationalApproximation, int numTastesDecimalDigits){
-    if(whichRationalApproximation == "HB")
-        return 8*(int)(std::pow(10, numTastesDecimalDigits));
-    else if((whichRationalApproximation == "MD") || (whichRationalApproximation == "MET"))
-        return 4*(int)(std::pow(10, numTastesDecimalDigits));
-    else
-        throw Print_Error_Message("Invalid call to \"getRationalApproximationDenominator\" function!");
+static int getRationalApproximationDenominator(std::string whichRationalApproximation, int numTastesDecimalDigits, common::action action){
+	if(action == common::action::wilson)
+	{
+		if(whichRationalApproximation == "HB")
+			return 4*(int)(std::pow(10, numTastesDecimalDigits));
+		else if((whichRationalApproximation == "MD") || (whichRationalApproximation == "MET"))
+			return 2*(int)(std::pow(10, numTastesDecimalDigits));
+		else
+			throw Print_Error_Message("Invalid call to \"getRationalApproximationDenominator\" function!");
+	}
+	else if(action == common::action::rooted_stagg)
+	{
+		if(whichRationalApproximation == "HB")
+        	return 8*(int)(std::pow(10, numTastesDecimalDigits));
+    	else if((whichRationalApproximation == "MD") || (whichRationalApproximation == "MET"))
+    		return 4*(int)(std::pow(10, numTastesDecimalDigits));
+    	else
+    		throw Print_Error_Message("Invalid call to \"getRationalApproximationDenominator\" function!");
+	}
+	else
+		throw Invalid_Parameters("Rational approximation denominator currently only available for wilson and rooted_stagg actions.", "rooted_stagg or wilson", action);
 }
 
 

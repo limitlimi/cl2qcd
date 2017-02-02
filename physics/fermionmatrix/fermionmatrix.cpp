@@ -26,6 +26,11 @@
 * Implementations of fermion matrices
 */
 
+hmc_float physics::fermionmatrix::Fermionmatrix_basic::getThresholdForMinimumEigenvalue(hmc_float) const
+{
+    throw Print_Error_Message("Threshold for minimum eigenvalue not existing or not implemented!");
+}
+
 bool physics::fermionmatrix::Fermionmatrix_basic::isHermitian() const noexcept
 {
 	return _is_hermitian;
@@ -213,7 +218,7 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
 	 * This is the even-odd preconditioned fermion matrix with the
 	 * non-trivial inversion on the even sites (see DeGran/DeTar p. 174).
 	 * If one has fermionmatrix
-	 *  M = R + D,
+	 *  M = R + D,  (here in this code M is rescaled M - M'=M/R and D' = D/R and hence M -> M' = 1 + D'
 	 * then Aee is:
 	 * Aee = R_e - D_eo R_o_inv D_oe
 	 */
@@ -223,11 +228,11 @@ void physics::fermionmatrix::Aee::operator()(const physics::lattices::Spinorfiel
     hmc_float kappa = additionalParameters.getKappa();
 
 	switch(fermionmatrixParametersInterface.getFermionicActionType()) {
-		case common::action::wilson:
+		case common::action::wilson:	//Here Aee = R_e - D_eo R_o_inv D_oe --> Aee = 1 - D_eo D_oe  since M (see above) is rescaled accordingly
 			//in this case, the diagonal matrix is just 1 and falls away.
 			dslash(&tmp, gf, in, ODD, kappa);
 			dslash(out, gf, tmp, EVEN, kappa);
-			saxpy(out, {1., 0.}, *out, in);
+			saxpy(out, {1., 0.}, *out, in);			//actually: -a*x+y
 			break;
 		case common::action::twistedmass: //explicit scope to be able to declare variable in it, initializing it at the same time
         {

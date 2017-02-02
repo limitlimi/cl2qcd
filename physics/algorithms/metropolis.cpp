@@ -31,6 +31,9 @@
 #include "../observables/gaugeObservables.hpp"
 
 static void print_info_debug(physics::InterfacesHandler& interfacesHandler, std::string metropolis_part, hmc_float value, bool info = true);
+template<class ROOTED_SPINORFIELD, class SPINORFIELD, class FERMIONMATRIX>
+static hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const ROOTED_SPINORFIELD& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
 
 hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield& phi, const hardware::System& system,
                                               physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
@@ -68,6 +71,90 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
     return squarenorm(phi_inv);
 }
 
+//hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+//                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+//{
+//	using physics::lattices::wilson::Rooted_Spinorfield;
+//	using namespace physics::algorithms::solvers;
+//	using namespace physics::fermionmatrix;
+//
+//    const physics::algorithms::MetropolisParametersInterface & parametersInterface = interfacesHandler.getMetropolisParametersInterface();
+//
+//    const QplusQminus fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+//    int iterations = 0;
+//
+//    //Temporary fields for shifted inverter
+//    logger.debug() << "\t\tstart solver...";
+//    std::vector<std::shared_ptr<physics::lattices::Spinorfield> > X;
+//    for (int i = 0; i < phi.Get_order(); i++)
+//    	X.emplace_back(std::make_shared<physics::lattices::Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+//    //Here the inversion must be performed with high precision, because it'll be used for Metropolis test
+//    iterations = physics::algorithms::solvers::cg_m(X, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
+//    logger.debug() << "\t\t...end solver in " << iterations << " iterations";
+//
+//    //this is to reconstruct (QplusQminus)^{-\frac{N_f}{2}}\,\phi
+//    physics::lattices::Spinorfield tmp(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+//    sax(&tmp, { phi.Get_a0(), 0. }, phi);
+//    physics::lattices::Scalar<hmc_float> a_factor(system);
+//    for (int i = 0; i < phi.Get_order(); i++) {
+//    	a_factor.store((phi.Get_a())[i]);
+//    	saxpy(&tmp, a_factor, *X[i], tmp);
+//    }
+//
+//    logger.trace() << "Calulated S_fermion, solver took " << iterations << " iterations.";
+//    return scalar_product(phi, tmp).re;
+//
+//}
+
+
+
+template<class ROOTED_SPINORFIELD, class SPINORFIELD, class FERMIONMATRIX>
+static hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const ROOTED_SPINORFIELD& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+    logger.error() << "\tRHMC [MET]:\tcomputing the fermionic action: ";
+
+	using namespace physics::algorithms::solvers;
+	using namespace physics::fermionmatrix;
+
+    const physics::algorithms::MetropolisParametersInterface & parametersInterface = interfacesHandler.getMetropolisParametersInterface();
+
+    const FERMIONMATRIX fm(system, interfacesHandler.getInterface<FERMIONMATRIX>());
+    int iterations = 0;
+
+    //Temporary fields for shifted inverter
+    logger.debug() << "\t\tstart solver...";
+    std::vector<std::shared_ptr<SPINORFIELD> > X;
+    for (int i = 0; i < phi.Get_order(); i++)
+    	X.emplace_back(std::make_shared<SPINORFIELD>(system, interfacesHandler.getInterface<SPINORFIELD>()));
+    //Here the inversion must be performed with high precision, because it'll be used for Metropolis test
+    iterations = physics::algorithms::solvers::cg_m(X, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
+    logger.debug() << "\t\t...end solver in " << iterations << " iterations";
+
+    //this is to reconstruct (QplusQminus)^{-\frac{N_f}{2}}\,\phi
+    SPINORFIELD tmp(system, interfacesHandler.getInterface<SPINORFIELD>());
+    sax(&tmp, { phi.Get_a0(), 0. }, phi);
+    physics::lattices::Scalar<hmc_float> a_factor(system);
+    for (int i = 0; i < phi.Get_order(); i++) {
+    	a_factor.store((phi.Get_a())[i]);
+    	saxpy(&tmp, a_factor, *X[i], tmp);
+    }
+
+    logger.trace() << "Calulated S_fermion, solver took " << iterations << " iterations.";
+    return scalar_product(phi, tmp).re;
+}
+
+hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::lattices::wilson::Rooted_Spinorfield;
+	using physics::lattices::Spinorfield;
+	using physics::fermionmatrix::QplusQminus;
+
+	return ::calc_s_fermion<Rooted_Spinorfield, Spinorfield, QplusQminus>(gf, phi, system, interfacesHandler, additionalParameters);
+}
+
+
 hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                               physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
@@ -97,7 +184,7 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
         const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
         qminus(&phi_inv, gf, solution, additionalParameters);
     } else {
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
         const Qplus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
         iterations = bicgstab(&solution, fm, gf, phi, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
@@ -187,7 +274,7 @@ hmc_float physics::algorithms::calc_s_fermion_mp(const physics::lattices::Gaugef
         const Qminus_eo qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
         qminus(&phi_inv, gf, solution, additionalParameters);
     } else {
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
 
         const Qplus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
@@ -214,41 +301,50 @@ hmc_float physics::algorithms::calc_s_fermion_mp(const physics::lattices::Gaugef
  * (using the multi-shifted inverter). Then a scalar product give the returning value.
  * 
  */
-hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Rooted_Staggeredfield_eo& phi,
-                                              const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
-                                              const physics::AdditionalParameters& additionalParameters)
+hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
-    using physics::lattices::Rooted_Staggeredfield_eo;
-    using namespace physics::algorithms::solvers;
-    using namespace physics::fermionmatrix;
+	using physics::lattices::Rooted_Staggeredfield_eo;
+	using physics::lattices::Staggeredfield_eo;
+	using physics::fermionmatrix::MdagM_eo;
 
-    logger.trace() << "\tRHMC [DH]:\tcalc final fermion energy...";
-
-    const physics::algorithms::MetropolisParametersInterface & parametersInterface = interfacesHandler.getMetropolisParametersInterface();
-
-    const physics::fermionmatrix::MdagM_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::MdagM_eo>());
-    int iterations = 0;
-
-    //Temporary fields for shifted inverter
-    logger.debug() << "\t\tstart solver...";
-    std::vector<std::shared_ptr<physics::lattices::Staggeredfield_eo> > X;
-    for (int i = 0; i < phi.Get_order(); i++)
-        X.emplace_back(std::make_shared<physics::lattices::Staggeredfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>()));
-    //Here the inversion must be performed with high precision, because it'll be used for Metropolis test
-    iterations = physics::algorithms::solvers::cg_m(X, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
-    logger.debug() << "\t\t...end solver in " << iterations << " iterations";
-
-    //this is to reconstruct (MdagM)^{-\frac{N_f}{4}}\,\phi
-    physics::lattices::Staggeredfield_eo tmp(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-    sax(&tmp, { phi.Get_a0(), 0. }, phi);
-    for (int i = 0; i < phi.Get_order(); i++) {
-        saxpy(&tmp, { (phi.Get_a())[i], 0. }, *X[i], tmp);
-    }
-
-    logger.trace() << "Calulated S_fermion, solver took " << iterations << " iterations.";
-    return scalar_product(phi, tmp).re;
-
+	return ::calc_s_fermion<Rooted_Staggeredfield_eo, Staggeredfield_eo, MdagM_eo>(gf, phi, system, interfacesHandler, additionalParameters);
 }
+
+//hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Rooted_Staggeredfield_eo& phi,
+//                                              const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
+//                                              const physics::AdditionalParameters& additionalParameters)
+//{
+//    using physics::lattices::Rooted_Staggeredfield_eo;
+//    using namespace physics::algorithms::solvers;
+//    using namespace physics::fermionmatrix;
+//
+//    logger.trace() << "\tRHMC [DH]:\tcalc final fermion energy...";
+//
+//    const physics::algorithms::MetropolisParametersInterface & parametersInterface = interfacesHandler.getMetropolisParametersInterface();
+//
+//    const physics::fermionmatrix::MdagM_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::MdagM_eo>());
+//    int iterations = 0;
+//
+//    //Temporary fields for shifted inverter
+//    logger.debug() << "\t\tstart solver...";
+//    std::vector<std::shared_ptr<physics::lattices::Staggeredfield_eo> > X;
+//    for (int i = 0; i < phi.Get_order(); i++)
+//        X.emplace_back(std::make_shared<physics::lattices::Staggeredfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>()));
+//    //Here the inversion must be performed with high precision, because it'll be used for Metropolis test
+//    iterations = physics::algorithms::solvers::cg_m(X, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getSolverPrec(), additionalParameters);
+//    logger.debug() << "\t\t...end solver in " << iterations << " iterations";
+//
+//    //this is to reconstruct (MdagM)^{-\frac{N_f}{4}}\,\phi
+//    physics::lattices::Staggeredfield_eo tmp(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
+//    sax(&tmp, { phi.Get_a0(), 0. }, phi);
+//    for (int i = 0; i < phi.Get_order(); i++) {
+//        saxpy(&tmp, { (phi.Get_a())[i], 0. }, *X[i], tmp);
+//    }
+//
+//    logger.trace() << "Calulated S_fermion, solver took " << iterations << " iterations.";
+//    return scalar_product(phi, tmp).re;
+//}
 
 template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rnd, const hmc_float beta, const physics::lattices::Gaugefield& gf,
         const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
@@ -427,6 +523,15 @@ hmc_observables physics::algorithms::metropolis(const hmc_float rnd, const hmc_f
         const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
         const physics::lattices::Spinorfield_eo& phi, const hmc_float spinor_energy_init, const physics::lattices::Spinorfield_eo * const phi_mp,
         const hmc_float spinor_energy_mp_init, const hardware::System& system, physics::InterfacesHandler& interfacesHandler)
+{
+    return ::metropolis(rnd, beta, gf, new_u, p, new_p, phi, spinor_energy_init, phi_mp, spinor_energy_mp_init, system, interfacesHandler);
+}
+
+hmc_observables physics::algorithms::metropolis(const hmc_float rnd, const hmc_float beta, const physics::lattices::Gaugefield& gf,
+        const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
+        const physics::lattices::wilson::Rooted_Spinorfield& phi, const hmc_float spinor_energy_init,
+        const physics::lattices::wilson::Rooted_Spinorfield* const phi_mp, const hmc_float spinor_energy_mp_init, const hardware::System& system,
+        physics::InterfacesHandler& interfacesHandler)
 {
     return ::metropolis(rnd, beta, gf, new_u, p, new_p, phi, spinor_energy_init, phi_mp, spinor_energy_mp_init, system, interfacesHandler);
 }

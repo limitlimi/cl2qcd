@@ -24,6 +24,10 @@
 #include "../../interfaceImplementations/interfacesHandler.hpp"
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
+#include "../../hardware/system.hpp"
+#include "../prng.hpp"
+#include "../fermionmatrix/fermionmatrix_stagg.hpp"
+#include "../lattices/gaugefield.hpp"
 
 // use the boost test framework
 #define BOOST_TEST_DYN_LINK
@@ -137,9 +141,9 @@ BOOST_AUTO_TEST_CASE(rescale)
 {
 	using namespace physics::algorithms;
 	using namespace physics::lattices;
-	
+
 	Rational_Approximation approx(15,1,4,1e-5,1,false);
-	
+
 	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--mass=0.567", "--conservative=false", "--num_dev=1"};
 	meta::Inputparameters params(6, _params);
 	hardware::HardwareParametersImplementation hP(&params);
@@ -196,17 +200,17 @@ BOOST_AUTO_TEST_CASE(rescale)
 				    0.32091499816392937694, 0.84199021010590602287,
 				    2.3690543226274733968, 8.1633847494467222106,
 				    62.215004455600926292};
-	
+
 	Rational_Coefficients coeff = approx.Rescale_Coefficients(minEigenvalue, maxEigenvalue);
 	Rational_Coefficients coeff_cons = approx.Rescale_Coefficients(minEigenvalueCons, maxEigenvalueCons);
-	
+
 	int ord = coeff.Get_order();
 	std::vector<hmc_float> a = coeff.Get_a();
 	std::vector<hmc_float> b = coeff.Get_b();
-	
+
 	std::vector<hmc_float> a_cons = coeff_cons.Get_a();
 	std::vector<hmc_float> b_cons = coeff_cons.Get_b();
-	
+
 	//Test result: note that the precision is not so high since
 	//the reference code uses a slightly different method to calculate
 	//maximum and minimum eigenvalues (I tuned a bit the ref.code adapting the number
@@ -219,7 +223,6 @@ BOOST_AUTO_TEST_CASE(rescale)
 		BOOST_CHECK_CLOSE(a_cons[i], a_ref_cons[i], 2.e-4);
 		BOOST_CHECK_CLOSE(b_cons[i], b_ref_cons[i], 2.e-4);
 	}
-	
 	logger.info() << "Test done!";
 }
 

@@ -466,8 +466,8 @@ struct ScalarProductEvenOddRealTester: public EvenOddLinearCombinationTester
 			code->set_float_to_scalar_product_real_part_eoprec_device(spinorfields.at(0), spinorfields.at(1), &sqnorm);
 			hmc_float resultTmp;
 			sqnorm.dump(&resultTmp);
-			kernelResult[0] = resultTmp;
-			kernelResult[1] = 0;
+			kernelResult.at(0) = resultTmp;
+			kernelResult.at(1) = 0;
 		}
 };
 
@@ -576,9 +576,15 @@ struct SaxpyEvenOddRealTester: public EvenOddLinearCombinationTesterWithSquareno
 	SaxpyEvenOddRealTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
 		EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_eo_real", parameterCollection, testParameters, calculateReferenceValues_saxpy(calculateEvenOddSpinorfieldSize(testParameters.latticeExtents), testParameters.realCoefficients))
 		{
-			hmc_float realNumbers;
-			realNums.at(0)->dump(&realNumbers);
-			code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), realNums.at(0), getOutSpinor());
+            //From WilsonRhmc branch
+            //hardware::buffers::Plain<hmc_float> alpha_real_vec(1, device);
+            //std::vector<hmc_float> alpha_host_real_vec(1, testParameters.coefficients.at(0).re);
+            //alpha_real_vec.load(&alpha_host_real_vec[0]);
+            //code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), &alpha_real_vec, getOutSpinor());
+            
+            hmc_float realNumbers;
+            realNums.at(0)->dump(&realNumbers);
+            code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), realNums.at(0), getOutSpinor());
 		}
 };
 

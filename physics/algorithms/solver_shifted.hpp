@@ -23,6 +23,7 @@
 #define _PHYSICS_ALGORITHMS_SOLVER_SHIFTED_
 
 #include "../fermionmatrix/fermionmatrix_stagg.hpp"
+#include "../fermionmatrix/fermionmatrix.hpp"
 #include "../interfacesHandler.hpp"
 
 namespace physics {
@@ -49,6 +50,10 @@ namespace physics {
                      const physics::lattices::Staggeredfield_eo& b, const hardware::System& system,
                      physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 
+            int cg_m(const std::vector<std::shared_ptr<physics::lattices::Spinorfield> > x, const physics::fermionmatrix::Fermionmatrix& A,
+            		const physics::lattices::Gaugefield& gf, const std::vector<hmc_float> sigma,
+					const physics::lattices::Spinorfield& b, const hardware::System& system,
+					physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 
             template<typename FERMIONFIELD, typename FERMIONMATRIX>
             class SolverShifted {
@@ -82,7 +87,7 @@ namespace physics {
                     void makePerformanceReport();
                     void resetNoWarmupTimer();
                     std::string createLogPrefix();
-                    void debugLogSquarenormSetOfFields(const std::string&, const std::vector<std::shared_ptr<physics::lattices::Staggeredfield_eo> >, const int);
+                    void debugLogSquarenormSetOfFields(const std::string&, const std::vector<std::shared_ptr<FERMIONFIELD> >, const int);
                     void debugCompareSquarenormsOfResultFieldsBetweenBeginAndEndOfIteration();
                     void debugMakeReportOfFieldsSquarenorm();
                     void debugCalculateSquarenormOfResultField();
@@ -110,7 +115,7 @@ namespace physics {
                     int MINIMUM_ITERATIONS;  /// @todo make configurable from outside
 
 
-                    //Auxiliary staggered fields
+                    //Auxiliary fermion fields
                     const FERMIONFIELD r;
                     const FERMIONFIELD p;
                     std::vector<std::shared_ptr<FERMIONFIELD> > ps;

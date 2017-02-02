@@ -33,6 +33,9 @@
 #include "../../interfaceImplementations/interfacesHandler.hpp"
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
+#include "../lattices/staggeredfield_eo.hpp"
+#include "../lattices/rooted_spinorfield.hpp"
+#include "find_minmax_eigenvalue.hpp"
 
 BOOST_AUTO_TEST_CASE(md_update_gaugefield)
 {
@@ -216,6 +219,61 @@ BOOST_AUTO_TEST_CASE(md_update_spinorfield_eo)
 		physics::algorithms::md_update_spinorfield(&sf2, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 		BOOST_CHECK_CLOSE(squarenorm(sf2), 1114.3019247079062, 0.01);
 	}
+}
+
+BOOST_AUTO_TEST_CASE(md_update_staggered_rooted_spinorfield_eo)
+{
+	using namespace physics::lattices;
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=rooted_stagg", "--num_dev=1"};
+	meta::Inputparameters params(4, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	bool inv = 0;
+	physics::algorithms::Rational_Approximation approx(10,1,4,1e-5,1,inv);
+	Rooted_Staggeredfield_eo in(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>());
+	Rooted_Staggeredfield_eo out(system, interfacesHandler.getInterface<physics::lattices::Rooted_Staggeredfield_eo>(), approx);
+
+	pseudo_randomize<Rooted_Staggeredfield_eo, su3vec>(&in, 13);
+	physics::algorithms::md_update_spinorfield(&out, gf, in, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Rooted_Staggeredfield_eo>());
+
+	BOOST_CHECK_CLOSE(squarenorm(out), 328.75052967496629, 1e-8);
+}
+
+BOOST_AUTO_TEST_CASE(md_update_rooted_spinorfield)
+{
+	using namespace physics::lattices;
+	const char * _params[] = {"foo", "--ntime=4", "--fermact=wilson", "--num_dev=1"};
+	meta::Inputparameters params(4, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+	const physics::algorithms::RhmcParametersInterface & parametersInterface = interfacesHandler.getRhmcParametersInterface();
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	bool inv = 0;
+	physics::algorithms::Rational_Approximation approx(10,1,2,1e-5,1,inv);
+	physics::fermionmatrix::QplusQminus Qpm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+	hmc_float minEigen, maxEigen;
+	physics::algorithms::find_maxmin_eigenvalue(maxEigen, minEigen, Qpm, gf, system, interfacesHandler, parametersInterface.getFindMinMaxPrec(), interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield>());
+
+	wilson::Rooted_Spinorfield in(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield>());
+	wilson::Rooted_Spinorfield out(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield>(), approx);
+	out.Rescale_Coefficients(approx, minEigen, maxEigen);
+
+	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&in, 13);
+	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&out, 14);
+	physics::algorithms::md_update_spinorfield(&out, gf, in, system, interfacesHandler, interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield>());
+
+	BOOST_CHECK_CLOSE(squarenorm(out), 2588.2852324465166, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(md_update_spinorfield_mp)

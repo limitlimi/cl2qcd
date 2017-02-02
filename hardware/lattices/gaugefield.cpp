@@ -180,17 +180,25 @@ void hardware::lattices::Gaugefield::set_cold(Matrixsu3 * field, size_t elems) c
 void hardware::lattices::Gaugefield::set_hot() const
 {
 	using hardware::Device;
-
+	logger.debug() << "In gaugefield set_hot() function ...";
 	for(auto buffer: buffers) 
 	{
+		logger.debug() << "Getting elements for buffer ...";
 		size_t elems = buffer->get_elements();
+		logger.debug() << "Allocating Matrixsu3 memory ...";
 		Matrixsu3 * tmp = new Matrixsu3[elems];
+		logger.debug() << "Setting elements to hot ...";
 		set_hot(tmp, elems);
+		logger.debug() << "Getting device ...";
 		const Device * device = buffer->get_device();
+		logger.debug() << "Importing gaugefield buffer ...";
 		device->getGaugefieldCode()->importGaugefield(buffer, tmp);
+		logger.debug() << "Synchronizing ...";
 		device->synchronize();
+		logger.debug() << "Deleting tmp elements ...";
 		delete[] tmp;
 	}
+	logger.debug() << "Arrived at end of gaugefield set_hot() function ...";
 }
 
 void hardware::lattices::Gaugefield::set_hot(Matrixsu3 * field, size_t elems) const

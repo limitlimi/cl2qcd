@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2013 Matthias Bach <bach@compeng.uni-frankfurt.de>
  * Copyright (c) 2013 Alessandro Sciarra <sciarra@th.phys.uni-frankfurt.de>
+ * Copyright (c) 2016 Christopher Czaban <czaban@th.phys.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
@@ -29,6 +30,7 @@
 #include "../../meta/util.hpp"
 #include "../../hardware/device.hpp"
 #include "../../hardware/code/molecular_dynamics.hpp"
+
 
 //this function takes to args kappa and mubar because one has to use it with different masses when mass-prec is used and when not
 
@@ -91,7 +93,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
         /**
          * Trial solution for the spinorfield
          */
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
 
         const Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
@@ -185,9 +187,9 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     if(parametersInterface.getSolver() == common::cg) {
         /**
          * The first inversion calculates
-         * X = phi = (Qplusminus)^-1 psi
+         * X = phi = (QplusQminus)^-1 psi
          * out of
-         * Qplusminus phi = psi
+         * QplusQminus phi = psi
          */
         logger.debug() << "\t\t\tstart solver";
 
@@ -213,6 +215,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 
     } else {
         logger.debug() << "\t\tcalc fermion force ingredients using bicgstab without eo";
+        logger.error() << "\t\tcalc fermion force ingredients using bicgstab without eo";
 
         /**
          * The first inversion calculates
@@ -262,6 +265,64 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 
     logger.debug() << "\t\tcalc fermion_force...";
     fermion_force(force, phi_inv, solution, gf, additionalParameters);
+}
+
+void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
+                                             const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+                                             physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+    logger.error() << "\tRHMC [MET]:\tcomputing the fermion force ";
+    using physics::lattices::Spinorfield;
+    using namespace physics::algorithms::solvers;
+    using namespace physics::fermionmatrix;
+
+    const physics::algorithms::ForcesParametersInterface & parametersInterface = interfacesHandler.getForcesParametersInterface();
+
+    std::vector<std::shared_ptr<Spinorfield>> X; //Contains solution vectors X_i
+    std::vector<std::shared_ptr<Spinorfield>> Y; //Will be Y = Q * X  (before: phi_inv)
+//    Spinorfield solution(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+//    Spinorfield phi_inv(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+    for (int i = 0; i < phi.Get_order(); i++) {
+    	X.emplace_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+        Y.emplace_back(std::make_shared<Spinorfield>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>()));
+    }
+
+    logger.debug() << "\t\tcalc fermion_force...";
+    //the source is already set, it is Dpsi, where psi is the initial gaussian spinorfield
+
+    /**
+     * The first inversion calculates
+     * X = phi = (QplusQminus)^-1 psi
+     * out of
+     * QplusQminus phi = psi
+     */
+    logger.debug() << "\t\t\tstart solver";
+
+    //here, the "normal" solver can be used since the inversion is of the same structure as in the inverter
+    const QplusQminus fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+    cg_m(X, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+
+    /**
+     * Y is now just
+     *  Y = (Qminus) X = (Qminus) (Qplusminus)^-1 psi =
+     *    = (Qplus)^-1 psi
+     */
+    const Qminus qminus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus>());
+    physics::lattices::Gaugemomenta tmp(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
+
+    //for-loop
+    for(int i = 0; i < phi.Get_order(); i++)
+    {
+    	qminus(Y[i].get(), gf, *X[i], additionalParameters);
+    	tmp.zero();
+//    	log_squarenorm("\tY ", Y[i]);
+//    	log_squarenorm("\tX ", X[i]);
+    	fermion_force(&tmp, *Y[i], *X[i], gf, additionalParameters);
+//    	physics::lattices::saxpy(force, -1. * (phi.Get_a())[i], tmp);
+    	physics::lattices::saxpy(force, (phi.Get_a())[i], tmp); // I removed the -1* because I think in the Wilson case the "-" is already contained in the fermion force calculation.
+    }
+
+    logger.debug() << "\t\tcalc fermion_force...";
 }
 
 void physics::algorithms::calc_fermion_force_detratio(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
@@ -476,7 +537,7 @@ void physics::algorithms::calc_fermion_force_detratio(const physics::lattices::G
         /**
          * Trial solution for the spinorfield
          */
-        solution.zero();
+        solution.setZero();
         solution.gamma5();
 
         const Qplus_eo q_plus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
@@ -619,6 +680,13 @@ template<class SPINORFIELD> static void calc_fermion_forces(const physics::latti
 
 void physics::algorithms::calc_fermion_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                               const physics::lattices::Spinorfield& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+    ::calc_fermion_forces(force, gf, phi, system, interfacesHandler, additionalParameters);
+}
+
+void physics::algorithms::calc_fermion_forces(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
+                                              const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
                                               physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
     ::calc_fermion_forces(force, gf, phi, system, interfacesHandler, additionalParameters);

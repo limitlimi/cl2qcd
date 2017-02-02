@@ -31,6 +31,7 @@
 physics::lattices::Gaugefield::Gaugefield(const hardware::System& system, const GaugefieldParametersInterface * parameters, const physics::PRNG& prng)
   : system(system), prng(prng),  latticeObjectParameters(parameters), gaugefield(system)
 {
+	logger.debug() << "Trying to initialize gaugefield based on parameters ...";
 	initializeBasedOnParameters();
 }
 
@@ -56,6 +57,7 @@ void physics::lattices::Gaugefield::initializeBasedOnParameters()
 			initializeHotOrCold(false);
 			break;
 		case common::startcondition::hot_start:
+			logger.debug() << "Entering gaugefield initialization hot start case ...";
 			initializeHotOrCold(true);
 			break;
 	}
@@ -64,12 +66,15 @@ void physics::lattices::Gaugefield::initializeBasedOnParameters()
 void physics::lattices::Gaugefield::initializeHotOrCold(bool hot)
 {
 	if(hot) {
+		logger.debug() << "Setting gaugefield to hot ...";
 		gaugefield.set_hot();
+		logger.debug() << "Updating halo ...";
 		update_halo();
 	} else {
 		gaugefield.set_cold();
 	}
 	trajectoryNumberAtInit = 0;
+	logger.debug() << "End of gaugefield hot initialization ...";
 }
 
 

@@ -51,6 +51,7 @@ namespace hardware
 		}
 		std::unique_ptr<hardware::code::Gaugefield> getCode_gaugefield(const hardware::Device * deviceIn) const
 		{
+			logger.debug() << "Trying to return unique_ptr to gaugefield ...";
 			return std::unique_ptr<hardware::code::Gaugefield>( new hardware::code::Gaugefield{*kernelParameters, deviceIn} ) ;
 		}
 		std::unique_ptr<hardware::code::Prng> getCode_PRNG(const hardware::Device * deviceIn) const

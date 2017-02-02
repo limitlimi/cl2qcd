@@ -85,6 +85,16 @@ hmc_complex spinor_scalarproduct(spinor in1, spinor in2)
 	return res;
 }
 
+hmc_float spinor_scalarproduct_real_part(spinor in1, spinor in2)
+{
+	hmc_float res = 0;
+	res += su3vec_scalarproduct_real_part(in1.e0, in2.e0);
+	res += su3vec_scalarproduct_real_part(in1.e1, in2.e1);
+	res += su3vec_scalarproduct_real_part(in1.e2, in2.e2);
+	res += su3vec_scalarproduct_real_part(in1.e3, in2.e3);
+	return res;
+}
+
 spinor real_multiply_spinor(spinor in, hmc_float factor)
 {
 	spinor tmp;
@@ -145,3 +155,30 @@ spinor spinor_acc_acc(spinor in1, spinor in2, spinor in3)
 	return tmp;
 }
 
+// TODO document
+inline void putSpinor(__global spinorStorageType * const restrict out, const uint idx, const spinor val)
+{
+#ifdef _USE_SOA_
+	// su3vec = 3 * cplx
+	out[ 0 * SPINORFIELD_STRIDE + idx] = val.e0.e0;
+	out[ 1 * SPINORFIELD_STRIDE + idx] = val.e0.e1;
+	out[ 2 * SPINORFIELD_STRIDE + idx] = val.e0.e2;
+
+	// su3vec = 3 * cplx
+	out[ 3 * SPINORFIELD_STRIDE + idx] = val.e1.e0;
+	out[ 4 * SPINORFIELD_STRIDE + idx] = val.e1.e1;
+	out[ 5 * SPINORFIELD_STRIDE + idx] = val.e1.e2;
+
+	// su3vec = 3 * cplx
+	out[ 6 * SPINORFIELD_STRIDE + idx] = val.e2.e0;
+	out[ 7 * SPINORFIELD_STRIDE + idx] = val.e2.e1;
+	out[ 8 * SPINORFIELD_STRIDE + idx] = val.e2.e2;
+
+	// su3vec = 3 * cplx
+	out[ 9 * SPINORFIELD_STRIDE + idx] = val.e3.e0;
+	out[10 * SPINORFIELD_STRIDE + idx] = val.e3.e1;
+	out[11 * SPINORFIELD_STRIDE + idx] = val.e3.e2;
+#else
+	out[idx] = val;
+#endif
+}

@@ -41,7 +41,6 @@ physics::lattices::Rooted_Staggeredfield_eo::Rooted_Staggeredfield_eo(const hard
 void physics::lattices::Rooted_Staggeredfield_eo::Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue)
 {
 	physics::algorithms::Rational_Coefficients aux = approx.Rescale_Coefficients(minEigenvalue, maxEigenvalue);
-	
 	Set_coeff(aux.Get_a0(), aux.Get_a(), aux.Get_b());
 }
 

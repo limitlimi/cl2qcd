@@ -110,6 +110,38 @@ void physics::lattices::scalar_product(const Scalar<hmc_complex>* res, const Spi
 	res->sum();
 }
 
+hmc_float physics::lattices::scalar_product_real_part(const Spinorfield& left, const Spinorfield& right)
+{
+	const Scalar<hmc_float> res(left.system);
+	scalar_product_real_part(&res, left, right);
+	return res.get();
+}
+
+void physics::lattices::scalar_product_real_part(const Scalar<hmc_float>* res, const Spinorfield& left, const Spinorfield& right)
+{
+	auto res_buffers = res->get_buffers();
+	auto left_buffers = left.get_buffers();
+	auto right_buffers = right.get_buffers();
+	size_t num_buffers = res_buffers.size();
+
+	if(num_buffers != left_buffers.size() || num_buffers != right_buffers.size()) {
+		throw std::invalid_argument("The given lattices do not use the same number of devices.");
+	}
+
+	for(size_t i = 0; i < num_buffers; ++i) {
+		auto res_buf = res_buffers[i];
+		auto left_buf = left_buffers[i];
+		auto right_buf = right_buffers[i];
+		auto device = res_buf->get_device();
+		auto spinor_code = device->getSpinorCode();
+
+		spinor_code->set_float_to_scalar_product_real_device(left_buf, right_buf, res_buf);
+	}
+
+	res->sum();
+}
+
+
 hmc_float physics::lattices::squarenorm(const Spinorfield& field)
 {
 	const Scalar<hmc_float> res(field.system);
@@ -140,7 +172,7 @@ void physics::lattices::squarenorm(const Scalar<hmc_float>* res, const Spinorfie
 	res->sum();
 }
 
-void physics::lattices::Spinorfield::zero() const
+void physics::lattices::Spinorfield::setZero() const
 {
 for(auto buffer: spinorfield.get_buffers()) {
 		auto spinor_code = buffer->get_device()->getSpinorCode();
@@ -156,7 +188,7 @@ for(auto buffer: get_buffers()) {
 	}
 }
 
-void physics::lattices::Spinorfield::gaussian(const physics::PRNG& prng) const
+void physics::lattices::Spinorfield::setGaussian(const physics::PRNG& prng) const
 {
 	auto prng_bufs = prng.get_buffers();
 
@@ -208,6 +240,95 @@ void physics::lattices::saxpy(const Spinorfield* out, const Scalar<hmc_complex>&
 	}
 }
 
+void physics::lattices::saxpy(const Spinorfield* out, const Scalar<hmc_float>& alpha, const Spinorfield& x, const Spinorfield& y)
+{
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+	auto y_bufs = y.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != x_bufs.size() || out_bufs.size() != y_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->saxpy_device(x_bufs[i], y_bufs[i], alpha_bufs[i], out_buf);
+	}
+}
+
+void physics::lattices::saxpy(const Spinorfield* out, const hmc_float alpha, const Spinorfield& x, const Spinorfield& y)
+{
+	auto out_bufs = out->get_buffers();
+	auto x_bufs = x.get_buffers();
+	auto y_bufs = y.get_buffers();
+
+	if(out_bufs.size() != x_bufs.size() || out_bufs.size() != y_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->saxpy_device(x_bufs[i], y_bufs[i], alpha, out_buf);
+	}
+}
+
+void physics::lattices::saxpy(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Spinorfield& y)
+{
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+	auto y_bufs = y.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != x_bufs.size() || out_bufs.size() != y_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->saxpy_device(x_bufs[i], y_bufs[i], alpha_bufs[i], index_alpha, out_buf);
+	}
+}
+
+void physics::lattices::saxpby(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x, const hmc_complex beta, const Spinorfield& y)
+{
+	auto out_bufs = out->get_buffers();
+	auto x_bufs = x.get_buffers();
+	auto y_bufs = y.get_buffers();
+
+	if(out_bufs.size() != x_bufs.size() || out_bufs.size() != y_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->saxpby_device(x_bufs[i], y_bufs[i], alpha, beta, out_buf);
+	}
+}
+
+void physics::lattices::saxpby(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x, const Vector<hmc_float>& beta, const int index_beta, const Spinorfield& y)
+{
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+	auto beta_bufs = beta.get_buffers();
+	auto y_bufs = y.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != beta_bufs.size() || out_bufs.size() != x_bufs.size() || out_bufs.size() != y_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->saxpby_device(x_bufs[i], y_bufs[i], alpha_bufs[i], beta_bufs[i], index_alpha, index_beta, out_buf);
+	}
+}
+
 void physics::lattices::sax(const Spinorfield* out, const hmc_complex alpha, const Spinorfield& x)
 {
 	const Scalar<hmc_complex> alpha_buf(out->system);
@@ -229,6 +350,23 @@ void physics::lattices::sax(const Spinorfield* out, const Scalar<hmc_complex>& a
 		auto out_buf = out_bufs[i];
 		auto device = out_buf->get_device();
 		device->getSpinorCode()->sax_device(x_bufs[i], alpha_bufs[i], out_buf);
+	}
+}
+
+void physics::lattices::sax(const Spinorfield* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield& x)
+{
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != x_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->sax_device(x_bufs[i], alpha_bufs[i], index_alpha, out_buf);
 	}
 }
 
@@ -259,6 +397,11 @@ void physics::lattices::saxsbypz(const Spinorfield* out, const Scalar<hmc_comple
 		auto device = out_buf->get_device();
 		device->getSpinorCode()->saxsbypz_device(x_bufs[i], y_bufs[i], z_bufs[i], alpha_bufs[i], beta_bufs[i], out_buf);
 	}
+}
+
+void physics::lattices::sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield& x)
+{
+	throw Print_Error_Message("Function sax_vec_and_squarenorm for Wilson spinorfields not yet implemented.");
 }
 
 void physics::lattices::log_squarenorm(const std::string& msg, const physics::lattices::Spinorfield& x)

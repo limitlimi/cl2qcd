@@ -75,6 +75,7 @@ generalExecutable::generalExecutable(int argc, const char* argv[], std::string p
 	initializationTimer.add();
 
 }
+
 generalExecutable::~generalExecutable()
 {
     totalRuntimeOfExecutable.add();

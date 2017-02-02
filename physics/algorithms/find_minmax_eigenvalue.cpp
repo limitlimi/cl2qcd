@@ -30,11 +30,17 @@
 
 static std::string create_log_prefix_find_max(int number) noexcept;
 static std::string create_log_prefix_find_min(int number) noexcept;
+static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system,  physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
                                       const hardware::System& system,  physics::InterfacesHandler& interfacesHandler,
                                       hmc_float prec, const physics::AdditionalParameters& additionalParameters);
+template<class FERMIONMATRIX, class SPINORFIELD, class BASETYPE> static hmc_float find_min_knowing_max(const hmc_float max, const FERMIONMATRIX& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 
-hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
+template<class FERMIONMATRIX, class SPINORFIELD, class BASETYPE> hmc_float find_max_eigenvalue(const FERMIONMATRIX& A, const physics::lattices::Gaugefield& gf,
                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                                    const physics::AdditionalParameters& additionalParameters)
 {
@@ -52,11 +58,11 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 
     //This field is the starting point and it must be random (we have to be sure
     //to have a non zero component along the eigenvectors referring to the biggest eigenvalue)
-    Staggeredfield_eo v1(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-    pseudo_randomize<Staggeredfield_eo, su3vec>(&v1, 123);
+    SPINORFIELD v1(system, interfacesHandler.getInterface<SPINORFIELD>());
+    pseudo_randomize<SPINORFIELD, BASETYPE>(&v1, 123);
     sax(&v1, { 1. / sqrt(squarenorm(v1)), 0. }, v1);   //v1 is now normalized
     //Auxiliary field
-    Staggeredfield_eo v2(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
+    SPINORFIELD v2(system, interfacesHandler.getInterface<SPINORFIELD>());
     //How often to check resid
     const physics::algorithms::MinMaxEigenvalueParametersInterface & parametersInterface = interfacesHandler.getMinMaxEigenvalueParametersInterface();
     const int RESID_CHECK_FREQUENCY = parametersInterface.getFindMinMaxIterationBlockSize();
@@ -64,9 +70,12 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
     log_squarenorm(create_log_prefix_find_max(0) + "v1 (initial): ", v1);
     log_squarenorm(create_log_prefix_find_max(0) + "v2 (initial) [not-initialized]: ", v2);
 
+    physics::lattices::Scalar<hmc_float> factor(system);
+    factor.store(-1.0);
+
     for (unsigned int i = 0; i < parametersInterface.getFindMinMaxMaxValue(); i++) {
         //Apply A onto v1
-        A(&v2, gf, v1, &additionalParameters);
+        A(&v2, gf, v1, additionalParameters);
         if(i % 100 == 0)
             log_squarenorm(create_log_prefix_find_max(i) + "v2: ", v2);
         //Normalize v2
@@ -75,7 +84,8 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
             log_squarenorm(create_log_prefix_find_max(i) + "v2: ", v2);
         //Check whether the algorithm converged
         if(i % RESID_CHECK_FREQUENCY == 0) {
-            saxpy(&v1, { -1., 0. }, v1, v2);   //Here I can use v1 as container, the important is not
+            saxpy(&v1, factor, v1, v2);   //Here I can use v1 as container, the important is not
+//            saxpy(&v1, { -1., 0. }, v1, v2);   //Here I can use v1 as container, the important is not
                                                //to modify v2 that will be copied in v1
             log_squarenorm(create_log_prefix_find_max(i) + "v1: ", v1);
             resid = sqrt(squarenorm(v1));
@@ -83,7 +93,7 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
             logger.debug() << create_log_prefix_find_max(i) << "resid: " << std::setprecision(8) << resid;
 
             if(resid < prec) {
-                A(&v1, gf, v2, &additionalParameters);
+                A(&v1, gf, v2, additionalParameters);
                 scalar_product(&max, v2, v1);
                 hmc_complex result = max.get();
                 logger.debug() << "max.im = " << result.im;
@@ -105,6 +115,42 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 
 }
 
+hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
+                                                   const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                   const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix_stagg_eo;
+	using physics::lattices::Staggeredfield_eo;
+
+	return ::find_max_eigenvalue<Fermionmatrix_stagg_eo, Staggeredfield_eo, su3vec>(A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
+hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+        											const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+													const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix;
+	using physics::lattices::Spinorfield;
+
+	return ::find_max_eigenvalue<Fermionmatrix, Spinorfield, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
+hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                                                   const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                   const physics::AdditionalParameters& additionalParameters)
+{
+    if(additionalParameters.getConservative())
+        return A.getThresholdForMinimumEigenvalue(additionalParameters.getKappa());
+
+    if(!(A.isHermitian()))
+        throw std::invalid_argument("Unable to deal with non-hermitian matrices in find_max_eigenvalue!");
+
+    hmc_float max = find_max_eigenvalue(A, gf, system, interfacesHandler, prec, additionalParameters);
+
+    return find_min_knowing_max(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+
+}
+
 hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                                    const physics::AdditionalParameters& additionalParameters)
@@ -118,6 +164,29 @@ hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix:
     hmc_float max = find_max_eigenvalue(A, gf, system, interfacesHandler, prec, additionalParameters);
 
     return find_min_knowing_max(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+
+}
+
+void physics::algorithms::find_maxmin_eigenvalue(hmc_float& max, hmc_float& min, const physics::fermionmatrix::Fermionmatrix& A,
+                                                 const physics::lattices::Gaugefield& gf, const hardware::System& system,
+                                                 physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                 const physics::AdditionalParameters& additionalParameters)
+{
+    //This timer is to know how long this function takes
+    klepsydra::Monotonic timer;
+
+    max = find_max_eigenvalue(A, gf, system, interfacesHandler, prec, additionalParameters);
+
+    if(additionalParameters.getConservative()){
+        min = A.getThresholdForMinimumEigenvalue(additionalParameters.getKappa());
+        max *= 1.05;
+    }else{
+        min = find_min_knowing_max(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+    }
+
+    //Here we are sure the eigenvalue is correctly found, then we get the duration
+    const uint64_t duration = timer.getTime();
+    logger.debug() << "Find_maxmin_eig completed in " << duration / 1000.f << " ms.";
 
 }
 
@@ -144,7 +213,27 @@ void physics::algorithms::find_maxmin_eigenvalue(hmc_float& max, hmc_float& min,
 
 }
 
+static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix;
+	using physics::lattices::Spinorfield;
+
+	return ::find_min_knowing_max<Fermionmatrix, Spinorfield, spinor>(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
 static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix_stagg_eo;
+	using physics::lattices::Staggeredfield_eo;
+
+	return ::find_min_knowing_max<Fermionmatrix_stagg_eo, Staggeredfield_eo, su3vec>(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
+template<class FERMIONMATRIX, class SPINORFIELD, class BASETYPE> static hmc_float find_min_knowing_max(const hmc_float max, const FERMIONMATRIX& A, const physics::lattices::Gaugefield& gf,
                                       const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
                                       hmc_float prec, const physics::AdditionalParameters& additionalParameters)
 {
@@ -159,12 +248,12 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
 
     //This field is the starting point and it must be random (we have to be sure
     //to have a non zero component along the eigenvectors referring to the smallest eigenvalue)
-    Staggeredfield_eo v1(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
-    pseudo_randomize<Staggeredfield_eo, su3vec>(&v1, 321);
+    SPINORFIELD v1(system, interfacesHandler.getInterface<SPINORFIELD>());
+    pseudo_randomize<SPINORFIELD, BASETYPE>(&v1, 321);
     log_squarenorm(create_log_prefix_find_min(0) + "v1 (initial): ", v1);
     sax(&v1, { 1. / sqrt(squarenorm(v1)), 0. }, v1);   //v1 is now normalized
     //Auxiliary field
-    Staggeredfield_eo v2(system, interfacesHandler.getInterface<physics::lattices::Staggeredfield_eo>());
+    SPINORFIELD v2(system, interfacesHandler.getInterface<SPINORFIELD>());
     //How often to check resid
     const physics::algorithms::MinMaxEigenvalueParametersInterface & parametersInterface = interfacesHandler.getMinMaxEigenvalueParametersInterface();
     const int RESID_CHECK_FREQUENCY = parametersInterface.getFindMinMaxIterationBlockSize();
@@ -172,9 +261,12 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
     log_squarenorm(create_log_prefix_find_min(0) + "v1 (initial): ", v1);
     log_squarenorm(create_log_prefix_find_min(0) + "v2 (initial) [not-initialized]: ", v2);
 
+    physics::lattices::Scalar<hmc_float> factor(system);
+    factor.store(-1.0);
+
     for (unsigned int i = 0; i < parametersInterface.getFindMinMaxMaxValue(); i++) {
         //Apply (max-A) onto v1
-        A(&v2, gf, v1, &additionalParameters);
+        A(&v2, gf, v1, additionalParameters);
         saxpby(&v2, { max, 0. }, v1, { -1., 0. }, v2);   //Now in v2 there is (max-A)*v1
         if(i % 100 == 0)
             log_squarenorm(create_log_prefix_find_min(i) + "v2: ", v2);
@@ -184,7 +276,7 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
             log_squarenorm(create_log_prefix_find_min(i) + "v2: ", v2);
         //Check whether the algorithm converged
         if(i % RESID_CHECK_FREQUENCY == 0) {
-            saxpy(&v1, { -1., 0. }, v1, v2);   //Here I can use v1 as container, the important is not
+            saxpy(&v1, factor, v1, v2);   //Here I can use v1 as container, the important is not
                                                //to modify v2 that will be copied in v1
             log_squarenorm(create_log_prefix_find_min(i) + "v1: ", v1);
             resid = sqrt(squarenorm(v1));
@@ -193,7 +285,7 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
 
             if(resid < prec) {
                 //Apply (max-A) onto v2
-                A(&v1, gf, v2, &additionalParameters);
+                A(&v1, gf, v2, additionalParameters);
                 saxpby(&v1, { max, 0. }, v2, { -1., 0. }, v1);   //Now in v1 there is (max-A)*v2
                 scalar_product(&min, v2, v1);
                 hmc_complex result = min.get();
@@ -215,6 +307,7 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
     throw solvers::SolverDidNotSolve(parametersInterface.getFindMinMaxMaxValue(), __FILE__, __LINE__);
 
 }
+
 
 static std::string create_log_prefix_find(std::string name, int number) noexcept
 {

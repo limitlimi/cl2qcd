@@ -34,6 +34,9 @@ namespace physics {
         hmc_observables perform_rhmc_step(const Rational_Approximation& approx1, const Rational_Approximation& approx2, const Rational_Approximation& approx3,
                                           const physics::lattices::Gaugefield * gf, int iter, hmc_float rnd_number, physics::PRNG& prng, const hardware::System& system,
                                           physics::InterfacesHandler& interfacesHandler);
+        hmc_observables perform_wilson_rhmc_step(const Rational_Approximation& approx1, const Rational_Approximation& approx2, const Rational_Approximation& approx3,
+                                                  const physics::lattices::Gaugefield * gf, int iter, hmc_float rnd_number, physics::PRNG& prng, const hardware::System& system,
+                                                  physics::InterfacesHandler& interfacesHandler);
 
     }
 }

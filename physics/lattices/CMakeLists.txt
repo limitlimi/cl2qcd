@@ -35,6 +35,7 @@ target_link_libraries(gaugefield
 
 add_library(lattices
 	spinorfield.cpp
+	rooted_spinorfield.cpp
 	spinorfield_eo.cpp
 	scalar_complex.cpp
 	algebra_real.cpp
@@ -66,3 +67,5 @@ add_unit_test_withLibraries(physics::lattices::Algebra_Real algebra_real_test la
 add_unit_test_withLibraries(physics::lattices::Vector vector_test lattices)
 
 add_unit_test(physics::lattices::Rooted_Staggeredfield_eo rooted_staggeredfield_eo_test)
+
+add_unit_test(physics::lattices::Rooted_Spinorfield rooted_spinorfield_test)

@@ -138,6 +138,7 @@ static std::string collect_build_options(const hardware::Device * device, const 
 	}
 	if(check_Spinor_for_SOA(device)) {
 		options << " -D EOPREC_SPINORFIELD_STRIDE=" << get_Spinor_buffer_stride(get_vol4d(mem_size)/2, device);
+		options << " -D SPINORFIELD_STRIDE=" << get_Spinor_buffer_stride(get_vol4d(mem_size), device);
 	}
 	if(check_su3vec_for_SOA(device)) {
 		options << " -D EOPREC_SU3VECFIELD_STRIDE=" << get_su3vec_buffer_stride(get_vol4d(mem_size)/2, device);

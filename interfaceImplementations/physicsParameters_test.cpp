@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_SUITE(testWilsonAdditionalParameters)
         BOOST_CHECK_EQUAL(test.getKappa(), params->get_kappa());
         BOOST_CHECK_EQUAL(test.getMubar(), meta::get_mubar(*params));
         BOOST_REQUIRE_THROW(test.getMass(), Print_Error_Message);
-        BOOST_REQUIRE_THROW(test.getConservative(), Print_Error_Message);
+        BOOST_CHECK_EQUAL(test.getConservative(), false);
     }
 
     BOOST_AUTO_TEST_CASE(withMassPreconditioning)
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_SUITE(testWilsonAdditionalParameters)
         BOOST_CHECK_EQUAL(test.getKappa(), params->get_kappa_mp());
         BOOST_CHECK_EQUAL(test.getMubar(), meta::get_mubar_mp(*params));
         BOOST_REQUIRE_THROW(test.getMass(), Print_Error_Message);
-        BOOST_REQUIRE_THROW(test.getConservative(), Print_Error_Message);
+        BOOST_CHECK_EQUAL(test.getConservative(), false);
     }
 
 BOOST_AUTO_TEST_SUITE_END()

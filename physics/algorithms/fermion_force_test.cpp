@@ -2,6 +2,7 @@
  * Tests of the fermion force algorithms
  *
  * Copyright (c) 2013 Matthias Bach <bach@compeng.uni-frankfurt.de>
+ * Copyright (c) 2016 Christopher Czaban <czaban@th.physik.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
@@ -30,6 +31,7 @@
 #include "../../interfaceImplementations/interfacesHandler.hpp"
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
+#include "find_minmax_eigenvalue.hpp"
 
 BOOST_AUTO_TEST_CASE(fermion_force)
 {
@@ -80,6 +82,68 @@ BOOST_AUTO_TEST_CASE(fermion_force)
 		physics::algorithms::fermion_force(&gm, sf1, sf2, gf, interfacesHandler.getAdditionalParameters<Spinorfield>());
 		BOOST_CHECK_CLOSE(squarenorm(gm), 3561.5546616746424, 0.01);
 	}
+
+	{
+			using namespace physics::lattices;
+			const char * _params[] = {"foo", "--ntime=4"};
+			meta::Inputparameters params(2, _params);
+	        physics::InterfacesHandlerImplementation interfacesHandler{params};
+	        hardware::HardwareParametersImplementation hP(&params);
+	        hardware::code::OpenClKernelParametersImplementation kP(params);
+	        hardware::System system(hP, kP);
+			physics::PrngParametersImplementation prngParameters{params};
+			physics::PRNG prng{system, &prngParameters};
+
+			Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+			Spinorfield sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+			Spinorfield sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+			Gaugemomenta gm(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
+
+			pseudo_randomize<Spinorfield, spinor>(&sf1, 13);
+			gm.zero();
+
+			physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::Spinorfield>());
+
+			BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055206667035, 1e-6);
+
+		}
+}
+
+BOOST_AUTO_TEST_CASE(fermion_force_shifted)
+{
+	using namespace physics::lattices;
+	using namespace physics::algorithms;
+
+	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+	meta::Inputparameters params(3, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+	const physics::algorithms::RhmcParametersInterface & parametersInterface = interfacesHandler.getRhmcParametersInterface();
+
+	Rational_Approximation approx(25, 99999999,100000000, 1.e-5,1); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
+
+	physics::fermionmatrix::QplusQminus Qpm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
+	hmc_float minEigen, maxEigen;
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	Gaugemomenta gm(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
+
+	find_maxmin_eigenvalue(maxEigen, minEigen, Qpm, gf, system, interfacesHandler, parametersInterface.getFindMinMaxPrec(), interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield>());
+
+	wilson::Rooted_Spinorfield sf1(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
+
+	sf1.Rescale_Coefficients(approx, minEigen, maxEigen);
+
+	pseudo_randomize<Spinorfield, spinor>(&sf1, 13); //it will be A
+
+	gm.zero();
+	physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>());
+	//TODO: Result still has to be checked by true analytic test
+	BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055042961729, 1.e-6);
 }
 
 BOOST_AUTO_TEST_CASE(fermion_force_eo)

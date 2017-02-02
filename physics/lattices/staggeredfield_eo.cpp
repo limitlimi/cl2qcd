@@ -127,7 +127,7 @@ void physics::lattices::squarenorm(const Scalar<hmc_float>* res, const Staggered
 	res->sum();
 }
 
-void physics::lattices::Staggeredfield_eo::set_zero() const
+void physics::lattices::Staggeredfield_eo::setZero() const
 {
 for(auto buffer: staggeredFieldEo.get_buffers()) {
 		auto spinor_code = buffer->get_device()->getSpinorStaggeredCode();
@@ -143,7 +143,7 @@ for(auto buffer: staggeredFieldEo.get_buffers()) {
 	}
 }
 
-void physics::lattices::Staggeredfield_eo::set_gaussian(const physics::PRNG& prng) const
+void physics::lattices::Staggeredfield_eo::setGaussian(const physics::PRNG& prng) const
 {
 	auto prng_bufs = prng.get_buffers();
 

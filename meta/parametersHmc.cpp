@@ -119,3 +119,4 @@ bool ParametersHmc::get_use_mp() const noexcept
 {
 	return use_mp;
 }
+

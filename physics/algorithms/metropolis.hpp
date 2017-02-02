@@ -28,6 +28,7 @@
 #include "../lattices/spinorfield.hpp"
 #include "../lattices/spinorfield_eo.hpp"
 #include "../lattices/rooted_staggeredfield_eo.hpp"
+#include "../lattices/rooted_spinorfield.hpp"
 #include "../lattices/gaugemomenta.hpp"
 #include "../../common_header_files/types_hmc.h"
 #include "../interfacesHandler.hpp"
@@ -37,6 +38,8 @@ namespace physics {
 
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield& phi, const hardware::System& system,
                                  physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
+        hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
+        						 physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                  physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,
@@ -57,6 +60,11 @@ namespace physics {
                                    const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
                                    const physics::lattices::Spinorfield_eo& phi, const hmc_float spinor_energy_init, const physics::lattices::Spinorfield_eo * const phi_mp,
                                    const hmc_float spinor_energy_mp_init, const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
+        hmc_observables metropolis(const hmc_float rnd, const hmc_float beta, const physics::lattices::Gaugefield& gf,
+        						   const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
+								   const physics::lattices::wilson::Rooted_Spinorfield& phi, const hmc_float spinor_energy_init,
+								   const physics::lattices::wilson::Rooted_Spinorfield* const phi_mp, const hmc_float spinor_energy_mp_init, const hardware::System& system,
+								   physics::InterfacesHandler& interfacesHandler);
         hmc_observables metropolis(const hmc_float rnd, const hmc_float beta, const physics::lattices::Gaugefield& gf,
                                    const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
                                    const physics::lattices::Rooted_Staggeredfield_eo& phi, const hmc_float spinor_energy_init,

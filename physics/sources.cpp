@@ -33,7 +33,7 @@ void physics::set_point_source(const physics::lattices::Spinorfield * spinorfiel
 		throw std::invalid_argument("k must be within 0..11");
 	}
 
-	spinorfield->zero();
+	spinorfield->setZero();
 
 	auto buffers = spinorfield->get_buffers();
 
@@ -51,7 +51,7 @@ void physics::set_point_source(const physics::lattices::Spinorfield * spinorfiel
 
 void physics::set_volume_source(const physics::lattices::Spinorfield * spinorfield, const PRNG& prng)
 {
-	spinorfield->zero();
+	spinorfield->setZero();
 
 	auto buffers = spinorfield->get_buffers();
 
@@ -67,7 +67,7 @@ void physics::set_volume_source(const physics::lattices::Spinorfield * spinorfie
 
 void physics::set_timeslice_source(const physics::lattices::Spinorfield * spinorfield, const PRNG& prng, int t_pos)
 {
-	spinorfield->zero();
+	spinorfield->setZero();
 
 	auto buffers = spinorfield->get_buffers();
 
@@ -85,7 +85,7 @@ void physics::set_timeslice_source(const physics::lattices::Spinorfield * spinor
 
 void physics::set_zslice_source(const physics::lattices::Spinorfield * spinorfield, const PRNG& prng, int z)
 {
-	spinorfield->zero();
+	spinorfield->setZero();
 
 	auto buffers = spinorfield->get_buffers();
 

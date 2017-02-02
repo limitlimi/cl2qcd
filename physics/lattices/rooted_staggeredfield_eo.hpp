@@ -24,51 +24,45 @@
 
 #include "../../hardware/system.hpp"
 #include "../algorithms/rational_approximation.hpp"
-//This is to make the template pseudo_randomize friend of this class
-#include "util.hpp"
+#include "staggeredfield_eo.hpp"
+#include "util.hpp" //This is to make the template pseudo_randomize friend of this class
 
 /**
  * This namespace contains the lattices of the various kind,
  * that is storage of the lattice values as a whole.
  */
 namespace physics {
-namespace lattices {
+	namespace lattices {
 
-/**
- * Representation of a rooted staggeredfield (with eo preconditioning).
- */
-class Rooted_Staggeredfield_eo : public Staggeredfield_eo, public physics::algorithms::Rational_Coefficients{
+		/**
+		 * Representation of a rooted staggeredfield (with eo preconditioning).
+		 */
+		class Rooted_Staggeredfield_eo : public Staggeredfield_eo, public physics::algorithms::Rational_Coefficients{
 
-public:
-	/**
-	 * Construct a rooted staggeredfield based on the input-files of the system
-	 */
-	Rooted_Staggeredfield_eo(const hardware::System&, const RootedStaggeredfieldEoParametersInterface&);
-	Rooted_Staggeredfield_eo(const hardware::System&, const RootedStaggeredfieldEoParametersInterface&, const physics::algorithms::Rational_Approximation& approx);
+			public:
+				/**
+				 * Construct a rooted staggeredfield based on the input-files of the system
+				 */
+				Rooted_Staggeredfield_eo(const hardware::System&, const RootedStaggeredfieldEoParametersInterface&);
+				Rooted_Staggeredfield_eo(const hardware::System&, const RootedStaggeredfieldEoParametersInterface&, const physics::algorithms::Rational_Approximation& approx);
 
-	virtual ~Rooted_Staggeredfield_eo(){}
+				virtual ~Rooted_Staggeredfield_eo(){}
 
-	/**
-	 * Staggeredfield_eo cannot be copied
-	 */
-	Rooted_Staggeredfield_eo& operator=(const Rooted_Staggeredfield_eo&) = delete;
-	Rooted_Staggeredfield_eo(const Rooted_Staggeredfield_eo&) = delete;
-	Rooted_Staggeredfield_eo() = delete;
+			/**
+			 	 * Rescale coefficients on the basis of a Rational_Approximation objects
+			 */
+				void Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue);
+				/**
+				 * Staggeredfield_eo cannot be copied
+				 */
+				Rooted_Staggeredfield_eo& operator=(const Rooted_Staggeredfield_eo&) = delete;
+				Rooted_Staggeredfield_eo(const Rooted_Staggeredfield_eo&) = delete;
+				Rooted_Staggeredfield_eo() = delete;
 
-	/**
-	 * Rescale coefficients on the basis of a Rational_Approximation objects
-	 *  @param A The fermionic operator to calculate the eigenvalues from
-	 *  @param gf The gaugefield which A depends on
-	 *  @param system The system it is operated on
-	 *  @param prec The precision to calculate the eigenvalues up
-	 *  @param conservative If true, the maximum eigenvalue found by find_maxmin_eigenvalue is
-	 *                      increased by 5% and the minimum one is set to the squared mass of the
-	 *                      fermions. This circumvents possible numeric errors.
-	 */
-	void Rescale_Coefficients(const physics::algorithms::Rational_Approximation& approx, const hmc_float minEigenvalue, const hmc_float maxEigenvalue);
-};
+				friend void pseudo_randomize<Rooted_Staggeredfield_eo, su3vec>(const Rooted_Staggeredfield_eo* to, int seed);
+		};
 
-}
+	}
 }
 
 #endif /*_PHYSICS_LATTICES_ROOTED_STAGGEREDFIELD_EO_ */
