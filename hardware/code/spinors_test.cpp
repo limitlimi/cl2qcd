@@ -724,12 +724,12 @@ void testEvenOddSaxpy(const LatticeExtents lE, const ComplexNumbers cN)
 
 void testEvenOddSaxpyReal(const LatticeExtents lE, const ComplexNumbers cN)
 {
-	performTest<SaxpyRealEvenOddTester> (lE, cN, 3, false);
+	performTest<SaxpyRealEvenOddTester> (lE, cN, 3, true);
 }
 
 void testEvenOddSaxpyRealVec(const LatticeExtents lE, const ComplexNumbers cN)
 {
-	performTest<SaxpyRealVecEvenOddTester> (lE, cN, 3, false);
+	performTest<SaxpyRealVecEvenOddTester> (lE, cN, 3, true);
 }
 
 void testEvenOddSaxpyArg(const LatticeExtents lE, const ComplexNumbers cN)
@@ -1270,17 +1270,17 @@ BOOST_AUTO_TEST_SUITE(SAXPY_EO)
 		testEvenOddSaxpyReal(LatticeExtents{ns4, nt8}, ComplexNumbers {{-1.,0.}});
 	}
 
-	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_1 )
+	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_EO_1 )
 	{
 		testEvenOddSaxpyRealVec( LatticeExtents{ns4,nt4}, ComplexNumbers {{0.,0.}});
 	}
 
-	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_2 )
+	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_EO_2 )
 	{
 		testEvenOddSaxpyRealVec( LatticeExtents{ns8,nt4}, ComplexNumbers {{1.,0.}});
 	}
 
-	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_3 )
+	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_EO_3 )
 	{
 		testEvenOddSaxpyRealVec( LatticeExtents{ns4,nt8}, ComplexNumbers {{-1.,0.}});
 	}

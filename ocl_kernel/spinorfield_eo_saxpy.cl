@@ -21,7 +21,7 @@
  
 //alpha*x +y	
 //CC: defined with a plus!!!
- __kernel void saxpy_real_vec(__global const spinorStorageType * const x, __global const spinorStorageType * const y, __global const hmc_float * alpha, const int index_alpha, __global spinorStorageType * const out)
+ __kernel void saxpy_eoprec_real_vec(__global const spinorStorageType * const x, __global const spinorStorageType * const y, __global const hmc_float * alpha, const int index_alpha, __global spinorStorageType * const out)
 {
 	int id = get_global_id(0);
 	int global_size = get_global_size(0);
@@ -35,6 +35,8 @@
 	}
 }
 
+
+
 //alpha*x +y
 //CC: defined with a plus!!!
 __kernel void saxpy_eoprec_real(__global const spinorStorageType * const x, __global const spinorStorageType * const y, __global const hmc_float * const alpha, __global spinorStorageType * const out)
@@ -45,11 +47,12 @@ __kernel void saxpy_eoprec_real(__global const spinorStorageType * const x, __gl
 	for(int id_mem = id; id_mem < EOPREC_SPINORFIELDSIZE_MEM; id_mem += global_size) {
 		spinor x_tmp = getSpinor_eo(x, id_mem);
 		spinor y_tmp = getSpinor_eo(y, id_mem);
-		x_tmp = real_multiply_spinor(x_tmp, alpha);
+		x_tmp = real_multiply_spinor(x_tmp, *alpha);
 		x_tmp = spinor_acc(y_tmp, x_tmp);
 		putSpinor_eo(out, id_mem, x_tmp);
 	}
 }
+
 
 // -alpha*x + y
 //CP: defined with a minus!!!
