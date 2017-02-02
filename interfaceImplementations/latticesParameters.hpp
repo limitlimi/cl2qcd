@@ -151,7 +151,7 @@ namespace physics {
                 const meta::Inputparameters& parameters;
         };
 
-        class RootedSpinorfieldParametersImplementation: public RootedSpinorfieldParametersInterface, private SpinorfieldParametersImplementation{
+        class RootedSpinorfieldParametersImplementation final: public RootedSpinorfieldParametersInterface, private SpinorfieldParametersImplementation{
 
         	public:
         		RootedSpinorfieldParametersImplementation() = delete;
@@ -200,6 +200,30 @@ namespace physics {
             private:
                 const meta::Inputparameters& parameters;
         };
+
+        class RootedSpinorfieldEoParametersImplementation final: public RootedSpinorfieldEoParametersInterface, private SpinorfieldEoParametersImplementation{
+
+                	public:
+                		RootedSpinorfieldEoParametersImplementation() = delete;
+                		RootedSpinorfieldEoParametersImplementation(const meta::Inputparameters& paramsIn)
+                				: SpinorfieldEoParametersImplementation(paramsIn), parameters(paramsIn)
+                		{
+                		}
+                		~RootedSpinorfieldEoParametersImplementation()
+                		{
+                		}
+                		unsigned getMetropolisRationalApproximationOrder() const override
+           				{
+                			return parameters.get_metro_approx_ord();
+           				}
+                		unsigned getMolecularDynamicsRationalApproximationOrder() const override
+                		{
+                			return parameters.get_md_approx_ord();
+                		}
+                	private:
+                		const meta::Inputparameters& parameters;
+
+                };
 
         class StaggeredfieldEoParametersImplementation : public StaggeredfieldEoParametersInterface {
             public:

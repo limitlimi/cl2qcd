@@ -37,6 +37,7 @@ add_library(lattices
 	spinorfield.cpp
 	rooted_spinorfield.cpp
 	spinorfield_eo.cpp
+	rooted_spinorfield_eo.cpp
 	scalar_complex.cpp
 	algebra_real.cpp
 	swappable_spinorfield.cpp
@@ -69,3 +70,4 @@ add_unit_test_withLibraries(physics::lattices::Vector vector_test lattices)
 add_unit_test(physics::lattices::Rooted_Staggeredfield_eo rooted_staggeredfield_eo_test)
 
 add_unit_test(physics::lattices::Rooted_Spinorfield rooted_spinorfield_test)
+add_unit_test(physics::lattices::Rooted_Spinorfield_eo rooted_spinorfield_eo_test)

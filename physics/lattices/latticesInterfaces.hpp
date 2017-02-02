@@ -76,6 +76,13 @@ namespace physics {
         //Pure virtual destructors must be implemented outside the class! (inline for multiple inclusion of header)
         inline SpinorfieldEoParametersInterface::~SpinorfieldEoParametersInterface(){}
 
+        class RootedSpinorfieldEoParametersInterface: public SpinorfieldEoParametersInterface {
+               	public:
+               		virtual ~RootedSpinorfieldEoParametersInterface(){}
+               		virtual unsigned getMetropolisRationalApproximationOrder() const = 0;
+               		virtual unsigned getMolecularDynamicsRationalApproximationOrder() const = 0;
+               };
+
         class StaggeredfieldEoParametersInterface {
             public:
                 virtual ~StaggeredfieldEoParametersInterface(){}

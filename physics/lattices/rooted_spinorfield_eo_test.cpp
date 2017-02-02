@@ -1,7 +1,7 @@
 /** @file
- * Unit test for the physics::lattices::Rooted_Spinorfield class
+ * Unit test for the physics::lattices::Rooted_Spinorfield_eo class
  *
- * Copyright (c) 2016 Christopher Czaban <czaban@th.physik.uni-frankfurt.de>
+ * Copyright (c) 2017 Christopher Czaban <czaban@th.physik.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
@@ -19,12 +19,12 @@
  * along with CL2QCD.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "rooted_spinorfield.hpp"
+#include "rooted_spinorfield_eo.hpp"
 #include "util.hpp"
 
 // use the boost test framework
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE physics::lattice::wilson::Rooted_Spinorfield
+#define BOOST_TEST_MODULE physics::lattice::wilson::Rooted_Spinorfield_eo
 #include <boost/test/unit_test.hpp>
 
 #include "../../interfaceImplementations/interfacesHandler.hpp"
@@ -45,17 +45,20 @@ BOOST_AUTO_TEST_CASE(initialization)
     hardware::code::OpenClKernelParametersImplementation kP(params);
     hardware::System system(hP, kP);
 	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
 	logger.debug() << "Devices: " << system.get_devices().size();
 
-	wilson::Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
+	wilson::Rooted_Spinorfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield_eo>());
 	physics::algorithms::Rational_Approximation approx(3,1,4,1e-5,1);
-	wilson::Rooted_Spinorfield sf2(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>(), approx);
+	wilson::Rooted_Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield_eo>(), approx);
 
 	hmc_float rc = sf2.Get_order();
 
-	pseudo_randomize<wilson::Rooted_Spinorfield, spinor>(&sf, 13);
+	sf.gaussian(prng);
+//	pseudo_randomize<wilson::Rooted_Spinorfield_eo, spinor>(&sf, 13);
 
-	log_squarenorm("sq. Rooted_Spinorfield: ",sf);
+	log_squarenorm("sq. Rooted_Spinorfield_eo: ",sf);
 
 	logger.debug() << "Rational coefficients order: " << rc;
 }
@@ -73,7 +76,7 @@ BOOST_AUTO_TEST_CASE(rescale)
     hardware::code::OpenClKernelParametersImplementation kP(params);
     hardware::System system(hP, kP);
     physics::InterfacesHandlerImplementation interfacesHandler{params};
-    Rooted_Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield>());
+    Rooted_Spinorfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield_eo>());
 
 	//Min and max eigenvalues for conservative and not conservative case
 	hmc_float minEigenvalue = 0.3485318319429664;
