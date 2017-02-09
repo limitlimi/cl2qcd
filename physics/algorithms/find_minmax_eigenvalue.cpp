@@ -33,6 +33,9 @@ static std::string create_log_prefix_find_min(int number) noexcept;
 static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
                                       const hardware::System& system,  physics::InterfacesHandler& interfacesHandler,
                                       hmc_float prec, const physics::AdditionalParameters& additionalParameters);
+static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix_eo& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system,  physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,
                                       const hardware::System& system,  physics::InterfacesHandler& interfacesHandler,
                                       hmc_float prec, const physics::AdditionalParameters& additionalParameters);
@@ -135,6 +138,16 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 	return ::find_max_eigenvalue<Fermionmatrix, Spinorfield, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
 }
 
+hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_eo& A, const physics::lattices::Gaugefield& gf,
+        											const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+													const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix_eo;
+	using physics::lattices::Spinorfield_eo;
+
+//	return ::find_max_eigenvalue<Fermionmatrix_eo, Spinorfield_eo, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
 hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                                    const physics::AdditionalParameters& additionalParameters)
@@ -190,6 +203,29 @@ void physics::algorithms::find_maxmin_eigenvalue(hmc_float& max, hmc_float& min,
 
 }
 
+void physics::algorithms::find_maxmin_eigenvalue(hmc_float& max, hmc_float& min, const physics::fermionmatrix::Fermionmatrix_eo& A,
+                                                 const physics::lattices::Gaugefield& gf, const hardware::System& system,
+                                                 physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                 const physics::AdditionalParameters& additionalParameters)
+{
+    //This timer is to know how long this function takes
+    klepsydra::Monotonic timer;
+
+    max = find_max_eigenvalue(A, gf, system, interfacesHandler, prec, additionalParameters);
+
+    if(additionalParameters.getConservative()){
+        min = A.getThresholdForMinimumEigenvalue(additionalParameters.getKappa());
+        max *= 1.05;
+    }else{
+        min = find_min_knowing_max(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+    }
+
+    //Here we are sure the eigenvalue is correctly found, then we get the duration
+    const uint64_t duration = timer.getTime();
+    logger.debug() << "Find_maxmin_eig completed in " << duration / 1000.f << " ms.";
+
+}
+
 void physics::algorithms::find_maxmin_eigenvalue(hmc_float& max, hmc_float& min, const physics::fermionmatrix::Fermionmatrix_stagg_eo& A,
                                                  const physics::lattices::Gaugefield& gf, const hardware::System& system,
                                                  physics::InterfacesHandler& interfacesHandler, hmc_float prec,
@@ -221,6 +257,16 @@ static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermio
 	using physics::lattices::Spinorfield;
 
 	return ::find_min_knowing_max<Fermionmatrix, Spinorfield, spinor>(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+}
+
+static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix_eo& A, const physics::lattices::Gaugefield& gf,
+                                      const hardware::System& system, physics::InterfacesHandler& interfacesHandler,
+                                      hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::Fermionmatrix_eo;
+	using physics::lattices::Spinorfield_eo;
+
+	return ::find_min_knowing_max<Fermionmatrix_eo, Spinorfield_eo, spinor>(max, A, gf, system, interfacesHandler, prec, additionalParameters);
 }
 
 static hmc_float find_min_knowing_max(const hmc_float max, const physics::fermionmatrix::Fermionmatrix_stagg_eo& A, const physics::lattices::Gaugefield& gf,

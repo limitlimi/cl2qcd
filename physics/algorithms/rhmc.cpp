@@ -153,10 +153,10 @@ hmc_observables physics::algorithms::perform_rhmc_step(const physics::algorithms
     	 if(parametersInterface.getUseEo() == false) {
     		 return ::perform_rhmc_step<wilson::Rooted_Spinorfield, QplusQminus>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
     	 }
-//    	 else if(parametersInterface.getUseEo() == true)
-//		 {
+    	 else if(parametersInterface.getUseEo() == true)
+		 {
 //    		 return ::perform_rhmc_step<wilson::Rooted_Spinorfield_eo, QplusQminus_eo>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
-//		 }
+		 }
     	 else {
     		 throw Print_Error_Message("Wilson RHMC algorithm not implemented for even-odd preconditioned fields!", __FILE__, __LINE__);
     	 }

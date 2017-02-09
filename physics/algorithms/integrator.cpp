@@ -558,6 +558,12 @@ void physics::algorithms::integrator(const physics::lattices::Gaugemomenta * con
     ::integrator(gm, gf, phi, system, interfaceHandler);
 }
 void physics::algorithms::integrator(const physics::lattices::Gaugemomenta * const gm, const physics::lattices::Gaugefield * const gf,
+        const physics::lattices::wilson::Rooted_Spinorfield_eo& phi, const hardware::System& system, physics::InterfacesHandler& interfaceHandler)
+{
+	logger.error() << "\tRHMC:\tcall integrator template function";
+    ::integrator(gm, gf, phi, system, interfaceHandler);
+}
+void physics::algorithms::integrator(const physics::lattices::Gaugemomenta * const gm, const physics::lattices::Gaugefield * const gf,
         const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system, physics::InterfacesHandler& interfaceHandler)
 {
     ::integrator(gm, gf, phi, system, interfaceHandler);

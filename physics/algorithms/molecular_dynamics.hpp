@@ -27,6 +27,7 @@
 #include "../lattices/spinorfield.hpp"
 #include "../lattices/spinorfield_eo.hpp"
 #include "../lattices/rooted_staggeredfield_eo.hpp"
+#include "../lattices/rooted_spinorfield_eo.hpp"
 #include "../lattices/gaugemomenta.hpp"
 #include "rational_approximation.hpp"
 #include "../interfacesHandler.hpp"
@@ -64,6 +65,9 @@ namespace physics {
         							 const physics::lattices::wilson::Rooted_Spinorfield& phi, const hardware::System& system,
 									 physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
         void md_update_gaugemomentum(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
+        							 const physics::lattices::wilson::Rooted_Spinorfield_eo& phi, const hardware::System& system,
+									 physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
+        void md_update_gaugemomentum(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
                                      const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,
                                      physics::InterfacesHandler& interfaceHandler, const physics::AdditionalParameters& additionalParameters);
 
@@ -78,6 +82,10 @@ namespace physics {
         void md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps,
         									 const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield& phi,
 											 const hardware::System& system, physics::InterfacesHandler& interfaceHandler,
+											 const physics::AdditionalParameters& additionalParameters);
+        void md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps,
+        									 const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield_eo& phi,
+        									 const hardware::System& system, physics::InterfacesHandler& interfaceHandler,
 											 const physics::AdditionalParameters& additionalParameters);
         void md_update_gaugemomentum_fermion(const physics::lattices::Gaugemomenta * const inout, hmc_float eps, const physics::lattices::Gaugefield& gf,
                                              const physics::lattices::Rooted_Staggeredfield_eo& phi, const hardware::System& system,

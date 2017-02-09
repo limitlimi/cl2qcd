@@ -57,6 +57,9 @@ namespace physics {
         hmc_float find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
                 const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                 const physics::AdditionalParameters& additionalParameters);
+        hmc_float find_max_eigenvalue(const physics::fermionmatrix::Fermionmatrix_eo& A, const physics::lattices::Gaugefield& gf,
+                        const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                        const physics::AdditionalParameters& additionalParameters);
 
         /**
          * This function returns the minimum eigenvalue of the operator A up to some specified precision.
@@ -108,7 +111,10 @@ namespace physics {
                                                          const physics::lattices::Gaugefield& gf, const hardware::System& system,
                                                          physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                                          const physics::AdditionalParameters& additionalParameters);
-
+        void find_maxmin_eigenvalue(hmc_float& max, hmc_float& min, const physics::fermionmatrix::Fermionmatrix_eo& A,
+                                                                 const physics::lattices::Gaugefield& gf, const hardware::System& system,
+                                                                 physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                                 const physics::AdditionalParameters& additionalParameters);
     }
 
 }

@@ -53,7 +53,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
          * The first inversion calculates
          * X_even = phi = (Qplusminus_eo)^-1 psi
          * out of
-         * Qplusminus_eo phi_even = psi
+         * QplusQminus_eo phi_even = psi
          */
         logger.debug() << "\t\t\tstart solver";
 
@@ -167,6 +167,87 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     //logger.debug() << "\t\tcalc eoprec fermion_force F(Y_odd, X_even)...";
     //Calc F(Y_odd, X_even) = F(clmem_tmp_eo_1, clmem_inout_eo)
     fermion_force(force, tmp_1, solution, ODD, gf, additionalParameters);
+}
+
+void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
+                                             const physics::lattices::wilson::Rooted_Spinorfield_eo& phi, const hardware::System& system,
+                                             physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+
+	//Implement calculation of fermion force for eo rooted spinorfields here!!!
+
+//	logger.error() << "\tRHMC [MET]:\tcomputing the fermion force ";
+//	using physics::lattices::Spinorfield_eo;
+//	using namespace physics::algorithms::solvers;
+//	using namespace physics::fermionmatrix;
+//
+//	const physics::algorithms::ForcesParametersInterface & parametersInterface = interfacesHandler.getForcesParametersInterface();
+//
+//	std::vector<std::shared_ptr<Spinorfield_eo>> X_e; //Contains solution vectors (X_e)_i
+//	std::vector<std::shared_ptr<Spinorfield_eo>> Y_e; //Will be Y_e = Q * X_e  (before: phi_inv)
+//	for (int i = 0; i < phi.Get_order(); i++) {
+//		X_e.emplace_back(std::make_shared<Spinorfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>()));
+//		Y_e.emplace_back(std::make_shared<Spinorfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>()));
+//	}
+//
+//	logger.debug() << "\t\tcalc fermion_force...";
+//	//the source is already set, it is Dpsi, where psi is the initial gaussian spinorfield
+//
+//	/* The first inversion calculates
+//	 * X = phi = (QplusQminus)^-1 psi
+//	 * out of
+//	 * QplusQminus phi = psi
+//	 */
+//	logger.debug() << "\t\t\tstart solver";
+//
+//	const QplusQminus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
+//	cg_m(X_e, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+//
+//	/**
+//	 * Y_e is now just
+//	 *  Y_e = (Qminus) X_e = (Qminus) (Qplusminus)^-1 psi =
+//	 *    = (Qplus)^-1 psi
+//	 */
+//	const Qminus_eo qminus_eo(system, interfacesHandler.getInterface<physics::fermionmatrix::Qminus_eo>());
+//
+//	//for-loop
+//	for(int i = 0; i < phi.Get_order(); i++)
+//	{
+//		qminus_eo(Y_e[i].get(), gf, *X_e[i], additionalParameters);
+//	}
+//	std::vector<std::shared_ptr<Spinorfield_eo>> X_o;
+//	std::vector<std::shared_ptr<Spinorfield_eo>> Y_o;
+//
+//	for (int i = 0; i < phi.Get_order(); i++) {
+//		X_o.emplace_back(std::make_shared<Spinorfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>()));
+//		Y_o.emplace_back(std::make_shared<Spinorfield_eo>(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>()));
+//	}
+//
+//	physics::lattices::Gaugemomenta tmp(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
+//
+//	if(parametersInterface.getFermact() == common::action::wilson) {
+//		for (int i = 0; i < phi.Get_order(); i++) {
+//			dslash(X_o[i].get(), gf, *X_e[i], ODD, additionalParameters.getKappa());
+//			sax(X_o[i].get(), { -1., 0. }, *X_o[i]);
+//			tmp.zero();
+//			fermion_force(&tmp, *Y_e[i], *X_o[i], EVEN, gf, additionalParameters);
+//			physics::lattices::saxpy(force, (phi.Get_a())[i], tmp);
+//		}
+//	} else {
+//		throw Print_Error_Message("The selected fermion force has not been implemented.", __FILE__, __LINE__);
+//	}
+//
+//	if(parametersInterface.getFermact() == common::action::wilson) {
+//		for (int i = 0; i < phi.Get_order(); i++) {
+//			dslash(Y_o[i].get(), gf, *Y_e[i], ODD, additionalParameters.getKappa());
+//			sax(Y_o[i].get(), { -1., 0. }, *Y_o[i]);
+//			tmp.zero();
+//			fermion_force(&tmp, *Y_o[i], *X_e[i], ODD, gf, additionalParameters);
+//			physics::lattices::saxpy(force, (phi.Get_a())[i], tmp);
+//		}
+//	} else {
+//		throw Print_Error_Message("The selected fermion force has not been implemented.", __FILE__, __LINE__);
+//	}
 }
 
 void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,

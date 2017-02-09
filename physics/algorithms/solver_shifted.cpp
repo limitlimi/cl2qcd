@@ -55,6 +55,18 @@ int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::latt
     return solverShifted.getNumberOfIterationsDone();
 }
 
+int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::lattices::Spinorfield_eo> > x,
+                                       const physics::fermionmatrix::Fermionmatrix_eo& A,
+                                       const physics::lattices::Gaugefield& gf, const std::vector<hmc_float> sigma,
+                                       const physics::lattices::Spinorfield_eo& b, const hardware::System& system,
+                                       physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters)
+{
+//    physics::algorithms::solvers::SolverShifted<physics::lattices::Spinorfield_eo, physics::fermionmatrix::Fermionmatrix_eo>
+//    solverShifted(x, A, gf, sigma, b, system, interfacesHandler, prec, additionalParameters);
+//    x = solverShifted.solve();
+//    return solverShifted.getNumberOfIterationsDone();
+}
+
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::SolverShifted(const std::vector<std::shared_ptr<FERMIONFIELD> > xIn, const FERMIONMATRIX& AIn,
                                                                                         const physics::lattices::Gaugefield& gfIn, const std::vector<hmc_float> sigmaIn,

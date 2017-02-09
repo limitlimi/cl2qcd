@@ -60,7 +60,9 @@ namespace physics {
         void calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                 const physics::lattices::Spinorfield_eo& phi, const hardware::System& system,
                                 physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
-
+        void calc_fermion_force(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
+                						const physics::lattices::wilson::Rooted_Spinorfield_eo& phi, const hardware::System& system,
+        								physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         void calc_fermion_force_detratio(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,
                                          const physics::lattices::Spinorfield& phi_mp, const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
         void calc_fermion_force_detratio(const physics::lattices::Gaugemomenta * force, const physics::lattices::Gaugefield& gf,

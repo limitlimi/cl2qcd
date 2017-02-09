@@ -55,6 +55,11 @@ namespace physics {
 					const physics::lattices::Spinorfield& b, const hardware::System& system,
 					physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters);
 
+            int cg_m(const std::vector<std::shared_ptr<physics::lattices::Spinorfield_eo> > x, const physics::fermionmatrix::Fermionmatrix_eo& A,
+                       		const physics::lattices::Gaugefield& gf, const std::vector<hmc_float> sigma,
+           					const physics::lattices::Spinorfield_eo& b, const hardware::System& system,
+           					physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters);
+
             template<typename FERMIONFIELD, typename FERMIONMATRIX>
             class SolverShifted {
                 public:
