@@ -286,6 +286,10 @@ namespace physics {
     {
     	return getWilsonAdditionalParameters(withMassPreconditioning);
     }
+    template<> inline const physics::AdditionalParameters& InterfacesHandler::getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield_eo>(bool withMassPreconditioning)
+	{
+        	return getWilsonAdditionalParameters(withMassPreconditioning);
+    }
 
 
 }

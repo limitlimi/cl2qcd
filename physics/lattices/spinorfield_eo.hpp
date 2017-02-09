@@ -63,6 +63,7 @@ public:
 	Spinorfield_eo& operator=(const Spinorfield_eo&) = delete;
 	Spinorfield_eo(const Spinorfield_eo&) = delete;
 	Spinorfield_eo() = delete;
+	Spinorfield_eo(Spinorfield_eo&&) = default;
 
 	/**
 	 * Get the buffers containing the gaugefield state on the devices.
@@ -129,6 +130,12 @@ public:
 	 */
 	unsigned get_valid_halo_width() const;
 
+	void import(const spinor * const host) const;
+
+	/**
+	 * Get the number of elements.
+	 */
+	unsigned get_elements() const noexcept;
 
 private:
 	hardware::System const& system;
@@ -143,6 +150,7 @@ private:
 	friend void saxpy(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 	friend void sax(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x);
 	friend void saxsbypz(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const hmc_complex beta, const Spinorfield_eo& y, const Spinorfield_eo& z);
+	friend void pseudo_randomize<Spinorfield_eo, spinor>(const Spinorfield_eo* to, int seed);
 };
 
 /**
@@ -219,6 +227,13 @@ template<typename S, void (*T)(const S*, const hmc_complex, const S&, const S&)>
 template<> size_t get_flops<physics::lattices::Spinorfield_eo, physics::lattices::saxpy>(const hardware::System&);
 template<typename S, void (*T)(const S*, const hmc_complex, const S&, const S&)> size_t get_read_write_size(const hardware::System&);
 template<> size_t get_read_write_size<physics::lattices::Spinorfield_eo, physics::lattices::saxpy>(const hardware::System&);
+
+/**
+ * Perform the BLAS operation saxpby.
+ *
+ * out = alpha * x + beta * y
+ */
+void saxpby(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const hmc_complex beta, const Spinorfield_eo& y);
 
 /**
  * Perform the BLAS operation sax.

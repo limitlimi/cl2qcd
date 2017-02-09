@@ -197,6 +197,10 @@ namespace physics {
                 virtual ~SpinorfieldEoParametersImplementation()
                 {
                 }
+                unsigned getNumberOfElements() const override
+                {
+                	return meta::get_vol4d(parameters.get_ntime(), parameters.get_nspace())/2.;
+                }
             private:
                 const meta::Inputparameters& parameters;
         };
@@ -219,6 +223,10 @@ namespace physics {
                 		unsigned getMolecularDynamicsRationalApproximationOrder() const override
                 		{
                 			return parameters.get_md_approx_ord();
+                		}
+                		 unsigned getNumberOfElements() const override
+                		{
+                			 return SpinorfieldEoParametersImplementation::getNumberOfElements();
                 		}
                 	private:
                 		const meta::Inputparameters& parameters;

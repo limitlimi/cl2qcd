@@ -72,6 +72,7 @@ namespace physics {
         class SpinorfieldEoParametersInterface {
             public:
                 virtual ~SpinorfieldEoParametersInterface() = 0;
+                virtual unsigned getNumberOfElements() const = 0;
         };
         //Pure virtual destructors must be implemented outside the class! (inline for multiple inclusion of header)
         inline SpinorfieldEoParametersInterface::~SpinorfieldEoParametersInterface(){}

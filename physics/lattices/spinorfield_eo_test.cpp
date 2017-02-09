@@ -21,6 +21,7 @@
  */
 
 #include "spinorfield_eo.hpp"
+#include "util.hpp"
 
 // use the boost test framework
 #define BOOST_TEST_DYN_LINK
@@ -452,4 +453,24 @@ BOOST_AUTO_TEST_CASE(halo_update)
 	sf.require_halo();
 	new_squarenorm = physics::lattices::squarenorm(sf);
 	BOOST_CHECK_EQUAL(orig_squarenorm, new_squarenorm);
+}
+
+BOOST_AUTO_TEST_CASE(pseudorandomize)
+{
+	using physics::lattices::Spinorfield_eo;
+
+	const char * _params[] = {"foo", "--num_dev=1"};
+	meta::Inputparameters params(2, _params);
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+	Spinorfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+	sf.setZero();
+	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
+	physics::lattices::pseudo_randomize<Spinorfield_eo, spinor>(&sf, 123);
+	logger.info() << "The squarenorm of the pseudorandomized field is " << physics::lattices::squarenorm(sf);
 }

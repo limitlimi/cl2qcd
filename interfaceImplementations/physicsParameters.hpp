@@ -131,6 +131,10 @@ namespace physics{
             {
                 return fermionmatrix::FermionmatrixParametersImplementation::useMergedFermionicKernels();
             }
+            unsigned getNumberOfElements() const override
+            {
+            	return lattices::SpinorfieldEoParametersImplementation::getNumberOfElements();
+            }
     };
 
     class FermionStaggeredEoParametersImplementation: public FermionStaggeredEoParametersInterface,

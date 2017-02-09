@@ -116,6 +116,30 @@ void hardware::lattices::Spinorfield_eo::update_halo(unsigned width) const
 	}
 }
 
+void hardware::lattices::Spinorfield_eo::import(const spinor * const host) const
+{
+	logger.trace() << "importing spinorfield_eo";
+	if(buffers.size() == 1) {
+		buffers[0]->load(host);
+	} else {
+//		for(auto const buffer: buffers) {
+//			auto device = buffer->get_device();
+//
+////			//todo: put these calls into own fct.!
+//			TemporalParallelizationHandlerNonLink tmp2(device->getGridPos(), device->getLocalLatticeExtents(), sizeof(spinor), device->getHaloExtent());
+//			buffer->load( &host[tmp2.getMainPartIndex_source()] , tmp2.getMainPartSize());
+//			buffer->load( &host[tmp2.getFirstHaloPartIndex_source()] , tmp2.getHaloPartSize(), tmp2.getMainPartSize());
+//			buffer->load( &host[tmp2.getSecondHaloPartIndex_source()], tmp2.getHaloPartSize(), tmp2.getMainPartSize() + tmp2.getHaloPartSize());
+//
+//		}
+		//If desired at this point the import for multi devices should be implemented. Probably the above code should do it but it has to be checked.
+		throw Print_Error_Message("Import not implemented for multi device spinorfield_eo!", __FILE__, __LINE__);
+	}
+	logger.trace() << "import complete";
+}
+
+
+
 hardware::lattices::Spinorfield_eoHaloUpdate hardware::lattices::Spinorfield_eo::update_halo_async(unsigned width) const
 {
 	logger.debug() << "Starting async update of halo of Spinorfield_eo " << this;

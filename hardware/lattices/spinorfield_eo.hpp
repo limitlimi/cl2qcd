@@ -54,6 +54,9 @@ public:
 
 	void mark_halo_clean(unsigned width = 0) const;
 
+	void import(const spinor * const host) const;
+
+
 private:
 	hardware::System const& system;
 	const std::vector<const hardware::buffers::Spinor *> buffers;
