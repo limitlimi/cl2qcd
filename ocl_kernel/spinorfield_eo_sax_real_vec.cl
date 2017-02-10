@@ -18,13 +18,13 @@
  */
 
 // out = alpha*x
-__kernel void sax_real_vec(__global const spinorStorageType * const restrict x, __global const hmc_float * const restrict alpha, const int index_alpha, __global spinorStorageType * const restrict out)
+__kernel void sax_real_vec_eoprec(__global const spinorStorageType * const restrict x, __global const hmc_float * const restrict alpha, const int index_alpha, __global spinorStorageType * const restrict out)
 {
 	int id = get_global_id(0);
 	int global_size = get_global_size(0);
 
 	for(int id_mem = id; id_mem < SPINORFIELDSIZE_MEM; id_mem += global_size) {
-		spinor x_tmp = getSpinor(x, id_mem);
+		spinor x_tmp = getSpinor_eo(x, id_mem);
 		x_tmp = real_multiply_spinor(x_tmp, alpha[index_alpha]);
 		putSpinor_eo(out,id_mem,x_tmp);
 	}
