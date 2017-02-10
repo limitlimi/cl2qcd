@@ -237,6 +237,8 @@ template<> size_t get_read_write_size<physics::lattices::Spinorfield_eo, physics
  * out = alpha * x + beta * y
  */
 void saxpby(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const hmc_complex beta, const Spinorfield_eo& y);
+void saxpby(const Spinorfield_eo* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield_eo& x, const Vector<hmc_float>& beta, const int index_beta, const Spinorfield_eo& y);
+
 
 /**
  * Perform the BLAS operation sax.

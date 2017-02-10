@@ -57,6 +57,7 @@ void hardware::code::Spinors::fill_kernels()
 		saxpy_eoprec_real_vec = createKernel("saxpy_eoprec_real_vec") << basic_fermion_code << "spinorfield_eo_saxpy.cl";
 		saxpy_arg_eoprec = createKernel("saxpy_arg_eoprec") << basic_fermion_code << "spinorfield_eo_saxpy.cl";
 		saxpby_eoprec_cplx_arg = createKernel("saxpby_eoprec_cplx_arg") << basic_fermion_code << "spinorfield_eo_saxpby_cplx_arg.cl";
+		saxpby_eoprec_real_vec = createKernel("saxpby_eoprec_real_vec") << basic_fermion_code << "spinorfield_eo_saxpby_real_vec.cl";
 		sax_eoprec = createKernel("sax_eoprec") << basic_fermion_code << "spinorfield_eo_sax.cl";
 		sax_real_vec_eoprec = createKernel("sax_real_vec_eoprec") << basic_fermion_code << "spinorfield_eo_sax_real_vec.cl";
 		saxsbypz_eoprec = createKernel("saxsbypz_eoprec") << basic_fermion_code << "spinorfield_eo_saxsbypz.cl";
@@ -84,6 +85,7 @@ void hardware::code::Spinors::fill_kernels()
 		saxpy_eoprec_real_vec = 0;
 		saxpy_arg_eoprec = 0;
 		saxpby_eoprec_cplx_arg = 0;
+		saxpby_eoprec_real_vec = 0;
 		saxsbypz_eoprec = 0;
 		scalar_product_eoprec = 0;
 		scalar_product_real_part_eoprec = 0;
@@ -137,6 +139,8 @@ void hardware::code::Spinors::clear_kernels()
 		clerr = clReleaseKernel(saxpy_arg_eoprec);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 		clerr = clReleaseKernel(saxpby_eoprec_cplx_arg);
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+		clerr = clReleaseKernel(saxpby_eoprec_real_vec);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 		clerr = clReleaseKernel(sax_eoprec);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
@@ -695,6 +699,37 @@ void hardware::code::Spinors::saxpby_eoprec_device(const hardware::buffers::Spin
 	get_device()->enqueue_kernel(saxpby_eoprec_cplx_arg, gs2, ls2);
 }
 
+void hardware::code::Spinors::saxpby_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<hmc_float> * beta, const int index_alpha, const int index_beta, const hardware::buffers::Spinor * out) const
+{
+	//query work-sizes for kernel
+	size_t ls2, gs2;
+	cl_uint num_groups;
+	this->get_work_sizes(saxpby_eoprec_real_vec, &ls2, &gs2, &num_groups);
+	//set arguments
+	int clerr = clSetKernelArg(saxpby_eoprec_real_vec, 0, sizeof(cl_mem), x->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_eoprec_real_vec, 1, sizeof(cl_mem), y->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_eoprec_real_vec, 2, sizeof(cl_mem), alpha->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_eoprec_real_vec, 3, sizeof(cl_mem), beta->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_eoprec_real_vec, 4, sizeof(cl_int), &index_alpha);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_eoprec_real_vec, 5, sizeof(cl_int), &index_beta);
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	clerr = clSetKernelArg(saxpby_eoprec_real_vec, 6, sizeof(cl_mem), out->get_cl_buffer());
+	if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+	get_device()->enqueue_kernel(saxpby_eoprec_real_vec, gs2, ls2);
+}
+
 
 void hardware::code::Spinors::sax_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Spinor * out) const
 {
@@ -1193,6 +1228,10 @@ size_t hardware::code::Spinors::get_read_write_size(const std::string& in) const
 		//this kernel reads 2 spinors, 2 real numbers and writes 1 spinor per site
 		return C * D * Seo * (12 * (2+1) + 2);
 	}
+	if (in == "saxpby_eoprec_real_vec"){
+		//this kernel reads 2 spinors, 2 real numbers and writes 1 spinor per site
+		return D * Seo * (C * 12 * (2+1) + 2);
+	}
 	if (in == "sax_eoprec") {
 		//this kernel reads 1 spinor, 1 complex number and writes 1 spinor per site
 		return C * D * Seo * (12 * (1 + 1) + 1);
@@ -1354,6 +1393,10 @@ uint64_t hardware::code::Spinors::get_flop_size(const std::string& in) const
 	if (in == "saxpby_eoprec_cplx_arg"){
 		//this kernel performs on each site spinor_times_complex and spinor_add
 		return Seo * (NDIM * NC * (2*getFlopComplexMult() + 2));
+	}
+	if (in == "saxpby_eoprec_real_vec"){
+		//this kernel performs on each site 2*real_multiply_spinor and spinor_add
+		return Seo * (NDIM * NC * (4 + 2));
 	}
 	if (in == "sax_eoprec") {
 		//this kernel performs on each site spinor_times_complex
