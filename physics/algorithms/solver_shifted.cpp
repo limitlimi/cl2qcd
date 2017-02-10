@@ -412,6 +412,7 @@ unsigned int physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMA
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 const std::vector<std::shared_ptr<FERMIONFIELD> > physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::solve()
 {
+    logger.debug() << "Calling solve() for wilson eo...";
     if(hasSystemBeSolved) return x;
     if(squarenorm(b) == 0) {
         for (uint i = 0; i < sigma.size(); i++) x[i]->setZero();

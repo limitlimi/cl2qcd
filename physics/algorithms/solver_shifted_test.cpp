@@ -333,7 +333,6 @@ BOOST_AUTO_TEST_CASE(cgm_wilson_1)
 		delete params;
 }
 
-
 BOOST_AUTO_TEST_CASE(cgm_wilson_eo_1)
 {
 	using namespace physics::lattices;
