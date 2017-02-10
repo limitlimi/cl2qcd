@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(fermion_force_eo_shifted)
 	gm.zero();
 	physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield_eo>());
 	//TODO: Result still has to be checked by true analytic test
-	BOOST_CHECK_CLOSE(squarenorm(gm), 3441.344988280136, 1.e-6);
+	BOOST_CHECK_CLOSE(squarenorm(gm), 3962.3582855052427, 1.e-4);
 }
 
 BOOST_AUTO_TEST_CASE(fermion_force_eo)
@@ -275,8 +275,8 @@ BOOST_AUTO_TEST_CASE(calc_fermion_forces_eo)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -285,17 +285,17 @@ BOOST_AUTO_TEST_CASE(calc_fermion_forces_eo)
 		physics::PRNG prng{system, &prngParameters};
 
 		Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
-		Spinorfield src(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
-		Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
-		Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		Spinorfield_eo src(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		//Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+		//Spinorfield_eo sf2(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
 		Gaugemomenta gm(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
 
-		pseudo_randomize<Spinorfield, spinor>(&src, 22);
-		convert_to_eoprec(&sf1, &sf2, src);
+		pseudo_randomize<Spinorfield_eo, spinor>(&src, 22);
+		//convert_to_eoprec(&sf1, &sf2, src);
 		gm.zero();
 
-		physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
-		BOOST_CHECK_CLOSE(squarenorm(gm), 3441.344988280136, 0.01);
+		physics::algorithms::calc_fermion_forces(&gm, gf, src, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
+		BOOST_CHECK_CLOSE(squarenorm(gm), 3962.3582855052427, 0.01);
 	}
 }
 

@@ -70,7 +70,8 @@ BOOST_AUTO_TEST_CASE(calc_s_fermion_rooted_wilson){
 
 	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
 	//In the following N_f=2 flavours are approximated with a rational approximation
-	Rational_Approximation approx(15,99999999,100000000,1e-5,1,1);
+	//Rational_Approximation approx(15,99999999,100000000,1e-5,1,1);
+	Rational_Approximation approx("Nf2_approximation_for_fermion_force_shifted_test"); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
 	wilson::Rooted_Spinorfield sf(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield>(), approx);
 
 	pseudo_randomize<Spinorfield, spinor>(&sf, 123);
@@ -126,7 +127,7 @@ BOOST_AUTO_TEST_CASE(calc_s_fermion_wilson_eo){
 
 	hmc_float s_fermion = calc_s_fermion(gf, sf, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 
-	BOOST_CHECK_CLOSE(s_fermion, 2655.6396963076531, 1.e-8);
+	BOOST_CHECK_CLOSE(s_fermion, 1086.431332953646, 1.e-8);
 }
 
 BOOST_AUTO_TEST_CASE(calc_s_fermion_rooted_wilson_eo){
@@ -145,7 +146,8 @@ BOOST_AUTO_TEST_CASE(calc_s_fermion_rooted_wilson_eo){
 
 	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
 	//In the following N_f=2 flavours are approximated with a rational approximation
-	Rational_Approximation approx(15,99999999,100000000,1e-5,1,1);
+	//Rational_Approximation approx(15,99999999,100000000,1e-5,1,1);
+	Rational_Approximation approx("Nf2_approximation_for_fermion_force_shifted_test"); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
 	wilson::Rooted_Spinorfield_eo sf(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield_eo>(), approx);
 
 	pseudo_randomize<Spinorfield_eo, spinor>(&sf, 123);
@@ -153,5 +155,5 @@ BOOST_AUTO_TEST_CASE(calc_s_fermion_rooted_wilson_eo){
 	hmc_float s_fermion = calc_s_fermion(gf, sf, system, interfacesHandler, interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield_eo>());
 
 	//TODO: Result still has to be checked by true analytic test
-	BOOST_CHECK_CLOSE(s_fermion, 2655.639679253864, 1.e-8);
+	BOOST_CHECK_CLOSE(s_fermion, 1086.431332953646, 1.e-6);
 }
