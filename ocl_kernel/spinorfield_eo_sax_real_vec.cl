@@ -23,7 +23,7 @@ __kernel void sax_real_vec_eoprec(__global const spinorStorageType * const restr
 	int id = get_global_id(0);
 	int global_size = get_global_size(0);
 
-	for(int id_mem = id; id_mem < SPINORFIELDSIZE_MEM; id_mem += global_size) {
+	for(int id_mem = id; id_mem < EOPREC_SPINORFIELDSIZE_MEM; id_mem += global_size) {
 		spinor x_tmp = getSpinor_eo(x, id_mem);
 		x_tmp = real_multiply_spinor(x_tmp, alpha[index_alpha]);
 		putSpinor_eo(out,id_mem,x_tmp);
