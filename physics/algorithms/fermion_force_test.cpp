@@ -180,12 +180,12 @@ BOOST_AUTO_TEST_CASE(fermion_force_eo_shifted)
 
 	sf1.Rescale_Coefficients(approx, minEigen, maxEigen);
 
-	pseudo_randomize<Spinorfield_eo, spinor>(&sf1, 13); //it will be A
+	pseudo_randomize<Spinorfield_eo, spinor>(&sf1, 22); //it will be A
 
 	gm.zero();
 	physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield_eo>());
 	//TODO: Result still has to be checked by true analytic test
-	BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055042961729, 1.e-6);
+	BOOST_CHECK_CLOSE(squarenorm(gm), 3441.344988280136, 1.e-6);
 }
 
 BOOST_AUTO_TEST_CASE(fermion_force_eo)
