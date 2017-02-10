@@ -519,3 +519,23 @@ BOOST_AUTO_TEST_CASE(saxsbypz)
 	physics::lattices::saxsbypz(&sf, {.1, .3}, zero, {.7, .3}, cold, cold);
 	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 2.98, .1);
 }
+
+BOOST_AUTO_TEST_CASE(pseudorandomize)
+{
+	using physics::lattices::Spinorfield;
+
+	const char * _params[] = {"foo", "--num_dev=1"};
+	meta::Inputparameters params(2, _params);
+    hardware::HardwareParametersImplementation hP(&params);
+    hardware::code::OpenClKernelParametersImplementation kP(params);
+    hardware::System system(hP, kP);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+	Spinorfield sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield>());
+	sf.setZero();
+	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
+	physics::lattices::pseudo_randomize<Spinorfield, spinor>(&sf, 123);
+	logger.info() << "The squarenorm of the pseudorandomized field is " << physics::lattices::squarenorm(sf);
+}
