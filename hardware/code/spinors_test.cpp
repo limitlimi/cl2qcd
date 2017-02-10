@@ -995,22 +995,22 @@ BOOST_AUTO_TEST_SUITE(SCALAR_PRODUCT_EO)
 		testEvenOddScalarProduct(LatticeExtents{ns4, nt16}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
 	}
 
-	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_1 )
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_1 )
 	{
 		testEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::one});
 	}
 
-	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_2 )
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_2 )
 	{
 		testEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::ascendingComplex});
 	}
 
-	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_3 )
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_3 )
 	{
 		testEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::ascendingComplex, SpinorFillType::one});
 	}
 
-	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_4 )
+	BOOST_AUTO_TEST_CASE( SCALAR_PRODUCT_REAL_EO_4 )
 	{
 		testEvenOddScalarProductReal( LatticeExtents{ns4, nt4}, SpinorFillTypes{SpinorFillType::one, SpinorFillType::ascendingComplex});
 	}
