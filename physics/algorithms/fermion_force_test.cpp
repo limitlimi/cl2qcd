@@ -32,6 +32,7 @@
 #include "../../interfaceImplementations/hardwareParameters.hpp"
 #include "../../interfaceImplementations/openClKernelParameters.hpp"
 #include "find_minmax_eigenvalue.hpp"
+#include "../lattices/rooted_spinorfield_eo.hpp"
 
 BOOST_AUTO_TEST_CASE(fermion_force)
 {
@@ -142,6 +143,43 @@ BOOST_AUTO_TEST_CASE(fermion_force_shifted)
 
 	gm.zero();
 	physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield>());
+	//TODO: Result still has to be checked by true analytic test
+	BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055042961729, 1.e-6);
+}
+
+BOOST_AUTO_TEST_CASE(fermion_force_eo_shifted)
+{
+	using namespace physics::lattices;
+	using namespace physics::algorithms;
+
+	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+	meta::Inputparameters params(3, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+	const physics::algorithms::RhmcParametersInterface & parametersInterface = interfacesHandler.getRhmcParametersInterface();
+
+	Rational_Approximation approx(25, 99999999,100000000, 1.e-5,1); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
+
+	physics::fermionmatrix::QplusQminus_eo Qpm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
+	hmc_float minEigen, maxEigen;
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	Gaugemomenta gm(system, interfacesHandler.getInterface<physics::lattices::Gaugemomenta>());
+
+	find_maxmin_eigenvalue(maxEigen, minEigen, Qpm, gf, system, interfacesHandler, parametersInterface.getFindMinMaxPrec(), interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield_eo>());
+
+	wilson::Rooted_Spinorfield_eo sf1(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield_eo>(), approx);
+
+	sf1.Rescale_Coefficients(approx, minEigen, maxEigen);
+
+	pseudo_randomize<Spinorfield_eo, spinor>(&sf1, 13); //it will be A
+
+	gm.zero();
+	physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield_eo>());
 	//TODO: Result still has to be checked by true analytic test
 	BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055042961729, 1.e-6);
 }
