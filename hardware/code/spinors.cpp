@@ -60,6 +60,7 @@ void hardware::code::Spinors::fill_kernels()
 		sax_eoprec = createKernel("sax_eoprec") << basic_fermion_code << "spinorfield_eo_sax.cl";
 		saxsbypz_eoprec = createKernel("saxsbypz_eoprec") << basic_fermion_code << "spinorfield_eo_saxsbypz.cl";
 		scalar_product_eoprec = createKernel("scalar_product_eoprec") << basic_fermion_code << "spinorfield_eo_scalar_product.cl";
+		scalar_product_real_part_eoprec = createKernel("scalar_product_real_part_eoprec") << basic_fermion_code << "spinorfield_eo_scalar_product_real.cl";
 		set_zero_spinorfield_eoprec = createKernel("set_zero_spinorfield_eoprec") << basic_fermion_code << "spinorfield_eo_zero.cl";
 		global_squarenorm_eoprec = createKernel("global_squarenorm_eoprec") << basic_fermion_code << "spinorfield_eo_squarenorm.cl";
 		convertSpinorfieldToSOA_eo = createKernel("convertSpinorfieldToSOA_eo") << basic_fermion_code << "spinorfield_eo_convert.cl";
@@ -80,8 +81,10 @@ void hardware::code::Spinors::fill_kernels()
 		saxpy_eoprec = 0;
 		saxpy_eoprec_real_vec = 0;
 		saxpy_arg_eoprec = 0;
+		saxpby_eoprec_cplx_arg = 0;
 		saxsbypz_eoprec = 0;
 		scalar_product_eoprec = 0;
+		scalar_product_real_part_eoprec = 0;
 		set_zero_spinorfield_eoprec = 0;
 		global_squarenorm_eoprec = 0;
 		convertSpinorfieldToSOA_eo = 0;
@@ -136,6 +139,8 @@ void hardware::code::Spinors::clear_kernels()
 		clerr = clReleaseKernel(sax_eoprec);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 		clerr = clReleaseKernel(scalar_product_eoprec);
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
+		clerr = clReleaseKernel(scalar_product_real_part_eoprec);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
 		clerr = clReleaseKernel(set_zero_spinorfield_eoprec);
 		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clReleaseKernel", __FILE__, __LINE__);
@@ -195,7 +200,7 @@ void hardware::code::Spinors::get_work_sizes(const cl_kernel kernel, size_t * ls
 	}
 
 	//Query specific sizes for kernels if needed
-	if(kernel == scalar_product_eoprec || kernel == scalar_product || kernel == scalar_product_real_part || kernel == global_squarenorm || kernel == global_squarenorm_eoprec) {
+	if(kernel == scalar_product_eoprec || kernel == scalar_product_real_part_eoprec || kernel == scalar_product || kernel == scalar_product_real_part || kernel == global_squarenorm || kernel == global_squarenorm_eoprec) {
 		if(*ls > 64) {
 			*ls = 64;
 			*num_groups = (*gs)/(*ls);
@@ -872,6 +877,43 @@ void hardware::code::Spinors::set_complex_to_scalar_product_eoprec_device(const 
 	get_device()->enqueue_kernel(scalar_product_reduction, gs2, ls2);
 }
 
+void hardware::code::Spinors::set_float_to_scalar_product_real_eoprec_device(const hardware::buffers::Spinor * a, const hardware::buffers::Spinor * b, const hardware::buffers::Plain<hmc_float> * out) const
+{
+	//query work-sizes for kernel
+		size_t ls2, gs2;
+		cl_uint num_groups;
+		this->get_work_sizes(scalar_product_real_part_eoprec, &ls2, &gs2, &num_groups);
+
+		hardware::buffers::Plain<hmc_float> tmp(num_groups, get_device());
+
+		//set arguments
+		int clerr = clSetKernelArg(scalar_product_real_part_eoprec, 0, sizeof(cl_mem), a->get_cl_buffer());
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(scalar_product_real_part_eoprec, 1, sizeof(cl_mem), b->get_cl_buffer());
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(scalar_product_real_part_eoprec, 2, sizeof(cl_mem), tmp);
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(scalar_product_real_part_eoprec, 3, sizeof(hmc_complex) * ls2, static_cast<void*>(nullptr));
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		get_device()->enqueue_kernel(scalar_product_real_part_eoprec , gs2, ls2);
+
+
+		clerr = clSetKernelArg(scalar_product_real_reduction, 0, sizeof(cl_mem), tmp);
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(scalar_product_real_reduction, 1, sizeof(cl_mem), out->get_cl_buffer());
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		clerr = clSetKernelArg(scalar_product_real_reduction, 2, sizeof(cl_uint), &num_groups);
+		if(clerr != CL_SUCCESS) throw Opencl_Error(clerr, "clSetKernelArg", __FILE__, __LINE__);
+
+		get_device()->enqueue_kernel(scalar_product_real_reduction, gs2, ls2);
+}
+
 void hardware::code::Spinors::global_squarenorm_reduction(const hardware::buffers::Plain<hmc_float> * out, const hardware::buffers::Plain<hmc_float> * tmp_buf) const
 {
 	cl_int clerr = clSetKernelArg(_global_squarenorm_reduction, 0, sizeof(cl_mem), out->get_cl_buffer());
@@ -1181,6 +1223,11 @@ size_t hardware::code::Spinors::get_read_write_size(const std::string& in) const
 		/// @NOTE: here, the local reduction is not taken into account
 		return C * D * Seo * ( 2 * 12  + 1 );
 	}
+	if (in == "scalar_product_real_part_eoprec") {
+		//this kernel reads 2 spinors and writes 1 complex number
+		/// @NOTE: here, the local reduction is not taken into account
+		return D * Seo * (C * 2 * 12  + 1 );
+	}
 	if (in == "global_squarenorm_eoprec") {
 		//this kernel reads 1 spinor and writes 1 real number
 		/// @NOTE: here, the local reduction is not taken into account
@@ -1315,6 +1362,10 @@ uint64_t hardware::code::Spinors::get_flop_size(const std::string& in) const
 		//this kernel performs spinor*spinor on each site and then adds S-1 complex numbers
 		return Seo * getFlopSpinorTimesSpinor() + (Seo - 1) * 2;
 	}
+	if (in == "scalar_product_real_part_eoprec") {
+		//this kernel performs spinor*spinor on each site and then adds S-1 complex numbers
+		return Seo * getFlopSpinorTimesSpinor() + (Seo - 1);
+	}
 	if (in == "global_squarenorm_eoprec") {
 		//this kernel performs spinor_squarenorm on each site and then adds S-1 complex numbers
 		return Seo * getFlopSpinorSquareNorm() + (Seo - 1) * 2;
@@ -1358,6 +1409,7 @@ void hardware::code::Spinors::print_profiling(const std::string& filename, int n
 	Opencl_Module::print_profiling(filename, global_squarenorm);
 	Opencl_Module::print_profiling(filename, _global_squarenorm_reduction);
 	Opencl_Module::print_profiling(filename, scalar_product_eoprec);
+	Opencl_Module::print_profiling(filename, scalar_product_real_part_eoprec);
 	Opencl_Module::print_profiling(filename, global_squarenorm_eoprec);
 	Opencl_Module::print_profiling(filename, convertSpinorfieldToSOA_eo);
 	Opencl_Module::print_profiling(filename, convertSpinorfieldFromSOA_eo);
