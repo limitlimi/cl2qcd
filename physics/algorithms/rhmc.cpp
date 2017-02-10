@@ -25,6 +25,7 @@
 #include "../lattices/util.hpp"
 #include "../lattices/rooted_staggeredfield_eo.hpp"
 #include "../lattices/rooted_spinorfield.hpp"
+#include "../lattices/rooted_spinorfield_eo.hpp"
 #include "../fermionmatrix/fermionmatrix_stagg.hpp"
 #include "../fermionmatrix/fermionmatrix.hpp"
 #include "../../meta/util.hpp"
@@ -39,6 +40,9 @@ template<class SPINORFIELD> static void init_spinorfield(const SPINORFIELD * phi
         const physics::PRNG& prng, const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
 
 template<> void init_spinorfield<physics::lattices::Spinorfield_eo>(const physics::lattices::Spinorfield_eo * phi, hmc_float * const spinor_energy_init,
+                                                                    const physics::lattices::Gaugefield& gf, const physics::PRNG& prng,
+                                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
+template<> void init_spinorfield<physics::lattices::wilson::Rooted_Spinorfield_eo>(const physics::lattices::wilson::Rooted_Spinorfield_eo * phi, hmc_float * const spinor_energy_init,
                                                                     const physics::lattices::Gaugefield& gf, const physics::PRNG& prng,
                                                                     const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
 
@@ -159,7 +163,7 @@ hmc_observables physics::algorithms::perform_rhmc_step(const physics::algorithms
     	 }
     	 else if(parametersInterface.getUseEo() == true)
 		 {
-//    		 return ::perform_rhmc_step<wilson::Rooted_Spinorfield_eo, QplusQminus_eo>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
+    		 return ::perform_rhmc_step<wilson::Rooted_Spinorfield_eo, QplusQminus_eo>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
 		 }
     	 else {
     		 throw Print_Error_Message("Wilson RHMC algorithm not implemented for even-odd preconditioned fields!", __FILE__, __LINE__);
@@ -188,8 +192,7 @@ hmc_observables physics::algorithms::perform_wilson_rhmc_step(const physics::alg
     if(parametersInterface.getUseEo() == false) {
         return ::perform_rhmc_step<wilson::Rooted_Spinorfield, QplusQminus>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
     } else {
-        throw Print_Error_Message("Wilson RHMC algorithm not implemented for even-odd preconditioned fields!", __FILE__, __LINE__);
-        //return ::perform_rhmc_step<Rooted_Staggeredfield>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system);
+    	return ::perform_rhmc_step<wilson::Rooted_Spinorfield_eo, QplusQminus_eo>(approx1, approx2, approx3, gf, iter, rnd_number, prng, system, interfaceHandler);
     }
 }
 
@@ -207,6 +210,23 @@ template<class SPINORFIELD> static void init_spinorfield(const SPINORFIELD * phi
     *spinor_energy_init = squarenorm(initial);
     //update spinorfield
     md_update_spinorfield(phi, gf, initial, system, interfacesHandler, additionalParameters);
+}
+
+template<> void init_spinorfield<physics::lattices::wilson::Rooted_Spinorfield_eo>(const physics::lattices::wilson::Rooted_Spinorfield_eo * phi, hmc_float * const spinor_energy_init,
+                                                                    const physics::lattices::Gaugefield& gf, const physics::PRNG& prng,
+                                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler)
+{
+	 using namespace physics::algorithms;
+
+	 const physics::AdditionalParameters& additionalParameters = interfacesHandler.getAdditionalParameters<physics::lattices::Spinorfield_eo>();
+	 const physics::lattices::Spinorfield_eo initial(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+	 //init/update rooted_spinorfield phi
+	 initial.gaussian(prng);
+	 //calc init energy for rooted_spinorfield
+	 *spinor_energy_init = squarenorm(initial);
+	 //update spinorfield: det(kappa, mu)
+	 md_update_spinorfield(phi, gf, initial, system, interfacesHandler, additionalParameters);
 }
 
 template<> void init_spinorfield<physics::lattices::Spinorfield_eo>(const physics::lattices::Spinorfield_eo * phi, hmc_float * const spinor_energy_init,
