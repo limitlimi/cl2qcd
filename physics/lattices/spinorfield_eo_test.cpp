@@ -345,6 +345,49 @@ BOOST_AUTO_TEST_CASE(saxpy_real_vec)
 	}
 }
 
+BOOST_AUTO_TEST_CASE(saxpby)
+{
+	using physics::lattices::Spinorfield_eo;
+
+	const char * _params[] = {"foo"};
+	meta::Inputparameters params(1, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters(params);
+	physics::PRNG prng(system, &prngParameters);
+
+	Spinorfield_eo cold(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+	cold.cold();
+	Spinorfield_eo zero(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+	zero.setZero();
+	Spinorfield_eo gaussian(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+	gaussian.gaussian(prng);
+	Spinorfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+	//Complex
+	physics::lattices::saxpby(&sf, {1., 0.}, gaussian, {0., 0.}, cold);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1.e-8);
+	physics::lattices::saxpby(&sf, {0., 0.}, cold, {1., 0.}, gaussian);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), physics::lattices::squarenorm(gaussian), 1.e-8);
+	physics::lattices::saxpby(&sf, {0., 0.}, gaussian, {0., 0.}, gaussian);
+	BOOST_CHECK_EQUAL(physics::lattices::squarenorm(sf), 0);
+	//Vector
+	physics::lattices::Vector<hmc_float> real_vec1(5, system);
+	physics::lattices::Vector<hmc_float> real_vec2(5, system);
+//	real_vec1.store(std::vector<hmc_float>(5, 0.31415));
+//	real_vec2.store(std::vector<hmc_float>(5, 0.51413));
+//	for(int i=0; i<5; i++){
+//		for(int j=0; j<5; j++){
+//			physics::lattices::saxpby(&sf, real_vec1, i, cold, real_vec2, j, zero);
+//			BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.09869022250, 1.e-8);
+//			physics::lattices::saxpby(&sf, real_vec1, i, cold, real_vec2, j, cold);
+//			BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), 0.68604775840, 1.e-8);
+//		}
+//	}
+}
+
 BOOST_AUTO_TEST_CASE(saxsbypz)
 {
 	using physics::lattices::Spinorfield_eo;

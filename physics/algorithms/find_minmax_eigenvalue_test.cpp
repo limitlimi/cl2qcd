@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(wilson_eo_max)
 	//This configuration for the Ref.Code is the same as for example dks_input_5
 	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
 
-	hmc_float max = find_max_eigenvalue(matrix, gf, system, interfacesHandler, 1.e-3, interfacesHandler.getAdditionalParameters<Spinorfield>());
+	hmc_float max = find_max_eigenvalue(matrix, gf, system, interfacesHandler, 1.e-6, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
 
 	logger.info() << "ref_max_eig = " << std::setprecision(16) << ref_max_eig;
 	logger.info() << "    max_eig = " << std::setprecision(16) << max;

@@ -646,6 +646,15 @@ struct SaxpyArgEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenor
 		}
 };
 
+struct SaxpbyEvenOddArgComplexTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
+{
+	SaxpbyEvenOddArgComplexTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+		EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpby_eoprec_cplx_arg", parameterCollection, testParameters, calculateReferenceValue_saxpby)
+		{
+		    code->saxpby_eoprec_device(spinorfields.at(0), spinorfields.at(1), testParameters.complexCoefficients.at(0), testParameters.complexCoefficients.at(1), getOutSpinor());
+		}
+};
+
 
 void testNonEvenOddSquarenorm( const LatticeExtents lE, const SpinorFillTypes sF)
 {
@@ -735,6 +744,11 @@ void testEvenOddSaxpyRealVec(const LatticeExtents lE, const ComplexNumbers cN)
 void testEvenOddSaxpyArg(const LatticeExtents lE, const ComplexNumbers cN)
 {
 	performTest<SaxpyArgEvenOddTester> (lE, cN, 3, true);
+}
+
+void testEvenOddSaxpbyComplex( const LatticeExtents lE, const ComplexNumbers cN )
+{
+	performTest<SaxpbyEvenOddArgComplexTester> ( lE, cN, 3, true );
 }
 
 void testNonEvenOddGaussianSpinorfield( const LatticeExtents lE, const int iterations)
@@ -1283,6 +1297,45 @@ BOOST_AUTO_TEST_SUITE(SAXPY_EO)
 	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_EO_3 )
 	{
 		testEvenOddSaxpyRealVec( LatticeExtents{ns4,nt8}, ComplexNumbers {{-1.,0.}});
+	}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(SAXPBY_EO)
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_1 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns4, nt4}, ComplexNumbers {{0.,0.},{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_2 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns8, nt4}, ComplexNumbers {{1.,0.},{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_3 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns12, nt4}, ComplexNumbers {{-1.,0.},{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_4 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns4, nt4}, ComplexNumbers {{0.,1.},{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_5 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns8, nt4}, ComplexNumbers {{1.,-1.},{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_6 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns12, nt4}, ComplexNumbers {{-1.,0.},{0.,1.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPBY_EO_COMPLEX_7 )
+	{
+		testEvenOddSaxpbyComplex( LatticeExtents {ns12, nt4}, ComplexNumbers {{-1.,0.},{0.,-1.}});
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

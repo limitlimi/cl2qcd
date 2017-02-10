@@ -145,10 +145,26 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 	using physics::fermionmatrix::Fermionmatrix_eo;
 	using physics::lattices::Spinorfield_eo;
 
-//	return ::find_max_eigenvalue<Fermionmatrix_eo, Spinorfield_eo, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
+	return ::find_max_eigenvalue<Fermionmatrix_eo, Spinorfield_eo, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
 }
 
 hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
+                                                   const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
+                                                   const physics::AdditionalParameters& additionalParameters)
+{
+    if(additionalParameters.getConservative())
+        return A.getThresholdForMinimumEigenvalue(additionalParameters.getKappa());
+
+    if(!(A.isHermitian()))
+        throw std::invalid_argument("Unable to deal with non-hermitian matrices in find_max_eigenvalue!");
+
+    hmc_float max = find_max_eigenvalue(A, gf, system, interfacesHandler, prec, additionalParameters);
+
+    return find_min_knowing_max(max, A, gf, system, interfacesHandler, prec, additionalParameters);
+
+}
+
+hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix_eo& A, const physics::lattices::Gaugefield& gf,
                                                    const hardware::System& system, physics::InterfacesHandler& interfacesHandler, hmc_float prec,
                                                    const physics::AdditionalParameters& additionalParameters)
 {
