@@ -245,6 +245,7 @@ void saxpby(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfiel
  */
 void sax(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x);
 void sax(const Spinorfield_eo* out, const Scalar<hmc_complex>& alpha, const Spinorfield_eo& x);
+void sax(const Spinorfield_eo* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield_eo& x);
 
 template<typename S, void (*T)(const S*, const hmc_complex, const S&)> size_t get_flops(const hardware::System&);
 template<> size_t get_flops<physics::lattices::Spinorfield_eo, physics::lattices::sax>(const hardware::System&);
@@ -292,6 +293,13 @@ void saxpy_AND_gamma5_eo(const Spinorfield_eo* out, const hmc_complex alpha, con
  */
 void log_squarenorm(const std::string& msg, const physics::lattices::Spinorfield_eo& x);
 
+/**
+ * Perform the BLAS (Basic Linear Algebra Subroutine) operation sax + the squarenorm
+ * with a set of real values of alpha.
+ *
+ * ||out||^2 = ||alpha[i] * x||^2
+ */
+void sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield_eo& x);
 
 }
 }

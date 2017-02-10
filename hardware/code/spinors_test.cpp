@@ -508,6 +508,19 @@ struct ColdEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsK
 		}
 };
 
+struct SaxRealVecEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
+{
+	SaxRealVecEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+		EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("sax_real_vec_eoprec", parameterCollection, testParameters, calculateReferenceValues_sax)
+		{
+			hardware::buffers::Plain<hmc_float> alpha_real_vec(5, device);
+			std::vector<hmc_float> alpha_host_real_vec(5, testParameters.complexCoefficients.at(0).re);
+			const int index_alpha = 3;
+			alpha_real_vec.load(&alpha_host_real_vec[0]);
+			code->sax_eoprec_device(spinorfields.at(0), &alpha_real_vec, index_alpha, getOutSpinor());
+		}
+};
+
 struct SaxTester: public NonEvenOddLinearCombinationTesterWithSquarenormAsKernelResult
 {
 	SaxTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
@@ -709,6 +722,11 @@ void testNonEvenOddSaxRealVec(const LatticeExtents lE, const ComplexNumbers cN)
 void testEvenOddSax(const LatticeExtents lE, const ComplexNumbers cN)
 {
 	performTest<SaxEvenOddTester> (lE, cN, 2, true);
+}
+
+void testEvenOddSaxRealVec(const LatticeExtents lE, const ComplexNumbers cN)
+{
+	performTest<SaxRealVecEvenOddTester> (lE, cN, 2, true);
 }
 
 void testNonEvenOddSaxpy(const LatticeExtents lE, const ComplexNumbers cN)
@@ -1112,6 +1130,21 @@ BOOST_AUTO_TEST_SUITE(SAX_EO)
 	BOOST_AUTO_TEST_CASE( SAX_EO_4 )
 	{
 		testEvenOddSax(LatticeExtents{ns16, nt8}, ComplexNumbers {{1.,1.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAX_REAL_VEC_EO_1 )
+	{
+		testEvenOddSaxRealVec(LatticeExtents{ns4, nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAX_REAL_VEC_EO_2 )
+	{
+		testEvenOddSaxRealVec(LatticeExtents{ns8, nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAX_REAL_VEC_EO_3 )
+	{
+		testEvenOddSaxRealVec(LatticeExtents{ns4, nt8}, ComplexNumbers {{-1.,0.}});
 	}
 
 BOOST_AUTO_TEST_SUITE_END()

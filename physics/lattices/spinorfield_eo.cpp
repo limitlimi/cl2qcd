@@ -410,6 +410,30 @@ void physics::lattices::sax(const Spinorfield_eo* out, const Scalar<hmc_complex>
 	}
 }
 
+void physics::lattices::sax(const Spinorfield_eo* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield_eo& x)
+{
+	auto out_bufs = out->get_buffers();
+	auto alpha_bufs = alpha.get_buffers();
+	auto x_bufs = x.get_buffers();
+
+	if(out_bufs.size() != alpha_bufs.size() || out_bufs.size() != x_bufs.size()) {
+		throw std::invalid_argument("Output buffers does not use same devices as input buffers");
+	}
+
+	for(size_t i = 0; i < out_bufs.size(); ++i) {
+		auto out_buf = out_bufs[i];
+		auto device = out_buf->get_device();
+		device->getSpinorCode()->sax_eoprec_device(x_bufs[i], alpha_bufs[i], index_alpha, out_buf);
+	}
+
+	auto const valid_halo_width = x.get_valid_halo_width();
+	if(valid_halo_width) {
+		out->mark_halo_clean(valid_halo_width);
+	} else {
+		out->mark_halo_dirty();
+	}
+}
+
 void physics::lattices::saxsbypz(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const hmc_complex beta, const Spinorfield_eo& y, const Spinorfield_eo& z)
 {
 	const Scalar<hmc_complex> alpha_buf(out->system);
@@ -574,6 +598,11 @@ void physics::lattices::log_squarenorm(const std::string& msg, const physics::la
 		hmc_float tmp = squarenorm(x);
 		logger.debug() << msg << std::scientific << std::setprecision(10) << tmp;
 	}
+}
+
+void physics::lattices::sax_vec_and_squarenorm(const Vector<hmc_float>* res, const Vector<hmc_float>& alpha, const Spinorfield_eo& x)
+{
+	throw Print_Error_Message("Function sax_vec_and_squarenorm for Wilson spinorfields not yet implemented.");
 }
 
 void physics::lattices::Spinorfield_eo::mark_halo_dirty() const
