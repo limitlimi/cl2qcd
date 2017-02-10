@@ -61,10 +61,10 @@ int physics::algorithms::solvers::cg_m(std::vector<std::shared_ptr<physics::latt
                                        const physics::lattices::Spinorfield_eo& b, const hardware::System& system,
                                        physics::InterfacesHandler& interfacesHandler, hmc_float prec, const physics::AdditionalParameters& additionalParameters)
 {
-//    physics::algorithms::solvers::SolverShifted<physics::lattices::Spinorfield_eo, physics::fermionmatrix::Fermionmatrix_eo>
-//    solverShifted(x, A, gf, sigma, b, system, interfacesHandler, prec, additionalParameters);
-//    x = solverShifted.solve();
-//    return solverShifted.getNumberOfIterationsDone();
+    physics::algorithms::solvers::SolverShifted<physics::lattices::Spinorfield_eo, physics::fermionmatrix::Fermionmatrix_eo>
+    solverShifted(x, A, gf, sigma, b, system, interfacesHandler, prec, additionalParameters);
+    x = solverShifted.solve();
+    return solverShifted.getNumberOfIterationsDone();
 }
 
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
@@ -412,6 +412,7 @@ unsigned int physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMA
 template<typename FERMIONFIELD, typename FERMIONMATRIX>
 const std::vector<std::shared_ptr<FERMIONFIELD> > physics::algorithms::solvers::SolverShifted<FERMIONFIELD, FERMIONMATRIX>::solve()
 {
+    logger.debug() << "Calling solve() for wilson eo...";
     if(hasSystemBeSolved) return x;
     if(squarenorm(b) == 0) {
         for (uint i = 0; i < sigma.size(); i++) x[i]->setZero();

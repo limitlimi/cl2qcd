@@ -30,6 +30,7 @@
 #include <cmath>
 #include "../observables/gaugeObservables.hpp"
 
+
 static void print_info_debug(physics::InterfacesHandler& interfacesHandler, std::string metropolis_part, hmc_float value, bool info = true);
 template<class ROOTED_SPINORFIELD, class SPINORFIELD, class FERMIONMATRIX>
 static hmc_float calc_s_fermion(const physics::lattices::Gaugefield& gf, const ROOTED_SPINORFIELD& phi, const hardware::System& system,
@@ -152,6 +153,16 @@ hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefiel
 	using physics::fermionmatrix::QplusQminus;
 
 	return ::calc_s_fermion<Rooted_Spinorfield, Spinorfield, QplusQminus>(gf, phi, system, interfacesHandler, additionalParameters);
+}
+
+hmc_float physics::algorithms::calc_s_fermion(const physics::lattices::Gaugefield& gf, const physics::lattices::wilson::Rooted_Spinorfield_eo& phi, const hardware::System& system,
+                                              physics::InterfacesHandler& interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::lattices::wilson::Rooted_Spinorfield_eo;
+	using physics::lattices::Spinorfield_eo;
+	using physics::fermionmatrix::QplusQminus_eo;
+
+	return ::calc_s_fermion<Rooted_Spinorfield_eo, Spinorfield_eo, QplusQminus_eo>(gf, phi, system, interfacesHandler, additionalParameters);
 }
 
 
@@ -523,6 +534,15 @@ hmc_observables physics::algorithms::metropolis(const hmc_float rnd, const hmc_f
         const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
         const physics::lattices::Spinorfield_eo& phi, const hmc_float spinor_energy_init, const physics::lattices::Spinorfield_eo * const phi_mp,
         const hmc_float spinor_energy_mp_init, const hardware::System& system, physics::InterfacesHandler& interfacesHandler)
+{
+    return ::metropolis(rnd, beta, gf, new_u, p, new_p, phi, spinor_energy_init, phi_mp, spinor_energy_mp_init, system, interfacesHandler);
+}
+
+hmc_observables physics::algorithms::metropolis(const hmc_float rnd, const hmc_float beta, const physics::lattices::Gaugefield& gf,
+        const physics::lattices::Gaugefield& new_u, const physics::lattices::Gaugemomenta& p, const physics::lattices::Gaugemomenta& new_p,
+        const physics::lattices::wilson::Rooted_Spinorfield_eo& phi, const hmc_float spinor_energy_init,
+        const physics::lattices::wilson::Rooted_Spinorfield_eo* const phi_mp, const hmc_float spinor_energy_mp_init, const hardware::System& system,
+        physics::InterfacesHandler& interfacesHandler)
 {
     return ::metropolis(rnd, beta, gf, new_u, p, new_p, phi, spinor_energy_init, phi_mp, spinor_energy_mp_init, system, interfacesHandler);
 }

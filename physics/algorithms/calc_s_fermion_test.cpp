@@ -104,3 +104,54 @@ BOOST_AUTO_TEST_CASE(calc_s_fermion_wilson){
 
 	BOOST_CHECK_CLOSE(s_fermion, 2655.6396963076531, 1.e-8);
 }
+
+BOOST_AUTO_TEST_CASE(calc_s_fermion_wilson_eo){
+
+	using namespace physics::algorithms;
+	using namespace physics::lattices;
+	std::cout << "Creating parameter string" << std::endl;
+	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1", "--beta=5.69", "--solver=cg"};
+	meta::Inputparameters params(5, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	Spinorfield_eo sf(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+
+	pseudo_randomize<Spinorfield_eo, spinor>(&sf, 123);
+
+	hmc_float s_fermion = calc_s_fermion(gf, sf, system, interfacesHandler, interfacesHandler.getAdditionalParameters<Spinorfield_eo>());
+
+	BOOST_CHECK_CLOSE(s_fermion, 2655.6396963076531, 1.e-8);
+}
+
+BOOST_AUTO_TEST_CASE(calc_s_fermion_rooted_wilson_eo){
+
+	using namespace physics::algorithms;
+	using namespace physics::lattices;
+	std::cout << "Creating parameter string" << std::endl;
+	const char * _params[] = {"foo", "--ntime=4", "--num_dev=1", "--beta=5.69"};
+	meta::Inputparameters params(4, _params);
+	physics::InterfacesHandlerImplementation interfacesHandler{params};
+	hardware::HardwareParametersImplementation hP(&params);
+	hardware::code::OpenClKernelParametersImplementation kP(params);
+	hardware::System system(hP, kP);
+	physics::PrngParametersImplementation prngParameters{params};
+	physics::PRNG prng{system, &prngParameters};
+
+	Gaugefield gf(system, &interfacesHandler.getInterface<physics::lattices::Gaugefield>(), prng, std::string(SOURCEDIR) + "/ildg_io/conf.00200");
+	//In the following N_f=2 flavours are approximated with a rational approximation
+	Rational_Approximation approx(15,99999999,100000000,1e-5,1,1);
+	wilson::Rooted_Spinorfield_eo sf(system, interfacesHandler.getInterface<wilson::Rooted_Spinorfield_eo>(), approx);
+
+	pseudo_randomize<Spinorfield_eo, spinor>(&sf, 123);
+
+	hmc_float s_fermion = calc_s_fermion(gf, sf, system, interfacesHandler, interfacesHandler.getAdditionalParameters<wilson::Rooted_Spinorfield_eo>());
+
+	//TODO: Result still has to be checked by true analytic test
+	BOOST_CHECK_CLOSE(s_fermion, 2655.639679253864, 1.e-8);
+}

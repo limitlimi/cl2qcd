@@ -36,7 +36,7 @@ __kernel void saxpby_eoprec_real_vec(__global const spinorStorageType * const x,
 		const spinor x_tmp_tmp = real_multiply_spinor(x_tmp, alpha[index_alpha]);
 		const spinor y_tmp = getSpinor_eo(y, id_mem);
 		const spinor y_tmp_tmp = real_multiply_spinor(y_tmp, beta[index_beta]);
-		const result_tmp = spinor_acc(x_tmp_tmp, y_tmp_tmp);
+		const spinor result_tmp = spinor_acc(x_tmp_tmp, y_tmp_tmp);
 		putSpinor_eo(out, id_mem, result_tmp);
 	}
 }
