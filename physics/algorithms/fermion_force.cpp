@@ -203,6 +203,12 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 	const QplusQminus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
 	cg_m(X_e, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
 
+	//For debugging: Checking the squarenorm of X_e/Y_e
+	for (int i = 0; i < phi.Get_order(); i++) 
+	{
+		logger.debug() << "X_e" << "[" << i << "]: " << squarenorm(*X_e[i]);
+	}
+
 	/**
 	 * Y_e is now just
 	 *  Y_e = (Qminus) X_e = (Qminus) (Qplusminus)^-1 psi =
@@ -215,6 +221,13 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 	{
 		qminus_eo(Y_e[i].get(), gf, *X_e[i], additionalParameters);
 	}
+	
+	//For debugging: Checking the squarenorm of X_e/Y_e
+	for (int i = 0; i < phi.Get_order(); i++) 
+	{
+		logger.debug() << "Y_e" << "[" << i << "]: " << squarenorm(*Y_e[i]);
+	}
+
 	std::vector<std::shared_ptr<Spinorfield_eo>> X_o;
 	std::vector<std::shared_ptr<Spinorfield_eo>> Y_o;
 
@@ -229,6 +242,13 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 		for (int i = 0; i < phi.Get_order(); i++) {
 			dslash(X_o[i].get(), gf, *X_e[i], ODD, additionalParameters.getKappa());
 			sax(X_o[i].get(), { -1., 0. }, *X_o[i]);
+
+			//For debugging: Checking the squarenorm of X_e/Y_e
+
+			logger.debug() << "Trying to comput fermion force EVEN with following fields:";
+			logger.debug() << "X_o" << "[" << i << "]: squarenorm: " << squarenorm(*X_o[i]);
+			logger.debug() << "Y_e" << "[" << i << "]: squarenorm: " << squarenorm(*Y_e[i]);
+
 			tmp.zero();
 			fermion_force(&tmp, *Y_e[i], *X_o[i], EVEN, gf, additionalParameters);
 			physics::lattices::saxpy(force, (phi.Get_a())[i], tmp);
@@ -382,6 +402,12 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     //here, the "normal" solver can be used since the inversion is of the same structure as in the inverter
     const QplusQminus fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
     cg_m(X, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
+	
+	//For debugging: Checking the squarenorm of X_e/Y_e
+	for (int i = 0; i < phi.Get_order(); i++) 
+	{
+		logger.debug() << "X" << "[" << i << "]: " << squarenorm(*X[i]);
+	}
 
     /**
      * Y is now just
@@ -395,6 +421,7 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
     for(int i = 0; i < phi.Get_order(); i++)
     {
     	qminus(Y[i].get(), gf, *X[i], additionalParameters);
+		logger.debug() << "Y" << "[" << i << "]: " << squarenorm(*Y[i]);
     	tmp.zero();
 //    	log_squarenorm("\tY ", Y[i]);
 //    	log_squarenorm("\tX ", X[i]);
