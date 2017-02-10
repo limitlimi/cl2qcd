@@ -186,6 +186,9 @@ hmc_complex scalar_product(const Spinorfield_eo& left, const Spinorfield_eo& rig
  */
 void scalar_product(const Scalar<hmc_complex>* res, const Spinorfield_eo& left, const Spinorfield_eo& right);
 
+void scalar_product_real_part(const Scalar<hmc_float>* res, const Spinorfield_eo& left, const Spinorfield_eo& right);
+
+
 template<typename S, hmc_complex (*T)(const S&, const S&)> size_t get_flops(const hardware::System&);
 template<> size_t get_flops<physics::lattices::Spinorfield_eo, physics::lattices::scalar_product>(const hardware::System&);
 template<typename S, hmc_complex (*T)(const S&, const S&)> size_t get_read_write_size(const hardware::System&);

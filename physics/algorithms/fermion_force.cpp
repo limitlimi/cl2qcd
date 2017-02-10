@@ -203,6 +203,11 @@ void physics::algorithms::calc_fermion_force(const physics::lattices::Gaugemomen
 	const QplusQminus_eo fm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
 	cg_m(X_e, fm, gf, phi.Get_b(), phi, system, interfacesHandler, parametersInterface.getForcePreconditioning(), additionalParameters);
 
+	//For debugging: Checking the squarenorm of X_e
+	for (int i = 0; i < phi.Get_order(); i++) {
+		logger.debug() << "X_e" << "[" << i << "]: " << squarenorm(*X_e[i]);
+	}
+
 	/**
 	 * Y_e is now just
 	 *  Y_e = (Qminus) X_e = (Qminus) (Qplusminus)^-1 psi =
