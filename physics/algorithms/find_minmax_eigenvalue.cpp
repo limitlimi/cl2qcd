@@ -145,7 +145,7 @@ hmc_float physics::algorithms::find_max_eigenvalue(const physics::fermionmatrix:
 	using physics::fermionmatrix::Fermionmatrix_eo;
 	using physics::lattices::Spinorfield_eo;
 
-//	return ::find_max_eigenvalue<Fermionmatrix_eo, Spinorfield_eo, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
+	return ::find_max_eigenvalue<Fermionmatrix_eo, Spinorfield_eo, spinor>(A, gf, system, interfacesHandler, prec, additionalParameters);
 }
 
 hmc_float physics::algorithms::find_min_eigenvalue(const physics::fermionmatrix::Fermionmatrix& A, const physics::lattices::Gaugefield& gf,
