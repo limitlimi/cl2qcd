@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(saxpy_real)
 
 	scalar.store(.3);
 	physics::lattices::saxpy(&sf, scalar, cold, zero);
-	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
+	BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .045, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(saxpy_real_vec)
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(saxpy_real_vec)
 	for(int i = 0; i < 5; i++)
 	{
 		physics::lattices::saxpy(&sf, real_vec, i, cold, zero);
-		BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .09, 1e-8);
+		BOOST_CHECK_CLOSE(physics::lattices::squarenorm(sf), .045, 1e-8);
 	}
 }
 

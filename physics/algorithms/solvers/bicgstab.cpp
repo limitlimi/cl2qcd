@@ -507,11 +507,11 @@ static int bicgstab_save(const physics::lattices::Spinorfield_eo * x, const phys
 
                     cl_ulong total_flops = 4 * get_flops<Spinorfield_eo, scalar_product>(system) + 4 * get_flops<hmc_complex, complexdivide>()
                             + 3 * get_flops<hmc_complex, complexmult>() + 2 * get_flops<Spinorfield_eo, saxsbypz>(system) + 2 * mf_flops
-                            + 2 * get_flops<Spinorfield_eo, saxpy>(system) + get_flops<Spinorfield_eo, squarenorm>(system);
+                            + 2 * get_flops<Spinorfield_eo, hmc_complex, saxpy>(system) + get_flops<Spinorfield_eo, squarenorm>(system);
                     total_flops *= iter;
 
-                    total_flops += refreshs * (mf_flops + get_flops<Spinorfield_eo, saxpy>(system));
-                    total_flops += retests * (mf_flops + get_flops<Spinorfield_eo, saxpy>(system) + get_flops<Spinorfield_eo, squarenorm>(system));
+                    total_flops += refreshs * (mf_flops + get_flops<Spinorfield_eo, hmc_complex, saxpy>(system));
+                    total_flops += retests * (mf_flops + get_flops<Spinorfield_eo, hmc_complex, saxpy>(system) + get_flops<Spinorfield_eo, squarenorm>(system));
 
                     // report performanc
                     logger.info() << create_log_prefix_bicgstab(iter) << "BiCGstab_save completed in " << duration / 1000 << " ms @ "
@@ -609,11 +609,11 @@ static int bicgstab_fast(const physics::lattices::Spinorfield_eo * x, const phys
                 const cl_ulong mf_flops = f.get_flops();
 
                 cl_ulong total_flops = get_flops<Spinorfield_eo, squarenorm>(system) + 2 * mf_flops + 4 * get_flops<Spinorfield_eo, scalar_product>(system)
-                        + 4 * get_flops<hmc_complex, complexdivide>() + 2 * get_flops<Spinorfield_eo, saxpy>(system)
+                        + 4 * get_flops<hmc_complex, complexdivide>() + 2 * get_flops<Spinorfield_eo, hmc_complex, saxpy>(system)
                         + 2 * get_flops<Spinorfield_eo, saxsbypz>(system) + 3 * get_flops<hmc_complex, complexmult>();
                 total_flops *= iter;
 
-                total_flops += refreshs * (mf_flops + get_flops<Spinorfield_eo, saxpy>(system) + get_flops<Spinorfield_eo, scalar_product>(system));
+                total_flops += refreshs * (mf_flops + get_flops<Spinorfield_eo, hmc_complex, saxpy>(system) + get_flops<Spinorfield_eo, scalar_product>(system));
 
                 // report performanc
                 logger.info() << create_log_prefix_bicgstab(iter) << "Solver completed in " << duration / 1000 << " ms @ " << (total_flops / duration / 1000.f)

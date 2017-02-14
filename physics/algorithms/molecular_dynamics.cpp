@@ -137,6 +137,17 @@ void physics::algorithms::md_update_spinorfield(const physics::lattices::wilson:
 	::md_update_spinorfield<QplusQminus, Rooted_Spinorfield, Spinorfield>(out, gf, orig, system, interfacesHandler, additionalParameters);
 }
 
+void physics::algorithms::md_update_spinorfield(const physics::lattices::wilson::Rooted_Spinorfield_eo * out, const physics::lattices::Gaugefield& gf,
+                                                const physics::lattices::wilson::Rooted_Spinorfield_eo& orig, const hardware::System& system,
+                                                physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters)
+{
+	using physics::fermionmatrix::QplusQminus_eo;
+	using physics::lattices::wilson::Rooted_Spinorfield_eo;
+	using physics::lattices::Spinorfield_eo;
+
+	::md_update_spinorfield<QplusQminus_eo, Rooted_Spinorfield_eo, Spinorfield_eo>(out, gf, orig, system, interfacesHandler, additionalParameters);
+}
+
 
 
 /**
