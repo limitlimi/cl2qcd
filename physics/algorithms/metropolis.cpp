@@ -368,7 +368,7 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
     const physics::observables::GaugeObservablesParametersInterface& gaugeobservablesParameters = interfacesHandler.getGaugeObservablesParametersInterface();
 
     //Calc Hamiltonian
-    print_info_debug(interfacesHandler, "[DH]:\tCalculate Hamiltonian", sqrt(-1.), false);
+    print_info_debug(interfacesHandler, "[DH]:\tCalculate Hamiltonian", sqrt(-1.), true);
     hmc_float deltaH = 0.;
     hmc_float s_old = 0.;
     hmc_float s_new = 0.;
@@ -395,8 +395,8 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
         s_new = -(plaq_new) * beta;
     }
 
-    print_info_debug(interfacesHandler, "[DH]:\tS[GF]_0:\t", s_old, false);
-    print_info_debug(interfacesHandler, "[DH]:\tS[GF]_1:\t", s_new, false);
+    print_info_debug(interfacesHandler, "[DH]:\tS[GF]_0:\t", s_old, true);
+    print_info_debug(interfacesHandler, "[DH]:\tS[GF]_1:\t", s_new, true);
     print_info_debug(interfacesHandler, "[DH]:\tdS[GF]: \t", deltaH);
     //check on NANs
     if(s_old != s_old || s_new != s_new || deltaH != deltaH) {
@@ -417,8 +417,8 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
         deltaH += 0.5 * (p2 - new_p2);
     }
 
-    print_info_debug(interfacesHandler, "[DH]:\tS[GM]_0:\t", 0.5 * p2, false);
-    print_info_debug(interfacesHandler, "[DH]:\tS[GM]_1:\t", 0.5 * new_p2, false);
+    print_info_debug(interfacesHandler, "[DH]:\tS[GM]_0:\t", 0.5 * p2, true);
+    print_info_debug(interfacesHandler, "[DH]:\tS[GM]_1:\t", 0.5 * new_p2, true);
     print_info_debug(interfacesHandler, "[DH]:\tdS[GM]: \t", 0.5 * (p2 - new_p2));
     //check on NANs
     if(p2 != p2 || new_p2 != new_p2 || deltaH != deltaH) {
@@ -462,8 +462,8 @@ template<class SPINORFIELD> static hmc_observables metropolis(const hmc_float rn
             hmc_float s_fermion_final = calc_s_fermion(new_u, phi, system, interfacesHandler, interfacesHandler.getAdditionalParameters<SPINORFIELD>(false));
             deltaH += spinor_energy_init - s_fermion_final;
 
-            print_info_debug(interfacesHandler, "[DH]:\tS[DET]_0:\t", spinor_energy_init, false);
-            print_info_debug(interfacesHandler, "[DH]:\tS[DET]_1:\t", s_fermion_final, false);
+            print_info_debug(interfacesHandler, "[DH]:\tS[DET]_0:\t", spinor_energy_init, true);
+            print_info_debug(interfacesHandler, "[DH]:\tS[DET]_1:\t", s_fermion_final, true);
             print_info_debug(interfacesHandler, "[DH]:\tdS[DET]: \t", spinor_energy_init - s_fermion_final);
             //check on NANs
             if(spinor_energy_init != spinor_energy_init || s_fermion_final != s_fermion_final || deltaH != deltaH) {

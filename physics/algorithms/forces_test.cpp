@@ -37,8 +37,8 @@ BOOST_AUTO_TEST_CASE(gauge_force)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=16"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=16", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE(gauge_force)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(gauge_force_tlsym)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=16", "--gaugeact=tlsym"};
-		meta::Inputparameters params(3, _params);
+		const char * _params[] = {"foo", "--ntime=16", "--gaugeact=tlsym", "--num_dev=1"};
+		meta::Inputparameters params(4, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE(gauge_force_tlsym)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4", "--gaugeact=tlsym"};
-		meta::Inputparameters params(3, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--gaugeact=tlsym", "--num_dev=1"};
+		meta::Inputparameters params(4, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -119,8 +119,8 @@ BOOST_AUTO_TEST_CASE(calc_gauge_force)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=16"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=16", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -138,8 +138,8 @@ BOOST_AUTO_TEST_CASE(calc_gauge_force)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE(calc_tot_force)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE(calc_tot_force_eo)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);

@@ -199,8 +199,8 @@ void rhmcExecutable::checkRhmcParameters(const meta::Inputparameters& p)
         throw Invalid_Parameters("Fermion action not suitable for RHMC!", "rooted_stagg or wilson", p.get_fermact());
     if(!p.get_use_eo() && (p.get_fermact() == common::action::rooted_stagg)) // distinguish between wilson and staggered
         throw Invalid_Parameters("Staggered RHMC available only WITH eo-prec!", "use_eo=1", p.get_use_eo());
-    if(p.get_use_eo() && (p.get_fermact() == common::action::wilson)) // distinguish between wilson and staggered
-            throw Invalid_Parameters("Wilson RHMC available only WITHOUT eo-prec!", "use_eo=0", p.get_use_eo());
+    //if(p.get_use_eo() && (p.get_fermact() == common::action::wilson)) // distinguish between wilson and staggered
+    //        throw Invalid_Parameters("Wilson RHMC available only WITHOUT eo-prec!", "use_eo=0", p.get_use_eo());
     //TODO: Check if mass preconditioning can be used with the Wilson Rhmc. If yes, then do a distinction between staggerend and wilson here.
     if(p.get_use_mp())
         throw Invalid_Parameters("RHMC available only WITHOUT mass preconditionig!", "use_mp=0", p.get_use_mp());

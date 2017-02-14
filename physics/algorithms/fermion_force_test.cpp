@@ -38,8 +38,8 @@ BOOST_AUTO_TEST_CASE(fermion_force)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=16"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=16", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -62,8 +62,8 @@ BOOST_AUTO_TEST_CASE(fermion_force)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(fermion_force)
 
 	{
 			using namespace physics::lattices;
-			const char * _params[] = {"foo", "--ntime=4"};
-			meta::Inputparameters params(2, _params);
+			const char * _params[] = {"foo", "--ntime=4", "--num_dev=1"};
+			meta::Inputparameters params(3, _params);
 	        physics::InterfacesHandlerImplementation interfacesHandler{params};
 	        hardware::HardwareParametersImplementation hP(&params);
 	        hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(fermion_force)
 
 			physics::algorithms::calc_fermion_forces(&gm, gf, sf1, system, interfacesHandler, interfacesHandler.getAdditionalParameters<physics::lattices::Spinorfield>());
 
-			BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055206667035, 1e-6);
+			BOOST_CHECK_CLOSE(squarenorm(gm), 48291.055206667035, 1e-5);
 
 		}
 }
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(fermion_force_shifted)
 	const physics::algorithms::RhmcParametersInterface & parametersInterface = interfacesHandler.getRhmcParametersInterface();
 
 	//Rational_Approximation approx(25, 99999999,100000000, 1.e-5,1); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
-	Rational_Approximation approx("Nf2_approximation_for_fermion_force_shifted_test"); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
+	Rational_Approximation approx("rational_approximation_files/Nf2_approximation_for_fermion_force_shifted_test"); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
 
 	physics::fermionmatrix::QplusQminus Qpm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus>());
 	hmc_float minEigen, maxEigen;
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(fermion_force_eo_shifted)
 	const physics::algorithms::RhmcParametersInterface & parametersInterface = interfacesHandler.getRhmcParametersInterface();
 
 	//Rational_Approximation approx(25, 99999999,100000000, 1.e-5,1); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
-	Rational_Approximation approx("Nf2_approximation_for_fermion_force_shifted_test"); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
+	Rational_Approximation approx("rational_approximation_files/Nf2_approximation_for_fermion_force_shifted_test"); // x = 99999999 and y = 100000000 are chosen such that N_f=2 is approximated
 	//approx.Save_rational_approximation("Nf2_approximation_for_fermion_force_shifted_test");
 
 	physics::fermionmatrix::QplusQminus_eo Qpm(system, interfacesHandler.getInterface<physics::fermionmatrix::QplusQminus_eo>());
@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_CASE(fermion_force_eo)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=16"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=16", "--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -220,8 +220,8 @@ BOOST_AUTO_TEST_CASE(fermion_force_eo)
 
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4"};
-		meta::Inputparameters params(2, _params);
+		const char * _params[] = {"foo", "--ntime=4" ,"--num_dev=1"};
+		meta::Inputparameters params(3, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
@@ -328,8 +328,8 @@ BOOST_AUTO_TEST_CASE(calc_detratio_forces_eo)
 {
 	{
 		using namespace physics::lattices;
-		const char * _params[] = {"foo", "--ntime=4", "--use_mp=true", "--kappa_mp=.25"};
-		meta::Inputparameters params(4, _params);
+		const char * _params[] = {"foo", "--ntime=4", "--use_mp=true", "--kappa_mp=.25", "--num_dev=1"};
+		meta::Inputparameters params(5, _params);
         physics::InterfacesHandlerImplementation interfacesHandler{params};
         hardware::HardwareParametersImplementation hP(&params);
         hardware::code::OpenClKernelParametersImplementation kP(params);
