@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2012-2013 Christopher Pinke <pinke@th.uni-frankfurt.de>
  * Copyright (c) 2012-2013 Matthias Bach <bach@compeng.uni-frankfurt.de>
+ * Copyright (c) 2017 Christopher Czaban <czaban@th.physik.uni-frankfurt.de>
  *
  * This file is part of CL2QCD.
  *
@@ -222,8 +223,8 @@ namespace {
                     logger.trace() << "mf_flops: " << mf_flops;
 
                     cl_ulong flops_per_iter = mf_flops + 2 * get_flops<Spinorfield_eo, scalar_product>(system) + 2 * ::get_flops<hmc_complex, complexdivide>()
-                            + 2 * ::get_flops<hmc_complex, complexmult>() + 3 * get_flops<Spinorfield_eo, saxpy>(system);
-                    cl_ulong flops_per_refresh = mf_flops + get_flops<Spinorfield_eo, saxpy>(system) + get_flops<Spinorfield_eo, scalar_product>(system);
+                            + 2 * ::get_flops<hmc_complex, complexmult>() + 3 * get_flops<Spinorfield_eo, hmc_complex, saxpy>(system);
+                    cl_ulong flops_per_refresh = mf_flops + get_flops<Spinorfield_eo, hmc_complex, saxpy>(system) + get_flops<Spinorfield_eo, scalar_product>(system);
                     cl_ulong total_flops = iter * flops_per_iter + refreshs * flops_per_refresh;
                     cl_ulong noWarmup_flops = (iter - 1) * flops_per_iter + (refreshs - 1) * flops_per_refresh;
 
@@ -475,8 +476,8 @@ namespace {
                     logger.trace() << "mf_flops: " << mf_flops;
 
                     cl_ulong flops_per_iter = mf_flops + 2 * get_flops<Spinorfield_eo, scalar_product>(system) + 2 * ::get_flops<hmc_complex, complexdivide>()
-                            + 2 * ::get_flops<hmc_complex, complexmult>() + 3 * get_flops<Spinorfield_eo, saxpy>(system);
-                    cl_ulong flops_per_refresh = mf_flops + get_flops<Spinorfield_eo, saxpy>(system) + get_flops<Spinorfield_eo, scalar_product>(system);
+                            + 2 * ::get_flops<hmc_complex, complexmult>() + 3 * get_flops<Spinorfield_eo, hmc_complex, saxpy>(system);
+                    cl_ulong flops_per_refresh = mf_flops + get_flops<Spinorfield_eo, hmc_complex, saxpy>(system) + get_flops<Spinorfield_eo, scalar_product>(system);
                     cl_ulong total_flops = iter * flops_per_iter + refreshs * flops_per_refresh;
                     cl_ulong noWarmup_flops = (iter - 1) * flops_per_iter + (refreshs - 1) * flops_per_refresh;
 

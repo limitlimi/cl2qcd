@@ -148,6 +148,7 @@ private:
 	friend hmc_complex scalar_product(const Spinorfield_eo& left, const Spinorfield_eo& right);
 	friend hmc_float squarenorm(const Spinorfield_eo& field);
 	friend void saxpy(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
+//	friend void saxpy(const Spinorfield_eo* out, const hmc_float alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 	friend void sax(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x);
 	friend void saxsbypz(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const hmc_complex beta, const Spinorfield_eo& y, const Spinorfield_eo& z);
 	friend void pseudo_randomize<Spinorfield_eo, spinor>(const Spinorfield_eo* to, int seed);
@@ -222,12 +223,15 @@ template<> size_t get_read_write_size<physics::lattices::Spinorfield_eo, physics
  * out = alpha * x + y
  */
 void saxpy(const Spinorfield_eo* out, const hmc_complex alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
+void saxpy(const Spinorfield_eo* out, const hmc_float alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 void saxpy(const Spinorfield_eo* out, const Scalar<hmc_complex>& alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 void saxpy(const Spinorfield_eo* out, const Scalar<hmc_float>& alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 void saxpy(const Spinorfield_eo* out, const Vector<hmc_float>& alpha, const int index_alpha, const Spinorfield_eo& x, const Spinorfield_eo& y);
 
-template<typename S, void (*T)(const S*, const hmc_complex, const S&, const S&)> size_t get_flops(const hardware::System&);
-template<> size_t get_flops<physics::lattices::Spinorfield_eo, physics::lattices::saxpy>(const hardware::System&);
+template<typename S, typename U, void (*T)(const S*, const U, const S&, const S&)> size_t get_flops(const hardware::System&);
+template<> size_t get_flops<physics::lattices::Spinorfield_eo, hmc_complex, physics::lattices::saxpy>(const hardware::System&);
+template<> size_t get_flops<physics::lattices::Spinorfield_eo, hmc_float, physics::lattices::saxpy>(const hardware::System&);
+
 template<typename S, void (*T)(const S*, const hmc_complex, const S&, const S&)> size_t get_read_write_size(const hardware::System&);
 template<> size_t get_read_write_size<physics::lattices::Spinorfield_eo, physics::lattices::saxpy>(const hardware::System&);
 

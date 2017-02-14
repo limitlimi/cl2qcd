@@ -84,6 +84,7 @@ public:
 	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_float> * alpha, const int index_alpha, const hardware::buffers::Spinor * out) const;
 	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Spinor * out) const;
 	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hmc_complex alpha, const hardware::buffers::Spinor * out) const;
+	void saxpy_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hmc_float alpha, const hardware::buffers::Spinor * out) const;
 	void saxpby_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hmc_complex alpha, const hmc_complex beta, const hardware::buffers::Spinor * out) const;
 	void saxpby_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Spinor * y, const hardware::buffers::Plain<hmc_float> * alpha, const hardware::buffers::Plain<hmc_float> * beta, const int index_alpha, const int index_beta, const hardware::buffers::Spinor * out) const;
 	void sax_eoprec_device(const hardware::buffers::Spinor * x, const hardware::buffers::Plain<hmc_complex> * alpha, const hardware::buffers::Spinor * out) const;
@@ -182,6 +183,7 @@ private:
 	cl_kernel saxpy_eoprec;
 	cl_kernel saxpy_eoprec_real_vec;
 	cl_kernel saxpy_arg_eoprec;
+	cl_kernel saxpy_eoprec_real_arg;
 	cl_kernel saxpby_eoprec_cplx_arg;
 	cl_kernel saxpby_eoprec_real_vec;
 	cl_kernel sax_eoprec;

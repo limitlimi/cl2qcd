@@ -50,6 +50,9 @@ namespace physics {
         void md_update_spinorfield(const physics::lattices::wilson::Rooted_Spinorfield * out, const physics::lattices::Gaugefield& gf,
                                            const physics::lattices::wilson::Rooted_Spinorfield& orig, const hardware::System& system,
                                            physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters);
+        void md_update_spinorfield(const physics::lattices::wilson::Rooted_Spinorfield_eo * out, const physics::lattices::Gaugefield& gf,
+                                                   const physics::lattices::wilson::Rooted_Spinorfield_eo& orig, const hardware::System& system,
+                                                   physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters);
         void md_update_spinorfield_mp(const physics::lattices::Spinorfield * out, const physics::lattices::Gaugefield& gf,
                                       const physics::lattices::Spinorfield& orig, const hardware::System& system, physics::InterfacesHandler& interfacesHandler);
         void md_update_spinorfield_mp(const physics::lattices::Spinorfield_eo * out, const physics::lattices::Gaugefield& gf,

@@ -674,6 +674,15 @@ struct SaxpyArgEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenor
 		}
 };
 
+struct SaxpyRealArgEvenOddTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
+{
+	SaxpyRealArgEvenOddTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
+		EvenOddLinearCombinationTesterWithSquarenormAsKernelResult("saxpy_eoprec_real_arg", parameterCollection, testParameters, calculateReferenceValues_saxpy_real)
+		{
+			code->saxpy_eoprec_device(spinorfields.at(0), spinorfields.at(1), testParameters.complexCoefficients.at(0).re, getOutSpinor());
+		}
+};
+
 struct SaxpbyEvenOddArgComplexTester: public EvenOddLinearCombinationTesterWithSquarenormAsKernelResult
 {
 	SaxpbyEvenOddArgComplexTester(const ParameterCollection & parameterCollection, const LinearCombinationTestParameters testParameters):
@@ -799,6 +808,11 @@ void testEvenOddSaxpyRealVec(const LatticeExtents lE, const ComplexNumbers cN)
 void testEvenOddSaxpyArg(const LatticeExtents lE, const ComplexNumbers cN)
 {
 	performTest<SaxpyArgEvenOddTester> (lE, cN, 3, true);
+}
+
+void testEvenOddSaxpyRealArg(const LatticeExtents lE, const ComplexNumbers cN)
+{
+	performTest<SaxpyRealArgEvenOddTester> (lE, cN, 3, true);
 }
 
 void testEvenOddSaxpbyComplex( const LatticeExtents lE, const ComplexNumbers cN )
@@ -1377,6 +1391,21 @@ BOOST_AUTO_TEST_SUITE(SAXPY_EO)
 	BOOST_AUTO_TEST_CASE( SAXPY_EO_11 )
 	{
 		testEvenOddSaxpyReal(LatticeExtents{ns4, nt8}, ComplexNumbers {{-1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_EO_REAL_ARG_1 )
+	{
+		testEvenOddSaxpyRealArg( LatticeExtents{ns4,nt4}, ComplexNumbers {{0.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_EO_REAL_ARG_2 )
+	{
+		testEvenOddSaxpyRealArg( LatticeExtents{ns8,nt4}, ComplexNumbers {{1.,0.}});
+	}
+
+	BOOST_AUTO_TEST_CASE( SAXPY_EO_REAL_ARG_3 )
+	{
+		testEvenOddSaxpyRealArg( LatticeExtents{ns4,nt8}, ComplexNumbers {{-1.,0.}});
 	}
 
 	BOOST_AUTO_TEST_CASE( SAXPY_REAL_VEC_EO_1 )
