@@ -70,6 +70,7 @@ void physics::algorithms::md_update_spinorfield(const physics::lattices::Spinorf
                                                 physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
     logger.debug() << "\tHMC [UP]:\tupdate SF";
+    logger.info() << "In function " << __FUNCTION__ << ":\tHMC [UP]:\tupdate SF";
     physics::fermionmatrix::Qplus_eo qplus(system, interfacesHandler.getInterface<physics::fermionmatrix::Qplus_eo>());
     qplus(out, gf, orig, additionalParameters);
     log_squarenorm("Spinorfield after update", *out);
@@ -94,6 +95,7 @@ template<class FERMIONMATRIX, class ROOTED_SPINORFIELD, class SPINORFIELD> void 
                                                 const ROOTED_SPINORFIELD& orig, const hardware::System& system,
                                                 physics::InterfacesHandler & interfacesHandler, const physics::AdditionalParameters& additionalParameters)
 {
+	logger.info() << "By Chris: Initializing spinorfield.";
     logger.debug() << "\tRHMC [UP]:\tupdate SF";
     const physics::algorithms::MolecularDynamicsInterface & parametersInterface = interfacesHandler.getMolecularDynamicsInterface();
     const FERMIONMATRIX fm(system, interfacesHandler.getInterface<FERMIONMATRIX>());

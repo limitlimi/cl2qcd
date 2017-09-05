@@ -218,14 +218,15 @@ template<> void init_spinorfield<physics::lattices::wilson::Rooted_Spinorfield_e
 {
 	 using namespace physics::algorithms;
 
-	 const physics::AdditionalParameters& additionalParameters = interfacesHandler.getAdditionalParameters<physics::lattices::Spinorfield_eo>();
-	 const physics::lattices::Spinorfield_eo initial(system, interfacesHandler.getInterface<physics::lattices::Spinorfield_eo>());
+	 const physics::AdditionalParameters& additionalParameters = interfacesHandler.getAdditionalParameters<physics::lattices::wilson::Rooted_Spinorfield_eo>();
+	 const physics::lattices::wilson::Rooted_Spinorfield_eo initial(system, interfacesHandler.getInterface<physics::lattices::wilson::Rooted_Spinorfield_eo>());
 
 	 //init/update rooted_spinorfield phi
 	 initial.gaussian(prng);
 	 //calc init energy for rooted_spinorfield
 	 *spinor_energy_init = squarenorm(initial);
 	 //update spinorfield: det(kappa, mu)
+	 logger.info() << "In function" << __FUNCTION__ << "calling md_update_spinorfield(...)";
 	 md_update_spinorfield(phi, gf, initial, system, interfacesHandler, additionalParameters);
 }
 

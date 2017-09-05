@@ -21,7 +21,7 @@
 
 //alpha*x +y
 //CC: defined with a plus!!!
-__kernel void saxpy_eoprec_real(__global const spinorStorageType * const x, __global const spinorStorageType * const y, const hmc_float alpha, __global spinorStorageType * const out)
+__kernel void saxpy_eoprec_real_arg(__global const spinorStorageType * const x, __global const spinorStorageType * const y, const hmc_float alpha, __global spinorStorageType * const out)
 {
 	int id = get_global_id(0);
 	int global_size = get_global_size(0);

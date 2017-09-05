@@ -55,7 +55,7 @@ public:
 	/**
 	 * Release resources
 	 */
-	~Spinorfield_eo();
+	virtual ~Spinorfield_eo();
 
 	/*
 	 * Spinorfield_eos cannot be copied
